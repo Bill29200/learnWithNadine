@@ -14,8 +14,8 @@
           <h5 class="card-title">{{formation.title}}</h5>
           <p class="card-text">Description...</p>
           <p class="card-text">
-            <strong>Durée:</strong> 40h<br>
-            <strong>Prix:</strong> 499€
+            <strong>Durée:</strong> {{formation.duree}}<br>
+            <strong>Prix:</strong> {{formation.prix}}
           </p>
           <button class="btn btn-primary" (click)="voirFormation(formation.id)">
             Voir détails

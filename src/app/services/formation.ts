@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 interface Formation {
   id: number;
   title: string;
+  duree:string;
+  prix:string
 }
 
 @Injectable({
@@ -13,15 +15,21 @@ export class FormationService {
   private formations: Formation[] = [
     {
       id: 1,
-      title: 'Angular pour débutants'
+      title: 'Angular pour débutants',
+      duree:'35h',
+      prix:'15550 DA'
     },
     {
       id: 2,
-      title: 'Développement Full Stack'
+      title: 'Développement Full Stack',
+      duree:'45h',
+      prix:'14450 DA'
     },
     {
       id: 3,
-      title: 'UX Design avancé'
+      title: 'UX Design avancé',
+      duree:'25h',
+      prix:'25450 DA'
     }
   ];
 

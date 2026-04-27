@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { FormationService } from '../services/formation';
 
 interface Formation {
+  duree: string;
+  prix: string;
   id: number;
   title: string;
 }
