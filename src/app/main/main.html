@@ -4,18 +4,14 @@
     <div class="row py-3">
       <div class="col-md-6">
         <h5 class="mb-0">
-          <i class="fa-sharp fa-solid fa-graduation-cap text-orange me-2"
-             style="transition: transform 0.3s ease; cursor: pointer;"
-             onmouseover="this.style.transform='scale(1.1)'"
-             onmouseout="this.style.transform='scale(1)'"></i>
-          learnWithNadine
+          <span class="text-orange">🎓 LWN</span>
         </h5>
       </div>
       <div class="col-md-6 text-end">
-        <a routerLink="/register" class="btn btn-sm btn-outline-success me-2">
+        <a routerLink="/register" class="btn btn-sm text-orange btn-outline-orange me-2">
           ✨ Créer un compte
         </a>
-        <a routerLink="/login" class="btn btn-sm btn-outline-primary">
+        <a routerLink="/login" class="btn btn-sm text-dark btn-outline-orange">
           🔑 Se connecter
         </a>
       </div>
@@ -26,7 +22,9 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-12 text-center mb-5">
-      <h1 class="text-orange">Bienvenue sur notre plateforme de formation</h1>
+      <h1 class="text-orange ">
+        🎓 Bienvenue sur Learn With Nadine
+      </h1>
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
     </div>
   </div>
@@ -34,7 +32,7 @@
   <!-- Cartes des formations -->
   <div class="row">
     <div class="col-md-4 mb-4" *ngFor="let formation of formations">
-      <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm card-orange-shadow">
         <div class="card-body">
           <h5 class="card-title">{{formation.title}}</h5>
           <p class="card-text text-muted">{{formation.description}}</p>
@@ -53,16 +51,17 @@
   <!-- Section d'appel à l'action pour les non-connectés -->
   <div class="row mt-5">
     <div class="col-12 text-center bg-light p-5 rounded">
-      <h3 class="text-orange">Prêt à commencer votre formation ?</h3>
+      <h3>Prêt à commencer votre formation ?</h3>
       <p class="lead">Rejoignez notre communauté d'apprenants dès aujourd'hui !</p>
       <div class="mt-3">
-        <a routerLink="/register" class="btn btn-success btn-lg me-3">
-          Créer un compte gratuitement
+        <a routerLink="/register" class="btn btn-outline-orange btn-lg me-3">
+          ✨ Créer un compte gratuitement
         </a>
-        <a routerLink="/login" class="btn btn-outline-primary btn-lg">
-          Se connecter
+        <a routerLink="/login" class="btn  btn-lg text-dark btn-outline-orange">
+          🔑 Se connecter
         </a>
       </div>
     </div>
   </div>
 </div>
+

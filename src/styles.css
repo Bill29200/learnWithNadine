@@ -1,1 +1,33 @@
+.text-orange {
+  color: #ff5928 !important;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-orange-shadow {
+  box-shadow: 0 4px 8px rgb(255, 89, 40);
+}
+
+.card-orange-shadow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgb(255, 89, 40) !important;
+}
+
+.btn-outline-success:hover, .btn-outline-primary:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.btn-outline-orange {
+  color: #ff5928;
+  border: 1px solid #ff5928;
+}
+
+.btn-outline-orange:hover {
+  background-color: #ff5928;
+  color: #fff;
+  border-color: #ff5928;
+}
 /* You can add global styles to this file, and also import other style files */
