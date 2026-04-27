@@ -37,10 +37,10 @@
           <h5 class="card-title">{{formation.title}}</h5>
           <p class="card-text text-muted">{{formation.description}}</p>
           <p class="card-text">
-            <span class="badge bg-info me-2">Durée: {{formation.duree}}</span>
+            <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
             <span class="badge bg-success">Prix: {{formation.prix}}</span>
           </p>
-          <button class="btn btn-primary w-100" (click)="voirFormation(formation.id)">
+          <button class="btn btn-outline-orange w-100" (click)="voirFormation(formation.id)">
             Voir détails
           </button>
         </div>
