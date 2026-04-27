@@ -9,6 +9,7 @@ interface Formation {
   prix: string;
   id: number;
   title: string;
+  description: string;
 }
 
 @Component({

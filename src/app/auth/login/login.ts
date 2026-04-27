@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
 // import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.css'],
+  imports: [CommonModule, RouterModule, FormsModule]
 })
 export class LoginComponent {
   email = '';

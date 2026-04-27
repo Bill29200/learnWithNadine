@@ -5,7 +5,8 @@ interface Formation {
   id: number;
   title: string;
   duree:string;
-  prix:string
+  prix:string;
+  description:string
 }
 
 @Injectable({
@@ -17,19 +18,22 @@ export class FormationService {
       id: 1,
       title: 'Angular pour débutants',
       duree:'35h',
-      prix:'15550 DA'
+      prix:'15550 DA',
+      description:'Description...'
     },
     {
       id: 2,
       title: 'Développement Full Stack',
       duree:'45h',
-      prix:'14450 DA'
+      prix:'14450 DA',
+      description:'Description...'
     },
     {
       id: 3,
       title: 'UX Design avancé',
       duree:'25h',
-      prix:'25450 DA'
+      prix:'25450 DA',
+     description:'Description...'
     }
   ];
 
