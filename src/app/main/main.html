@@ -4,7 +4,10 @@
     <div class="row py-3">
       <div class="col-md-6">
         <h5 class="mb-0">
-          <i class="fa-sharp fa-solid fa-graduation-cap me-2"></i>
+          <i class="fa-sharp fa-solid fa-graduation-cap text-orange me-2"
+             style="transition: transform 0.3s ease; cursor: pointer;"
+             onmouseover="this.style.transform='scale(1.1)'"
+             onmouseout="this.style.transform='scale(1)'"></i>
           learnWithNadine
         </h5>
       </div>
@@ -23,7 +26,7 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-12 text-center mb-5">
-      <h1>Bienvenue sur notre plateforme de formation</h1>
+      <h1 class="text-orange">Bienvenue sur notre plateforme de formation</h1>
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
     </div>
   </div>
@@ -50,7 +53,7 @@
   <!-- Section d'appel à l'action pour les non-connectés -->
   <div class="row mt-5">
     <div class="col-12 text-center bg-light p-5 rounded">
-      <h3>Prêt à commencer votre formation ?</h3>
+      <h3 class="text-orange">Prêt à commencer votre formation ?</h3>
       <p class="lead">Rejoignez notre communauté d'apprenants dès aujourd'hui !</p>
       <div class="mt-3">
         <a routerLink="/register" class="btn btn-success btn-lg me-3">
