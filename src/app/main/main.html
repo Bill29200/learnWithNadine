@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12 text-center mb-5">
+      <h1>Bienvenue sur notre plateforme de formation</h1>
+      <p class="lead">Découvrez nos formations et développez vos compétences</p>
+    </div>
+  </div>
+
+  <!-- Cartes des formations -->
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let formation of formations">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{formation.title}}</h5>
+          <p class="card-text">Description...</p>
+          <p class="card-text">
+            <strong>Durée:</strong> 40h<br>
+            <strong>Prix:</strong> 499€
+          </p>
+          <button class="btn btn-primary" (click)="voirFormation(formation.id)">
+            Voir détails
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
