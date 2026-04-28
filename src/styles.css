@@ -35,6 +35,108 @@
   background-color: #ff5928 !important;
 }
 
+/* =============== AUTH FORMS STYLES =============== */
+.auth-card,
+.register-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover,
+.register-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.auth-card-header,
+.register-card-header {
+  padding: 1.25rem;
+  border: none;
+  background: linear-gradient(135deg, #ff5928 0%, #ff7a52 100%);
+}
+
+.auth-card-header h4,
+.register-card-header h4 {
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.auth-form .form-label,
+.register-form .form-label {
+  color: #333;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.form-control-sm,
+.form-select-sm {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.form-control-sm:focus,
+.form-select-sm:focus {
+  border-color: #ff5928;
+  box-shadow: 0 0 0 0.2rem rgba(255, 89, 40, 0.15);
+  outline: none;
+}
+
+.form-control-sm::placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.btn-orange {
+  background-color: #ff5928;
+  border: 1px solid #ff5928;
+  color: white;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-orange:hover {
+  background-color: #e64d1f;
+  border-color: #e64d1f;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 89, 40, 0.3);
+}
+
+.alert-sm {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+/* Responsive improvements */
+@media (max-width: 576px) {
+  .card-body {
+    padding: 1.25rem !important;
+  }
+
+  .auth-form .form-label,
+  .register-form .form-label {
+    font-size: 0.8rem;
+  }
+
+  .form-control-sm,
+  .form-select-sm {
+    font-size: 0.9rem;
+    padding: 0.45rem 0.65rem;
+  }
+}
+
 /* You can add global styles to this file, and also import other style files */
 /* ____________________ */
 .register-card-header {

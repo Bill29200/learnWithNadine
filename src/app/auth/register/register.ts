@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Role, User } from '../../model/user.model';
 import { AuthService } from '../../services/auth';
 
@@ -11,7 +11,8 @@ type RegisterForm = Omit<User, 'role'> & { role: Role | '' };
   selector: 'app-register',
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    RouterModule
   ],
   templateUrl: './register.html',
   styleUrl: './register.css',

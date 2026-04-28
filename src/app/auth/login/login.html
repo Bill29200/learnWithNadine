@@ -1,34 +1,39 @@
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h3 class="mb-0">Connexion</h3>
+    <div class="col-lg-5 col-md-6">
+      <div class="card shadow-lg border-0 auth-card">
+        <div class="card-header bg-orange auth-card-header">
+          <h4 class="mb-0 text-white fw-bold">🔑 Se connecter</h4>
         </div>
-        <!-- <div class="card-body"> -->
-          <form (ngSubmit)="onSubmit()">
+        <div class="card-body p-4">
+          <form (ngSubmit)="onSubmit()" class="auth-form">
+            <!-- Email -->
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <!-- <input type="email" class="form-control" id="email"
-                     [(ngModel)]="email"
-                     name="email" required
-                     > -->
+              <label for="email" class="form-label fw-600 small">Email</label>
+              <input id="email" type="email" class="form-control form-control-sm" [(ngModel)]="email"
+                     name="email" placeholder="votre@email.com" required>
             </div>
-            <div class="mb-3">
-              <label  class="form-label">Mot de passe</label>
-              <!-- <input type="password" class="form-control" id="password"
-                     [(ngModel)]="password" name="password" required> -->
+            <!-- Mot de passe -->
+            <div class="mb-4">
+              <label for="password" class="form-label fw-600 small">Mot de passe</label>
+              <input id="password" type="password" class="form-control form-control-sm" [(ngModel)]="password"
+                     name="password" placeholder="Votre mot de passe" required>
             </div>
-            <div *ngIf="errorMessage" class="alert alert-danger">
+            <!-- Message d'erreur -->
+            <div *ngIf="errorMessage" class="alert alert-danger alert-sm mb-3">
               {{errorMessage}}
             </div>
-            <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+            <!-- Bouton Submit -->
+            <button type="submit" class="btn btn-orange w-100 fw-600 mb-3">Se connecter</button>
           </form>
-          <div class="mt-3 text-center">
-            <a routerLink="/register">Pas encore de compte? Créer un compte</a>
+          <!-- Lien register -->
+          <div class="text-center pb-2">
+            <p class="small mb-0">Pas encore de compte?
+              <a routerLink="/register" class="text-orange fw-600 text-decoration-none">Créer un compte</a>
+            </p>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
