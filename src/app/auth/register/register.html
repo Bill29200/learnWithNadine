@@ -45,11 +45,41 @@
             <!-- Rôle -->
             <div class="mb-4">
               <label for="role" class="form-label fw-600 small">Rôle</label>
-              <select id="role" class="form-select form-select-sm" [(ngModel)]="user.role" name="role" required>
+              <select id="role" class="form-select form-select-sm" [(ngModel)]="user.role" name="role" required
+                      (change)="onRoleChange()">
                 <option value="" disabled selected>Choisir votre rôle...</option>
                 <option value="userStudent">🎓 Étudiant</option>
                 <option value="userTrainer">👨‍🏫 Formateur</option>
               </select>
+            </div>
+
+            <!-- Champs conditionnels pour Formateur -->
+            <div *ngIf="user.role === 'userTrainer'">
+              <div class="mb-3">
+                <label for="trainerLevel" class="form-label fw-600 small">Niveau d'études</label>
+                <select id="trainerLevel" class="form-select form-select-sm" [(ngModel)]="user.level" name="trainerLevel" required>
+                  <option value="" disabled selected>Choisir votre niveau...</option>
+                  <option *ngFor="let level of trainerLevels" [value]="level">
+                    {{level === 'autre' ? 'Autre' : level.charAt(0).toUpperCase() + level.slice(1)}}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="specialty" class="form-label fw-600 small">Spécialité</label>
+                <input id="specialty" type="text" class="form-control form-control-sm" [(ngModel)]="user.specialty"
+                       name="specialty" placeholder="Ex: Développement Web, Data Science..." required>
+              </div>
+            </div>
+
+            <!-- Champs conditionnels pour Étudiant -->
+            <div *ngIf="user.role === 'userStudent'">
+              <div class="mb-3">
+                <label for="studentLevel" class="form-label fw-600 small">Niveau d'études</label>
+                <select id="studentLevel" class="form-select form-select-sm" [(ngModel)]="user.level" name="studentLevel" required>
+                  <option value="" disabled selected>Choisir votre niveau...</option>
+                  <option *ngFor="let level of studentLevels" [value]="level">{{level}}</option>
+                </select>
+              </div>
             </div>
             <!-- Message de succès -->
             <div *ngIf="successMessage" class="alert alert-success alert-sm mb-3">
