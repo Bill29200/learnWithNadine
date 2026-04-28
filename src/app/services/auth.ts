@@ -1,17 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Role, User } from '../model/user.model';
 import { Admin, DatabaseService, Etudiant, Formateur } from './database.service';
 import { StorageService } from './storage';
-
-type Role = 'userAdmin' | 'userTrainer' | 'userStudent';
-
-interface User {
-  id: number;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role: Role;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +34,10 @@ export class AuthService {
             password: user.motpass,
             firstName: user.nom,
             lastName: '',
-            role: 'userAdmin'
+            phone: '',
+            role: 'userAdmin',
+            level: undefined,
+            specialty: ''
           };
         }
         break;
@@ -60,7 +53,10 @@ export class AuthService {
             password: user.motpass,
             firstName: user.prenom,
             lastName: user.nom,
-            role: 'userTrainer'
+            phone: user.tel,
+            role: 'userTrainer',
+            level: user.niveau as any,
+            specialty: user.specialite
           };
         }
         break;
@@ -76,7 +72,10 @@ export class AuthService {
             password: user.motpass,
             firstName: user.prenom,
             lastName: user.nom,
-            role: 'userStudent'
+            phone: user.tel,
+            role: 'userStudent',
+            level: user.niveau as any,
+            specialty: ''
           };
         }
         break;
@@ -90,10 +89,33 @@ export class AuthService {
   }
 
   register(user: User): boolean {
-    const users = this.storage.getItem('users') || [];
-    user.id = Date.now();
-    users.push(user);
-    this.storage.setItem('users', users);
+    if (user.role === 'userTrainer') {
+      const formateur = {
+        nom: user.lastName,
+        prenom: user.firstName,
+        tel: user.phone,
+        mail: user.email,
+        motpass: user.password,
+        niveau: user.level as string || 'autre',
+        specialite: user.specialty || '',
+        photo: '',
+        statut: 'actif' as const
+      };
+      this.databaseService.addFormateur(formateur);
+    } else if (user.role === 'userStudent') {
+      const etudiant = {
+        nom: user.lastName,
+        prenom: user.firstName,
+        mail: user.email,
+        tel: user.phone,
+        niveau: user.level as string || 'bac+1',
+        motpass: user.password,
+        statut: 'actif' as const,
+        photo: ''
+      };
+      this.databaseService.addEtudiant(etudiant);
+    }
+    // Pour admin, peut-être ajouter plus tard, mais pour l'instant, utiliser localStorage ou autre
     return true;
   }
 

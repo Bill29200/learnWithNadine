@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { DatabaseService, FormationDetail } from '../services/database.service';
@@ -15,7 +15,11 @@ export class MainComponent implements OnInit {
   filteredFormations: FormationDetail[] = [];
   searchTerm: string = '';
 
-  constructor(private databaseService: DatabaseService, private router: Router) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     // Charger la base de données et récupérer les formations valides
@@ -30,12 +34,14 @@ export class MainComponent implements OnInit {
           this.filteredFormations = this.formations;
           console.log('MainComponent: Formations valides chargées:', this.formations);
           console.log('MainComponent: Nombre de formations:', this.formations.length);
+          this.cdr.detectChanges();
         } else {
           console.log('MainComponent: Base de données null');
         }
       },
       error: (err) => {
         console.error('MainComponent: Erreur lors du chargement des formations:', err);
+        this.cdr.detectChanges();
       }
     });
 

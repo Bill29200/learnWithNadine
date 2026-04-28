@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { onValue, ref, set } from 'firebase/database';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { db } from '../config/firebase.config';
 
 export interface Admin {
   id: number;
@@ -65,23 +67,23 @@ export interface Database {
   providedIn: 'root'
 })
 export class DatabaseService {
-  private dataPath = 'data/data.json';
   private database$ = new BehaviorSubject<Database | null>(null);
   private isLoading = false;
+  private jsonPath = 'assets/data/data.json';
 
   constructor(private http: HttpClient) {
     this.loadDatabase().subscribe({
       next: (data) => {
-        console.log('DatabaseService: Données chargées avec succès', data);
+        console.log('DatabaseService: Données chargées avec succès depuis Firebase', data);
       },
       error: (err) => {
-        console.error('DatabaseService: Erreur lors du chargement', err);
+        console.error('DatabaseService: Erreur lors du chargement depuis Firebase', err);
       }
     });
   }
 
   /**
-   * Charge la base de données JSON
+   * Charge la base de données depuis Firebase Realtime Database
    */
   loadDatabase(): Observable<Database> {
     return new Observable(observer => {
@@ -92,20 +94,72 @@ export class DatabaseService {
       }
 
       this.isLoading = true;
-      this.http.get<Database>(this.dataPath).subscribe(
-        data => {
-          this.database$.next(data);
-          this.isLoading = false;
-          observer.next(data);
-          observer.complete();
-        },
-        error => {
-          this.isLoading = false;
-          console.error('Erreur lors du chargement de la base de données', error);
-          observer.error(error);
-        }
-      );
+      const dbRef = ref(db, '/');
+
+      try {
+        onValue(
+          dbRef,
+          (snapshot: any) => {
+            const data = snapshot.val();
+            console.log('DatabaseService: Snapshot reçu de Firebase', data);
+
+            if (data) {
+              // Normaliser les données
+              const normalizedData: Database = {
+                admins: data.admins || [],
+                formateurs: data.formateurs || [],
+                formations: data.formations || [],
+                etudiants: data.etudiants || [],
+                inscriptions: data.inscriptions || []
+              };
+
+              this.database$.next(normalizedData);
+              this.isLoading = false;
+              observer.next(normalizedData);
+              observer.complete();
+            } else {
+              console.warn('DatabaseService: Aucune donnée trouvée dans Firebase, chargement depuis JSON...');
+              this.loadFromJSON(observer);
+            }
+          },
+          (error: any) => {
+            this.isLoading = false;
+            console.error('DatabaseService: Erreur Firebase', error);
+            console.log('DatabaseService: Essai de chargement depuis JSON en fallback...');
+            this.loadFromJSON(observer);
+          }
+        );
+      } catch (error) {
+        this.isLoading = false;
+        console.error('DatabaseService: Erreur lors de la connexion à Firebase', error);
+        console.log('DatabaseService: Essai de chargement depuis JSON en fallback...');
+        this.loadFromJSON(observer);
+      }
     });
+  }
+
+  /**
+   * Charge les données depuis le fichier JSON local et les initialise dans Firebase
+   */
+  private loadFromJSON(observer: any): void {
+    this.http.get<Database>(this.jsonPath).subscribe(
+      (data: Database) => {
+        console.log('DatabaseService: Données chargées depuis JSON', data);
+        this.database$.next(data);
+        this.isLoading = false;
+        observer.next(data);
+        observer.complete();
+
+        // Initialiser Firebase avec les données du JSON
+        console.log('DatabaseService: Initialisation de Firebase avec les données du JSON...');
+        this.updateFirebase();
+      },
+      (error: any) => {
+        this.isLoading = false;
+        console.error('DatabaseService: Erreur lors du chargement depuis JSON', error);
+        observer.error(new Error('Impossible de charger les données'));
+      }
+    );
   }
 
   /**
@@ -150,6 +204,7 @@ export class DatabaseService {
       ...admin
     };
     database.admins.push(newAdmin);
+    this.updateFirebase();
     this.database$.next(database);
     return newAdmin;
   }
@@ -164,6 +219,7 @@ export class DatabaseService {
     const admin = database.admins.find(a => a.id === id);
     if (admin) {
       Object.assign(admin, adminData);
+      this.updateFirebase();
       this.database$.next(database);
     }
     return admin || null;
@@ -179,6 +235,7 @@ export class DatabaseService {
     const index = database.admins.findIndex(a => a.id === id);
     if (index !== -1) {
       database.admins.splice(index, 1);
+      this.updateFirebase();
       this.database$.next(database);
       return true;
     }
@@ -220,6 +277,7 @@ export class DatabaseService {
       ...formateur
     };
     database.formateurs.push(newFormateur);
+    this.updateFirebase();
     this.database$.next(database);
     return newFormateur;
   }
@@ -234,6 +292,7 @@ export class DatabaseService {
     const formateur = database.formateurs.find(f => f.idFormateur === id);
     if (formateur) {
       Object.assign(formateur, formateurData);
+      this.updateFirebase();
       this.database$.next(database);
     }
     return formateur || null;
@@ -249,6 +308,7 @@ export class DatabaseService {
     const index = database.formateurs.findIndex(f => f.idFormateur === id);
     if (index !== -1) {
       database.formateurs.splice(index, 1);
+      this.updateFirebase();
       this.database$.next(database);
       return true;
     }
@@ -297,6 +357,7 @@ export class DatabaseService {
       ...formation
     };
     database.formations.push(newFormation);
+    this.updateFirebase();
     this.database$.next(database);
     return newFormation;
   }
@@ -311,6 +372,7 @@ export class DatabaseService {
     const formation = database.formations.find(f => f.idFormation === id);
     if (formation) {
       Object.assign(formation, formationData);
+      this.updateFirebase();
       this.database$.next(database);
     }
     return formation || null;
@@ -326,6 +388,7 @@ export class DatabaseService {
     const index = database.formations.findIndex(f => f.idFormation === id);
     if (index !== -1) {
       database.formations.splice(index, 1);
+      this.updateFirebase();
       this.database$.next(database);
       return true;
     }
@@ -367,6 +430,7 @@ export class DatabaseService {
       ...etudiant
     };
     database.etudiants.push(newEtudiant);
+    this.updateFirebase();
     this.database$.next(database);
     return newEtudiant;
   }
@@ -381,6 +445,7 @@ export class DatabaseService {
     const etudiant = database.etudiants.find(e => e.idEtudiant === id);
     if (etudiant) {
       Object.assign(etudiant, etudiantData);
+      this.updateFirebase();
       this.database$.next(database);
     }
     return etudiant || null;
@@ -396,6 +461,7 @@ export class DatabaseService {
     const index = database.etudiants.findIndex(e => e.idEtudiant === id);
     if (index !== -1) {
       database.etudiants.splice(index, 1);
+      this.updateFirebase();
       this.database$.next(database);
       return true;
     }
@@ -451,6 +517,7 @@ export class DatabaseService {
       ...inscription
     };
     database.inscriptions.push(newInscription);
+    this.updateFirebase();
     this.database$.next(database);
     return newInscription;
   }
@@ -465,6 +532,7 @@ export class DatabaseService {
     const inscription = database.inscriptions.find(i => i.idInscription === id);
     if (inscription) {
       Object.assign(inscription, inscriptionData);
+      this.updateFirebase();
       this.database$.next(database);
     }
     return inscription || null;
@@ -480,6 +548,7 @@ export class DatabaseService {
     const index = database.inscriptions.findIndex(i => i.idInscription === id);
     if (index !== -1) {
       database.inscriptions.splice(index, 1);
+      this.updateFirebase();
       this.database$.next(database);
       return true;
     }
@@ -522,5 +591,22 @@ export class DatabaseService {
           return sum + (formation?.prix || 0);
         }, 0)
     };
+  }
+
+  /**
+   * Met à jour les données dans Firebase
+   */
+  private updateFirebase(): void {
+    const database = this.database$.value;
+    if (!database) return;
+
+    try {
+      const dbRef = ref(db, '/');
+      set(dbRef, database)
+        .then(() => console.log('DatabaseService: Données mises à jour dans Firebase'))
+        .catch((error: any) => console.error('DatabaseService: Erreur lors de la mise à jour Firebase', error));
+    } catch (error) {
+      console.error('DatabaseService: Erreur lors de la synchronisation Firebase', error);
+    }
   }
 }
