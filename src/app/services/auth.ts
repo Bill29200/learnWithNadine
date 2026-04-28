@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-// import { Role, User } from '../model/user.model';
+import { Admin, DatabaseService, Etudiant, Formateur } from './database.service';
 import { StorageService } from './storage';
 
 type Role = 'userAdmin' | 'userTrainer' | 'userStudent';
@@ -19,7 +19,7 @@ interface User {
 export class AuthService {
   private currentUser: User | null = null;
 
-  constructor(private storage: StorageService) {
+  constructor(private databaseService: DatabaseService, private storage: StorageService) {
     this.loadUser();
   }
 
@@ -28,13 +28,62 @@ export class AuthService {
     if (user) this.currentUser = user;
   }
 
-  login(email: string, password: string): boolean {
-    const users = this.storage.getItem('users') || [];
-    const user = users.find((u: User) => u.email === email && u.password === password);
+  login(email: string, password: string, role: string): boolean {
+    let user: any = null;
 
-    if (user) {
-      this.currentUser = user;
-      this.storage.setItem('currentUser', user);
+    // Recherche selon le rôle sélectionné
+    switch (role) {
+      case 'admin':
+        user = this.databaseService.getAdmins().find((admin: Admin) =>
+          admin.email === email && admin.motpass === password
+        );
+        if (user) {
+          this.currentUser = {
+            id: user.id,
+            email: user.email,
+            password: user.motpass,
+            firstName: user.nom,
+            lastName: '',
+            role: 'userAdmin'
+          };
+        }
+        break;
+
+      case 'formateur':
+        user = this.databaseService.getFormateurs().find((formateur: Formateur) =>
+          formateur.mail === email && formateur.motpass === password
+        );
+        if (user) {
+          this.currentUser = {
+            id: user.idFormateur,
+            email: user.mail,
+            password: user.motpass,
+            firstName: user.prenom,
+            lastName: user.nom,
+            role: 'userTrainer'
+          };
+        }
+        break;
+
+      case 'etudiant':
+        user = this.databaseService.getEtudiants().find((etudiant: Etudiant) =>
+          etudiant.mail === email && etudiant.motpass === password
+        );
+        if (user) {
+          this.currentUser = {
+            id: user.idEtudiant,
+            email: user.mail,
+            password: user.motpass,
+            firstName: user.prenom,
+            lastName: user.nom,
+            role: 'userStudent'
+          };
+        }
+        break;
+    }
+
+    if (this.currentUser) {
+      this.storage.setItem('currentUser', this.currentUser);
       return true;
     }
     return false;

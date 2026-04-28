@@ -14,12 +14,18 @@ import { AuthService } from '../../services/auth';
 export class LoginComponent {
   email = '';
   password = '';
+  selectedRole = '';
   errorMessage = '';
 
   constructor(private auth: AuthService, private router: Router) {}
 
   onSubmit() {
-    if (this.auth.login(this.email, this.password)) {
+    if (!this.selectedRole) {
+      this.errorMessage = 'Veuillez sélectionner votre rôle';
+      return;
+    }
+
+    if (this.auth.login(this.email, this.password, this.selectedRole)) {
       const userRole = this.auth.getUserRole();
       if (userRole === 'userAdmin') {
         this.router.navigate(['/formateur']);
@@ -29,7 +35,7 @@ export class LoginComponent {
         this.router.navigate(['/etudiant']);
       }
     } else {
-      this.errorMessage = 'Email ou mot de passe incorrect';
+      this.errorMessage = 'Email, mot de passe ou rôle incorrect';
     }
   }
 }

@@ -18,8 +18,16 @@
               <label for="password" class="form-label fw-600 small">Mot de passe</label>
               <input id="password" type="password" class="form-control form-control-sm" [(ngModel)]="password"
                      name="password" placeholder="Votre mot de passe" required>
-            </div>
-            <!-- Message d'erreur -->
+            </div>            <!-- Rôle -->
+            <div class="mb-4">
+              <label for="role" class="form-label fw-600 small">Rôle</label>
+              <select id="role" class="form-select form-select-sm" [(ngModel)]="selectedRole" name="role" required>
+                <option value="" disabled selected>Choisissez votre rôle</option>
+                <option value="etudiant">👨‍🎓 Étudiant</option>
+                <option value="formateur">👨‍🏫 Formateur</option>
+                <option value="admin">👑 Administrateur</option>
+              </select>
+            </div>            <!-- Message d'erreur -->
             <div *ngIf="errorMessage" class="alert alert-danger alert-sm mb-3">
               {{errorMessage}}
             </div>
