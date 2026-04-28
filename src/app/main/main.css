@@ -9,3 +9,22 @@
 .content-with-header {
   padding-top: 90px;
 }
+
+.card-title {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.35rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.card-header-color-0 { background-color: #ff6b6b; }
+.card-header-color-1 { background-color: #ff9f1c; }
+.card-header-color-2 { background-color: #2ec4b6; }
+.card-header-color-3 { background-color: #3a86ff; }
+.card-header-color-4 { background-color: #8338ec; }
+.card-header-color-5 { background-color: #ffbe0b; }
+.card-header-color-6 { background-color: #8ac926; }
+.card-header-color-7 { background-color: #1982c4; }
+.card-header-color-8 { background-color: #6a4c93; }
+.card-header-color-9 { background-color: #ff5d8f; }

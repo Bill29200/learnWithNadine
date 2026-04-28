@@ -2,16 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-// import { Formation } from '../model/user.model';
-import { FormationService } from '../services/formation';
-
-interface Formation {
-  duree: string;
-  prix: string;
-  id: number;
-  title: string;
-  description: string;
-}
+import { DatabaseService, FormationDetail } from '../services/database.service';
 
 @Component({
   selector: 'app-main',
@@ -20,15 +11,38 @@ interface Formation {
   styleUrls: ['./main.css']
 })
 export class MainComponent implements OnInit {
-  formations: Formation[] = [];
-  filteredFormations: Formation[] = [];
+  formations: FormationDetail[] = [];
+  filteredFormations: FormationDetail[] = [];
   searchTerm: string = '';
 
-  constructor(private formationService: FormationService, private router: Router) {}
+  constructor(private databaseService: DatabaseService, private router: Router) {}
 
   ngOnInit() {
-    this.formations = this.formationService.getFormations();
-    this.filteredFormations = this.formations;
+    // Charger la base de données et récupérer les formations valides
+    console.log('MainComponent: Démarrage du chargement des formations...');
+
+    // Utiliser l'observable pour réagir aux changements de données
+    this.databaseService.getDatabase$().subscribe({
+      next: (database) => {
+        if (database) {
+          console.log('MainComponent: Base de données reçue', database);
+          this.formations = this.databaseService.getFormationsValides();
+          this.filteredFormations = this.formations;
+          console.log('MainComponent: Formations valides chargées:', this.formations);
+          console.log('MainComponent: Nombre de formations:', this.formations.length);
+        } else {
+          console.log('MainComponent: Base de données null');
+        }
+      },
+      error: (err) => {
+        console.error('MainComponent: Erreur lors du chargement des formations:', err);
+      }
+    });
+
+    // Charger les données si elles ne sont pas encore chargées
+    if (!this.databaseService.getDatabase()) {
+      this.databaseService.loadDatabase().subscribe();
+    }
   }
 
   onSearch() {
@@ -36,10 +50,14 @@ export class MainComponent implements OnInit {
       this.filteredFormations = this.formations;
     } else {
       this.filteredFormations = this.formations.filter(formation =>
-        formation.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        formation.intitule.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         formation.description.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
+  }
+
+  getCardHeaderClass(index: number): string {
+    return `card-header-color-${index % 10}`;
   }
 
   voirFormation(id: number) {

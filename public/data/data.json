@@ -1,0 +1,203 @@
+{
+  "admins": [
+    {
+      "id": 1,
+      "nom": "Admin Principal",
+      "email": "admin@learnwithnadine.com",
+      "motpass": "admin123"
+    },
+    {
+      "id": 2,
+      "nom": "Admin Support",
+      "email": "support@learnwithnadine.com",
+      "motpass": "support123"
+    }
+  ],
+  "formateurs": [
+    {
+      "idFormateur": 1,
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "tel": "+33612345678",
+      "mail": "jean.dupont@email.com",
+      "motpass": "pass123",
+      "niveau": "Master",
+      "specialite": "Développement Web",
+      "photo": "formateur1.jpg",
+      "statut": "actif"
+    },
+    {
+      "idFormateur": 2,
+      "nom": "Bernard",
+      "prenom": "Marie",
+      "tel": "+33687654321",
+      "mail": "marie.bernard@email.com",
+      "motpass": "pass456",
+      "niveau": "Licence",
+      "specialite": "Data Science",
+      "photo": "formateur2.jpg",
+      "statut": "actif"
+    },
+    {
+      "idFormateur": 3,
+      "nom": "Martin",
+      "prenom": "Pierre",
+      "tel": "+33698765432",
+      "mail": "pierre.martin@email.com",
+      "motpass": "pass789",
+      "niveau": "Master",
+      "specialite": "Cloud Computing",
+      "photo": "formateur3.jpg",
+      "statut": "bloque"
+    }
+  ],
+  "formations": [
+    {
+      "idFormation": 1,
+      "idFormateur": 1,
+      "intitule": "Angular Avancé",
+      "duree": "40h",
+      "prix": 299,
+      "description": "Maîtrisez Angular et les concepts avancés",
+      "programme": [
+        "Bases d'Angular",
+        "Routage et Guards",
+        "Services et Injection",
+        "RxJS et Observables",
+        "Optimisation et Performance"
+      ],
+      "statut": "valide"
+    },
+    {
+      "idFormation": 2,
+      "idFormateur": 2,
+      "intitule": "Python pour Data Science",
+      "duree": "50h",
+      "prix": 349,
+      "description": "Apprenez Python pour l'analyse de données",
+      "programme": [
+        "Fondamentaux Python",
+        "Pandas et NumPy",
+        "Visualisation avec Matplotlib",
+        "Machine Learning avec Scikit-learn",
+        "Projets pratiques"
+      ],
+      "statut": "valide"
+    },
+    {
+      "idFormation": 3,
+      "idFormateur": 1,
+      "intitule": "React.js Complet",
+      "duree": "35h",
+      "prix": 279,
+      "description": "Devenez un expert en React",
+      "programme": [
+        "Composants et JSX",
+        "Hooks et State Management",
+        "Context API",
+        "Redux",
+        "Projets en équipe"
+      ],
+      "statut": "valide"
+    },
+    {
+      "idFormation": 4,
+      "idFormateur": 3,
+      "intitule": "Kubernetes et Docker",
+      "duree": "45h",
+      "prix": 399,
+      "description": "Maîtrisez la conteneurisation et l'orchestration",
+      "programme": [
+        "Docker Basics",
+        "Docker Compose",
+        "Kubernetes Architecture",
+        "Déploiement et Scaling",
+        "Monitoring"
+      ],
+      "statut": "nonValide"
+    }
+  ],
+  "etudiants": [
+    {
+      "idEtudiant": 1,
+      "nom": "Durand",
+      "prenom": "Sophie",
+      "mail": "sophie.durand@email.com",
+      "tel": "+33612345678",
+      "niveau": "Débutant",
+      "motpass": "student123",
+      "statut": "actif",
+      "photo": "etudiant1.jpg"
+    },
+    {
+      "idEtudiant": 2,
+      "nom": "Leclerc",
+      "prenom": "Thomas",
+      "mail": "thomas.leclerc@email.com",
+      "tel": "+33687654321",
+      "niveau": "Intermédiaire",
+      "motpass": "student456",
+      "statut": "actif",
+      "photo": "etudiant2.jpg"
+    },
+    {
+      "idEtudiant": 3,
+      "nom": "Gérard",
+      "prenom": "Anna",
+      "mail": "anna.gerard@email.com",
+      "tel": "+33698765432",
+      "niveau": "Avancé",
+      "motpass": "student789",
+      "statut": "bloque",
+      "photo": "etudiant3.jpg"
+    },
+    {
+      "idEtudiant": 4,
+      "nom": "Moreau",
+      "prenom": "Luc",
+      "mail": "luc.moreau@email.com",
+      "tel": "+33654321098",
+      "niveau": "Débutant",
+      "motpass": "student321",
+      "statut": "actif",
+      "photo": "etudiant4.jpg"
+    }
+  ],
+  "inscriptions": [
+    {
+      "idInscription": 1,
+      "idFormation": 1,
+      "idEtudiant": 1,
+      "dateInscription": "2024-01-15",
+      "statut": "paye"
+    },
+    {
+      "idInscription": 2,
+      "idFormation": 2,
+      "idEtudiant": 2,
+      "dateInscription": "2024-02-01",
+      "statut": "paye"
+    },
+    {
+      "idInscription": 3,
+      "idFormation": 1,
+      "idEtudiant": 3,
+      "dateInscription": "2024-02-10",
+      "statut": "non paye"
+    },
+    {
+      "idInscription": 4,
+      "idFormation": 3,
+      "idEtudiant": 4,
+      "dateInscription": "2024-02-20",
+      "statut": "paye"
+    },
+    {
+      "idInscription": 5,
+      "idFormation": 2,
+      "idEtudiant": 1,
+      "dateInscription": "2024-03-05",
+      "statut": "paye"
+    }
+  ]
+}

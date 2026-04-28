@@ -48,16 +48,29 @@
 
   <!-- Cartes des formations -->
   <div class="row">
-    <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations">
+    <div class="col-12 mb-4" *ngIf="formations.length === 0">
+      <div class="alert alert-warning">
+        <h5>⏳ Chargement des formations...</h5>
+        <p>Les données sont en cours de chargement depuis la base de données.</p>
+        <small>Ouvrez la console (F12) pour voir les logs de débogage.</small>
+      </div>
+    </div>
+    <div class="col-12 mb-4" *ngIf="formations.length > 0">
+      <div class="alert alert-success">
+        <h5>✅ {{formations.length}} formation(s) chargée(s)</h5>
+        <p>Les formations valides ont été chargées avec succès.</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
       <div class="card h-100 shadow-sm card-orange-shadow">
         <div class="card-body">
-          <h5 class="card-title">{{formation.title}}</h5>
+          <h5 [ngClass]="'card-title card-header-color-' + (i % 10)">{{formation.intitule}}</h5>
           <p class="card-text text-muted">{{formation.description}}</p>
           <p class="card-text">
             <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
-            <span class="badge bg-success">Prix: {{formation.prix}}</span>
+            <span class="badge bg-success">Prix: {{formation.prix}} €</span>
           </p>
-          <button class="btn btn-outline-orange w-100" (click)="voirFormation(formation.id)">
+          <button class="btn btn-outline-orange w-100" (click)="voirFormation(formation.idFormation)">
             Voir détails
           </button>
         </div>
