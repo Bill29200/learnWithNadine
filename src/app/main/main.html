@@ -28,12 +28,29 @@
       </div>
 
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
+
+      <!-- Barre de recherche -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="text"
+                   class="form-control form-control-lg"
+                   placeholder="🔍 Rechercher une formation..."
+                   [(ngModel)]="searchTerm"
+                   (input)="onSearch()"
+                   name="search">
+            <button class="btn btn-outline-orange" type="button" (click)="onSearch()">
+              <i class="bi bi-search"></i> Rechercher
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Cartes des formations -->
   <div class="row">
-    <div class="col-md-4 mb-4" *ngFor="let formation of formations">
+    <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations">
       <div class="card h-100 shadow-sm card-orange-shadow">
         <div class="card-body">
           <h5 class="card-title">{{formation.title}}</h5>
@@ -46,6 +63,19 @@
             Voir détails
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message si aucune formation trouvée -->
+  <div class="row" *ngIf="filteredFormations.length === 0 && searchTerm.trim() !== ''">
+    <div class="col-12 text-center">
+      <div class="alert alert-info">
+        <h5>🔍 Aucune formation trouvée</h5>
+        <p>Essayez avec d'autres mots-clés ou consultez toutes nos formations.</p>
+        <button class="btn btn-outline-orange" (click)="searchTerm = ''; onSearch()">
+          Voir toutes les formations
+        </button>
       </div>
     </div>
   </div>
