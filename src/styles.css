@@ -30,4 +30,29 @@
   color: #fff;
   border-color: #ff5928;
 }
+
+.bg-orange {
+  background-color: #ff5928 !important;
+}
+
 /* You can add global styles to this file, and also import other style files */
+/* ____________________ */
+.register-card-header {
+  border-bottom: 2px solid rgba(255, 89, 40, 0.2);
+}
+
+.register-card-header h3 {
+  letter-spacing: 0.02em;
+}
+
+.card-body .form-label {
+  font-weight: 600;
+}
+
+.card-body a {
+  color: #ff5928;
+}
+
+.card-body a:hover {
+  text-decoration: none;
+}

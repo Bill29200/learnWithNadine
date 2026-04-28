@@ -1,47 +1,68 @@
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-success text-white">
-          <h3 class="mb-0">Créer un compte</h3>
+    <div class="col-lg-5 col-md-6">
+      <div class="card shadow-lg border-0 register-card">
+        <div class="card-header bg-orange register-card-header">
+          <h4 class="mb-0 text-white fw-bold">✨ Créer un compte</h4>
         </div>
-        <div class="card-body">
-          <form (ngSubmit)="onSubmit()">
-            <div class="mb-3">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" [(ngModel)]="user.lastName"
-                     name="lastName" required>
+        <div class="card-body p-4">
+          <form (ngSubmit)="onSubmit()" class="register-form">
+            <!-- Nom et Prénom sur la même ligne -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="lastName" class="form-label fw-600 small">Nom</label>
+                  <input id="lastName" type="text" class="form-control form-control-sm" [(ngModel)]="user.lastName"
+                         name="lastName" placeholder="Votre nom" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="firstName" class="form-label fw-600 small">Prénom</label>
+                  <input id="firstName" type="text" class="form-control form-control-sm" [(ngModel)]="user.firstName"
+                         name="firstName" placeholder="Votre prénom" required>
+                </div>
+              </div>
             </div>
+            <!-- Email -->
             <div class="mb-3">
-              <label class="form-label">Prénom</label>
-              <input type="text" class="form-control" [(ngModel)]="user.firstName"
-                     name="firstName" required>
+              <label for="email" class="form-label fw-600 small">Email</label>
+              <input id="email" type="email" class="form-control form-control-sm" [(ngModel)]="user.email"
+                     name="email" placeholder="votre@email.com" required>
             </div>
+            <!-- Téléphone -->
             <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" [(ngModel)]="user.email"
-                     name="email" required>
+              <label for="phone" class="form-label fw-600 small">Numéro de téléphone</label>
+              <input id="phone" type="tel" class="form-control form-control-sm" [(ngModel)]="user.phone"
+                     name="phone" placeholder="+33 6 XX XX XX XX" required>
             </div>
+            <!-- Mot de passe -->
             <div class="mb-3">
-              <label class="form-label">Mot de passe</label>
-              <input type="password" class="form-control" [(ngModel)]="user.password"
-                     name="password" required>
+              <label for="password" class="form-label fw-600 small">Mot de passe</label>
+              <input id="password" type="password" class="form-control form-control-sm" [(ngModel)]="user.password"
+                     name="password" placeholder="Minimum 8 caractères" required>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Rôle</label>
-              <select class="form-control" [(ngModel)]="user.role" name="role">
-                <option value="userStudent">Étudiant</option>
-                <option value="userTrainer">Formateur</option>
-                <option value="userAdmin">Administrateur</option>
+            <!-- Rôle -->
+            <div class="mb-4">
+              <label for="role" class="form-label fw-600 small">Rôle</label>
+              <select id="role" class="form-select form-select-sm" [(ngModel)]="user.role" name="role" required>
+                <option value="" disabled selected>Choisir votre rôle...</option>
+                <option value="userStudent">🎓 Étudiant</option>
+                <option value="userTrainer">👨‍🏫 Formateur</option>
               </select>
             </div>
-            <div *ngIf="successMessage" class="alert alert-success">
+            <!-- Message de succès -->
+            <div *ngIf="successMessage" class="alert alert-success alert-sm mb-3">
               {{successMessage}}
             </div>
-            <button type="submit" class="btn btn-success w-100">Créer le compte</button>
+            <!-- Bouton Submit -->
+            <button type="submit" class="btn btn-orange w-100 fw-600 mb-3">Créer mon compte</button>
           </form>
-          <div class="mt-3 text-center">
-            <a routerLink="/login">Déjà un compte? Se connecter</a>
+          <!-- Lien login -->
+          <div class="text-center pb-2">
+            <p class="small mb-0">Vous avez déjà un compte? 
+              <a routerLink="/login" class="text-orange fw-600 text-decoration-none">Se connecter</a>
+            </p>
           </div>
         </div>
       </div>

@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { User } from '../../model/user.model';
+import { Role, User } from '../../model/user.model';
 import { AuthService } from '../../services/auth';
+
+type RegisterForm = Omit<User, 'role'> & { role: Role | '' };
 
 @Component({
   selector: 'app-register',
@@ -15,20 +17,30 @@ import { AuthService } from '../../services/auth';
   styleUrl: './register.css',
 })
 export class Register {
-  user: User = {
+  user: RegisterForm = {
     id: 0,
     email: '',
     password: '',
     firstName: '',
     lastName: '',
-    role: 'userStudent'
+    phone: '',
+    role: ''
   };
   successMessage = '';
 
   constructor(private auth: AuthService, private router: Router) {}
 
   onSubmit() {
-    if (this.auth.register(this.user)) {
+    if (this.user.role === '') {
+      return;
+    }
+
+    const registerUser: User = {
+      ...this.user,
+      role: this.user.role
+    };
+
+    if (this.auth.register(registerUser)) {
       this.successMessage = 'Compte créé avec succès !';
       setTimeout(() => {
         this.router.navigate(['/login']);

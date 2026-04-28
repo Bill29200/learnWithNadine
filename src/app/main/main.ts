@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 // import { Formation } from '../model/user.model';
 import { FormationService } from '../services/formation';
 
@@ -14,7 +14,7 @@ interface Formation {
 
 @Component({
   selector: 'app-main',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './main.html',
   styleUrls: ['./main.css']
 })
