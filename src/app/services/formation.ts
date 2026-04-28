@@ -35,6 +35,22 @@ export class FormationService {
       prix:'25450 DA',
      description:'Description...'
     }
+    ,
+    {
+      id: 4,
+      title: 'UX Design avancé',
+      duree:'25h',
+      prix:'25450 DA',
+      description:'Description...'
+    }
+    ,
+    {
+      id: 5,
+      title: 'UX Design avancé',
+      duree:'25h',
+      prix:'25450 DA',
+      description:'Description...'
+    }
   ];
 
   getFormations(): Formation[] {
