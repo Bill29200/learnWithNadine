@@ -1,0 +1,95 @@
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  background-color: white;
+}
+
+.content-with-header {
+  padding-top: 90px;
+}
+
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #ff5928;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.dropdown-toggle::after {
+  margin-left: 8px;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.35rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.badge-card {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.35rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.card-header-color-0 { background-color: #ff6b6b; }
+.card-header-color-1 { background-color: #ff9f1c; }
+.card-header-color-2 { background-color: #2ec4b6; }
+.card-header-color-3 { background-color: #3a86ff; }
+.card-header-color-4 { background-color: #8338ec; }
+.card-header-color-5 { background-color: #ffbe0b; }
+.card-header-color-6 { background-color: #8ac926; }
+.card-header-color-7 { background-color: #1982c4; }
+.card-header-color-8 { background-color: #6a4c93; }
+.card-header-color-9 { background-color: #ff5d8f; }
+
+.bg-orange {
+  background-color: #ff5928 !important;
+}
+
+.text-orange {
+  color: #ff5928 !important;
+}
+
+.btn-outline-orange {
+  color: #ff5928;
+  border: 1px solid #ff5928;
+}
+
+.btn-outline-orange:hover {
+  background-color: #ff5928;
+  color: #fff;
+  border-color: #ff5928;
+}
+
+.btn-outline-orange:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
