@@ -28,3 +28,36 @@
 .card-header-color-7 { background-color: #1982c4; }
 .card-header-color-8 { background-color: #6a4c93; }
 .card-header-color-9 { background-color: #ff5d8f; }
+
+/* Style Modal */
+
+
+  .modal.show {
+    display: block;
+  }
+
+  .modal.fade .modal-dialog {
+    transform: translate(0, 0);
+  }
+
+  .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000;
+  }
+
+  .badge.bg-primary {
+    background-color: #ff5928 !important;
+  }
+
+  .list-group-item {
+    border-left: none;
+    border-right: none;
+  }
+
+  .list-group-item:first-child {
+    border-top: none;
+  }
+
+  .list-group-item:last-child {
+    border-bottom: none;
+  }

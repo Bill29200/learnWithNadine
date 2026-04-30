@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { DatabaseService, FormationDetail } from '../services/database.service';
+import { DatabaseService, Etudiant, Formateur, FormationDetail, Inscription } from '../services/database.service';
 
 @Component({
   selector: 'app-main',
@@ -14,6 +14,12 @@ export class MainComponent implements OnInit {
   formations: FormationDetail[] = [];
   filteredFormations: FormationDetail[] = [];
   searchTerm: string = '';
+
+  // Pour la vue détaillée
+  selectedFormation: FormationDetail | null = null;
+  formateurInfo: Formateur | null = null;
+  etudiantsInscrits: { etudiant: Etudiant, inscription: Inscription }[] = [];
+  showDetailModal: boolean = false;
 
   constructor(
     private databaseService: DatabaseService,
@@ -66,7 +72,44 @@ export class MainComponent implements OnInit {
     return `card-header-color-${index % 10}`;
   }
 
-  voirFormation(id: number) {
-    this.router.navigate(['/formation', id]);
+  // Nouvelle méthode pour voir les détails d'une formation
+  voirDetails(formation: FormationDetail) {
+    this.selectedFormation = formation;
+
+    // Récupérer les informations du formateur
+    this.formateurInfo = this.databaseService.getFormateurById(formation.idFormateur) || null;
+
+    // Récupérer les inscriptions pour cette formation
+    const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
+
+    this.etudiantsInscrits = [];
+    inscriptions.forEach(inscription => {
+      const etudiant = this.databaseService.getEtudiantById(inscription.idEtudiant);
+      if (etudiant) {
+        this.etudiantsInscrits.push({
+          etudiant: etudiant,
+          inscription: inscription
+        });
+      }
+    });
+
+    this.showDetailModal = true;
+  }
+
+  // Fermer le modal de détails
+  closeDetailModal() {
+    this.showDetailModal = false;
+    this.selectedFormation = null;
+    this.formateurInfo = null;
+    this.etudiantsInscrits = [];
+  }
+
+  getInscriptionStatutBadgeClass(statut: string): string {
+    return statut === 'paye' ? 'badge bg-success' : 'badge bg-warning text-dark';
+  }
+
+  // Rediriger vers l'inscription (si connecté)
+  sInscrire(formationId: number) {
+    this.router.navigate(['/inscription', formationId]);
   }
 }

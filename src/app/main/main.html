@@ -1,7 +1,7 @@
 <!-- Barre supérieure avec les liens -->
 <div class="main-header bg-light border-bottom">
   <div class="container">
-    <div class="row py-3">
+    <div class="row py-3 align-items-center">
       <div class="col-md-6">
         <h5 class="mb-0">
           <span class="text-orange">🎓 Learn With Nadine</span>
@@ -22,9 +22,6 @@
 <div class="container mt-4 content-with-header">
   <div class="row">
     <div class="col-12 text-center mb-5">
-
-
-
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
 
       <!-- Barre de recherche -->
@@ -57,22 +54,25 @@
     </div>
     <div class="col-12 mb-4" *ngIf="formations.length > 0">
       <div class="alert alert-success">
-        <h5>✅ {{formations.length}} formation(s) chargée(s)</h5>
-        <p>Les formations valides ont été chargées avec succès.</p>
+        <h5>✅ {{formations.length}} formation(s) disponible(s)</h5>
+        <p>Découvrez nos formations et inscrivez-vous dès maintenant !</p>
       </div>
     </div>
+
     <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
       <div class="card h-100 shadow-sm card-orange-shadow">
         <div class="card-body">
           <h5 [ngClass]="'card-title card-header-color-' + (i % 10)">{{formation.intitule}}</h5>
-          <p class="card-text text-muted">{{formation.description}}</p>
+          <p class="card-text text-muted">{{formation.description | slice:0:100}}...</p>
           <p class="card-text">
             <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
             <span class="badge bg-success">Prix: {{formation.prix}} €</span>
           </p>
-          <button class="btn btn-outline-orange w-100" (click)="voirFormation(formation.idFormation)">
-            Voir détails
-          </button>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-orange" (click)="voirDetails(formation)">
+              <i class="bi bi-eye"></i> Voir détails
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -100,8 +100,138 @@
         <a routerLink="/register" class="btn btn-outline-orange btn-sm me-3">
           ✨ Créer un compte gratuitement
         </a>
-        <a routerLink="/login" class="btn  btn-sm text-dark btn-outline-orange">
+        <a routerLink="/login" class="btn btn-sm text-dark btn-outline-orange">
           🔑 Se connecter
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL DÉTAILS FORMATION ==================== -->
+<div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.7); z-index: 1050;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Détails de la formation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDetailModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedFormation">
+          <!-- En-tête de la formation -->
+          <div class="text-center mb-4">
+            <h2 class="text-orange">{{selectedFormation.intitule}}</h2>
+            <div class="mt-2">
+              <span class="badge bg-primary me-2"><i class="bi bi-clock"></i> {{selectedFormation.duree}}</span>
+              <span class="badge bg-success"><i class="bi bi-tag"></i> {{selectedFormation.prix}} €</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-file-text"></i> Description</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-0">{{selectedFormation.description}}</p>
+            </div>
+          </div>
+
+          <!-- Programme -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-list-check"></i> Programme de la formation</h6>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let point of selectedFormation.programme; let i = index">
+                  <i class="bi bi-check-circle-fill text-orange me-2"></i>
+                  {{point}}
+                </li>
+                <li class="list-group-item text-muted" *ngIf="selectedFormation.programme.length === 0">
+                  <i class="bi bi-info-circle"></i> Programme non renseigné
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Informations du formateur -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-person-badge"></i> Formateur</h6>
+            </div>
+            <div class="card-body">
+              <div *ngIf="formateurInfo; else noFormateur">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-person"></i> Nom :</strong> {{formateurInfo.prenom}} {{formateurInfo.nom}}</p>
+                    <p><strong><i class="bi bi-envelope"></i> Email :</strong> {{formateurInfo.mail}}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-telephone"></i> Téléphone :</strong> {{formateurInfo.tel}}</p>
+                    <p><strong><i class="bi bi-star"></i> Spécialité :</strong> {{formateurInfo.specialite}}</p>
+                    <p><strong><i class="bi bi-graph-up"></i> Niveau :</strong> {{formateurInfo.niveau}}</p>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noFormateur>
+                <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Informations du formateur non disponibles</p>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Liste des étudiants inscrits (uniquement si connecté) -->
+          <div class="card mb-3" *ngIf="etudiantsInscrits.length > 0">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-people"></i> Étudiants inscrits ({{etudiantsInscrits.length}})</h6>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Étudiant</th>
+                      <th>Email</th>
+                      <th>Date d'inscription</th>
+                      <th>Statut paiement</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of etudiantsInscrits">
+                      <td>
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{item.etudiant.prenom}} {{item.etudiant.nom}}
+                      </td>
+                      <td>{{item.etudiant.mail}}</td>
+                      <td>{{item.inscription.dateInscription}}</td>
+                      <td>
+                        <span [class]="getInscriptionStatutBadgeClass(item.inscription.statut)">
+                          {{item.inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si aucun étudiant inscrit -->
+          <div class="alert alert-secondary" *ngIf="etudiantsInscrits.length === 0">
+            <i class="bi bi-info-circle"></i>
+            Aucun étudiant n'est encore inscrit à cette formation.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailModal()">
+          <i class="bi bi-x-circle"></i> Fermer
+        </button>
+        <a routerLink="/login" class="btn btn-orange">
+          <i class="bi bi-pencil-square"></i> S'inscrire
         </a>
       </div>
     </div>
