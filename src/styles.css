@@ -158,3 +158,18 @@
 .card-body a:hover {
   text-decoration: none;
 }
+
+/* ........ */
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #ff5928;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+/* .............. */

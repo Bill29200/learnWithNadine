@@ -1,1 +1,131 @@
-<p>formateur-dashboard works!</p>
+<!-- Barre supérieure avec le profil et déconnexion -->
+<div class="main-header bg-light border-bottom">
+  <div class="container">
+    <div class="row py-3 align-items-center">
+      <div class="col-md-6">
+        <h5 class="mb-0">
+          <span class="text-orange">🎓 Learn With Nadine</span>
+        </h5>
+      </div>
+      <div class="col-md-6 text-end">
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-outline-orange dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="avatar-circle me-2">{{getInitials()}}</span>
+            {{getFullName()}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-person"></i> Mon profil
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-gear"></i> Paramètres
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4 content-with-header">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h3 class="text-orange">Bienvenue, {{getFullName()}} !</h3>
+          <p class="text-muted">Tableau de bord formateur - Gérez vos formations et suivez vos étudiants</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title">Mes Formations</h5>
+          <p class="card-text display-4">{{formateurInfo ? '0' : '0'}}</p>
+          <small>Formations créées</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title">Étudiants</h5>
+          <p class="card-text display-4">0</p>
+          <small>Étudiants inscrits</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h5 class="card-title">Revenus</h5>
+          <p class="card-text display-4">0€</p>
+          <small>Total généré</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section principale du dashboard formateur -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-orange text-white">
+          <h5 class="mb-0">📋 Mes Formations</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">Vous n'avez pas encore de formations.</p>
+          <button class="btn btn-outline-orange w-100">+ Créer une formation</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-orange text-white">
+          <h5 class="mb-0">👥 Demandes d'inscription</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">Aucune demande en attente.</p>
+          <button class="btn btn-outline-orange w-100">Voir les demandes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations du profil -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">ℹ️ Mes Informations</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Nom complet :</strong> {{getFullName()}}</p>
+              <p><strong>Email :</strong> {{currentUser?.email}}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Téléphone :</strong> {{currentUser?.phone}}</p>
+              <p><strong>Spécialité :</strong> {{formateurInfo?.specialite || 'Non renseignée'}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
