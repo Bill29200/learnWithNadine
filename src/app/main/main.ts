@@ -112,4 +112,40 @@ export class MainComponent implements OnInit {
   sInscrire(formationId: number) {
     this.router.navigate(['/inscription', formationId]);
   }
+  // Tableau de couleurs claires différentes pour les cartes étudiants
+private studentCardColors: string[] = [
+  'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',  // Rouge clair
+  'linear-gradient(135deg, #F0FFF4 0%, #E0FFE8 100%)',  // Vert clair
+  'linear-gradient(135deg, #EBF8FF 0%, #D0EEFF 100%)',  // Bleu clair
+  'linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%)',  // Jaune clair
+  'linear-gradient(135deg, #F3E8FF 0%, #E8D5FF 100%)',  // Violet clair
+  'linear-gradient(135deg, #FFE0F0 0%, #FFCCE6 100%)',  // Rose clair
+  'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)',  // Cyan clair
+  'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',  // Vert menthe
+  'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',  // Orange clair
+  'linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%)',  // Indigo clair
+];
+
+private studentIconColors: string[] = [
+  '#e74c3c',  // Rouge
+  '#27ae60',  // Vert
+  '#2980b9',  // Bleu
+  '#f39c12',  // Orange
+  '#8e44ad',  // Violet
+  '#e91e63',  // Rose
+  '#00bcd4',  // Cyan
+  '#4caf50',  // Vert clair
+  '#ff9800',  // Orange
+  '#3f51b5',  // Indigo
+];
+
+// Méthode pour obtenir la couleur d'arrière-plan d'une carte étudiant
+getStudentCardColor(index: number): string {
+  return this.studentCardColors[index % this.studentCardColors.length];
+}
+
+// Méthode pour obtenir la couleur de l'icône d'une carte étudiant
+getStudentIconColor(index: number): string {
+  return this.studentIconColors[index % this.studentIconColors.length];
+}
 }

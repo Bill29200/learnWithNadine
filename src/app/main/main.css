@@ -224,3 +224,182 @@
       padding: 1rem !important;
     }
   }
+/* Styles du modal professionnel */
+  .modal.show {
+    display: block;
+  }
+
+  .modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+  }
+
+  /* Bannière */
+  .formation-banner {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .formation-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+
+  .badge-custom {
+    font-weight: 500;
+    border-radius: 30px;
+    transition: transform 0.3s ease;
+  }
+
+  .badge-custom:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Programme */
+  .programme-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .programme-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .programme-item:last-child {
+    border-bottom: none;
+  }
+
+  .programme-number {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+    color: white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .programme-text {
+    color: #495057;
+    font-size: 14px;
+  }
+
+  /* Carte formateur */
+  .formateur-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+  }
+
+  .formateur-card {
+    transition: transform 0.3s ease;
+  }
+
+  .formateur-card:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Grille étudiants */
+  .students-grid {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+
+  .students-grid::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .students-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  .students-grid::-webkit-scrollbar-thumb {
+    background: #ff5928;
+    border-radius: 10px;
+  }
+
+  .student-card {
+    transition: all 0.3s ease;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .student-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  .student-avatar i {
+    transition: transform 0.3s ease;
+  }
+
+  .student-card:hover .student-avatar i {
+    transform: scale(1.1);
+  }
+
+  /* Boutons */
+  .btn-orange {
+    background: linear-gradient(135deg, #ff5928 0%, #ff7043 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .btn-orange:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+    color: white;
+  }
+
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .programme-number {
+      width: 24px;
+      height: 24px;
+      font-size: 10px;
+    }
+
+    .programme-text {
+      font-size: 12px;
+    }
+
+    .formateur-avatar {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+    }
+
+    .modal-body {
+      padding: 0;
+    }
+
+    .p-4 {
+      padding: 1rem !important;
+    }
+  }

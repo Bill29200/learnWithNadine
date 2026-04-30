@@ -144,29 +144,23 @@
 
           <!-- Contenu principal -->
           <div class="p-4">
-            <!-- Description -->
+            <!-- Description - sans cercle -->
             <div class="info-section mb-4">
-              <div class="section-header d-flex align-items-center mb-3">
-                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                  <i class="bi bi-file-text fs-6"></i>
-                </div>
-                <h4 class="mb-0 fw-semibold text-dark">Description</h4>
-                <div class="section-line ms-3 flex-grow-1"></div>
-              </div>
+              <h4 class="mb-3 fw-semibold text-dark">
+                <i class="bi bi-file-text me-2 text-orange"></i>
+                Description
+              </h4>
               <div class="section-content p-3 bg-light rounded-3">
                 <p class="mb-0 text-muted">{{selectedFormation.description}}</p>
               </div>
             </div>
 
-            <!-- Programme -->
+            <!-- Programme - sans cercle -->
             <div class="info-section mb-4">
-              <div class="section-header d-flex align-items-center mb-3">
-                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                  <i class="bi bi-list-check fs-6"></i>
-                </div>
-                <h4 class="mb-0 fw-semibold text-dark">Programme de la formation</h4>
-                <div class="section-line ms-3 flex-grow-1"></div>
-              </div>
+              <h4 class="mb-3 fw-semibold text-dark">
+                <i class="bi bi-list-check me-2 text-orange"></i>
+                Programme de la formation
+              </h4>
               <div class="section-content p-3 bg-light rounded-3">
                 <ul class="programme-list mb-0">
                   <li *ngFor="let point of selectedFormation.programme; let i = index" class="programme-item">
@@ -180,15 +174,12 @@
               </div>
             </div>
 
-            <!-- Informations du formateur - Version carte professionnelle -->
+            <!-- Informations du formateur - sans cercle -->
             <div class="info-section mb-4">
-              <div class="section-header d-flex align-items-center mb-3">
-                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                  <i class="bi bi-person-badge fs-6"></i>
-                </div>
-                <h4 class="mb-0 fw-semibold text-dark">Formateur</h4>
-                <div class="section-line ms-3 flex-grow-1"></div>
-              </div>
+              <h4 class="mb-3 fw-semibold text-dark">
+                <i class="bi bi-person-badge me-2 text-orange"></i>
+                Formateur
+              </h4>
               <div class="formateur-card p-3 rounded-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                 <div *ngIf="formateurInfo; else noFormateur">
                   <div class="row align-items-center">
@@ -230,25 +221,22 @@
               </div>
             </div>
 
-            <!-- Liste des étudiants inscrits - Version stylisée sans statut -->
+            <!-- Liste des étudiants inscrits avec couleurs différentes -->
             <div class="info-section" *ngIf="etudiantsInscrits.length > 0">
-              <div class="section-header d-flex align-items-center mb-3">
-                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                  <i class="bi bi-people fs-6"></i>
-                </div>
-                <h4 class="mb-0 fw-semibold text-dark">Apprenants inscrits ({{etudiantsInscrits.length}})</h4>
-                <div class="section-line ms-3 flex-grow-1"></div>
-              </div>
+              <h4 class="mb-3 fw-semibold text-dark">
+                <i class="bi bi-people me-2 text-orange"></i>
+                Apprenants inscrits ({{etudiantsInscrits.length}})
+              </h4>
               <div class="students-grid">
                 <div class="row g-3">
-                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits">
-                    <div class="student-card p-3 rounded-3 border text-center">
+                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">
+                    <div class="student-card p-3 rounded-3 border text-center" [ngStyle]="{'background': getStudentCardColor(i)}">
                       <div class="student-avatar mx-auto mb-2">
-                        <i class="bi bi-person-circle fs-1 text-orange"></i>
+                        <i class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>
                       </div>
-                      <h6 class="mb-1 fw-bold">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>
-                      <p class="small text-muted mb-1">{{item.etudiant.mail}}</p>
-                      <p class="small text-muted mb-0">
+                      <h6 class="mb-1 fw-bold text-dark">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>
+                      <p class="small text-secondary mb-1">{{item.etudiant.mail}}</p>
+                      <p class="small text-secondary mb-0">
                         <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}
                       </p>
                     </div>
