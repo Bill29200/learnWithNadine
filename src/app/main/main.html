@@ -108,133 +108,173 @@
   </div>
 </div>
 
-<!-- ==================== MODAL DÉTAILS FORMATION ==================== -->
-<div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.7); z-index: 1050;">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header bg-orange text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-info-circle-fill me-2"></i>
+<!-- ==================== MODAL DÉTAILS FORMATION - VERSION PROFESSIONNELLE ==================== -->
+<div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <!-- En-tête avec dégradé -->
+      <div class="modal-header" style="background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%); border: none;">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-star-fill me-2"></i>
           Détails de la formation
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeDetailModal()"></button>
       </div>
-      <div class="modal-body">
+
+      <div class="modal-body p-0">
         <div *ngIf="selectedFormation">
-          <!-- En-tête de la formation -->
-          <div class="text-center mb-4">
-            <h2 class="text-orange">{{selectedFormation.intitule}}</h2>
-            <div class="mt-2">
-              <span class="badge bg-primary me-2"><i class="bi bi-clock"></i> {{selectedFormation.duree}}</span>
-              <span class="badge bg-success"><i class="bi bi-tag"></i> {{selectedFormation.prix}} €</span>
+          <!-- Bannière décorative -->
+          <div class="formation-banner text-center text-white p-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+            <div class="banner-icon mb-3">
+              <i class="bi bi-mortarboard fs-1"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-3">{{selectedFormation.intitule}}</h1>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+              <span class="badge badge-custom bg-white text-dark px-3 py-2">
+                <i class="bi bi-clock me-1 text-orange"></i> {{selectedFormation.duree}}
+              </span>
+              <span class="badge badge-custom bg-white text-dark px-3 py-2">
+                <i class="bi bi-tag me-1 text-orange"></i> {{selectedFormation.prix}} €
+              </span>
+              <span class="badge badge-custom bg-white text-dark px-3 py-2">
+                <i class="bi bi-people me-1 text-orange"></i> {{etudiantsInscrits.length}} inscrits
+              </span>
             </div>
           </div>
 
-          <!-- Description -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-file-text"></i> Description</h6>
+          <!-- Contenu principal -->
+          <div class="p-4">
+            <!-- Description -->
+            <div class="info-section mb-4">
+              <div class="section-header d-flex align-items-center mb-3">
+                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                  <i class="bi bi-file-text fs-6"></i>
+                </div>
+                <h4 class="mb-0 fw-semibold text-dark">Description</h4>
+                <div class="section-line ms-3 flex-grow-1"></div>
+              </div>
+              <div class="section-content p-3 bg-light rounded-3">
+                <p class="mb-0 text-muted">{{selectedFormation.description}}</p>
+              </div>
             </div>
-            <div class="card-body">
-              <p class="mb-0">{{selectedFormation.description}}</p>
-            </div>
-          </div>
 
-          <!-- Programme -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-list-check"></i> Programme de la formation</h6>
+            <!-- Programme -->
+            <div class="info-section mb-4">
+              <div class="section-header d-flex align-items-center mb-3">
+                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                  <i class="bi bi-list-check fs-6"></i>
+                </div>
+                <h4 class="mb-0 fw-semibold text-dark">Programme de la formation</h4>
+                <div class="section-line ms-3 flex-grow-1"></div>
+              </div>
+              <div class="section-content p-3 bg-light rounded-3">
+                <ul class="programme-list mb-0">
+                  <li *ngFor="let point of selectedFormation.programme; let i = index" class="programme-item">
+                    <span class="programme-number">{{i + 1}}</span>
+                    <span class="programme-text">{{point}}</span>
+                  </li>
+                  <li *ngIf="selectedFormation.programme.length === 0" class="text-muted">
+                    <i class="bi bi-info-circle me-2"></i> Programme non renseigné
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item" *ngFor="let point of selectedFormation.programme; let i = index">
-                  <i class="bi bi-check-circle-fill text-orange me-2"></i>
-                  {{point}}
-                </li>
-                <li class="list-group-item text-muted" *ngIf="selectedFormation.programme.length === 0">
-                  <i class="bi bi-info-circle"></i> Programme non renseigné
-                </li>
-              </ul>
-            </div>
-          </div>
 
-          <!-- Informations du formateur -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-person-badge"></i> Formateur</h6>
-            </div>
-            <div class="card-body">
-              <div *ngIf="formateurInfo; else noFormateur">
-                <div class="row">
-                  <div class="col-md-6">
-                    <p><strong><i class="bi bi-person"></i> Nom :</strong> {{formateurInfo.prenom}} {{formateurInfo.nom}}</p>
-                    <p><strong><i class="bi bi-envelope"></i> Email :</strong> {{formateurInfo.mail}}</p>
+            <!-- Informations du formateur - Version carte professionnelle -->
+            <div class="info-section mb-4">
+              <div class="section-header d-flex align-items-center mb-3">
+                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                  <i class="bi bi-person-badge fs-6"></i>
+                </div>
+                <h4 class="mb-0 fw-semibold text-dark">Formateur</h4>
+                <div class="section-line ms-3 flex-grow-1"></div>
+              </div>
+              <div class="formateur-card p-3 rounded-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                <div *ngIf="formateurInfo; else noFormateur">
+                  <div class="row align-items-center">
+                    <div class="col-auto">
+                      <div class="formateur-avatar bg-orange text-white rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person fs-2"></i>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <h5 class="mb-1 fw-bold">{{formateurInfo.prenom}} {{formateurInfo.nom}}</h5>
+                      <div class="row mt-2">
+                        <div class="col-md-6">
+                          <p class="mb-1 small">
+                            <i class="bi bi-envelope text-orange me-2"></i>
+                            <span class="text-muted">{{formateurInfo.mail}}</span>
+                          </p>
+                          <p class="mb-0 small">
+                            <i class="bi bi-telephone text-orange me-2"></i>
+                            <span class="text-muted">{{formateurInfo.tel}}</span>
+                          </p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1 small">
+                            <i class="bi bi-star text-orange me-2"></i>
+                            <span class="text-muted">Spécialité: <strong>{{formateurInfo.specialite}}</strong></span>
+                          </p>
+                          <p class="mb-0 small">
+                            <i class="bi bi-graph-up text-orange me-2"></i>
+                            <span class="text-muted">Niveau: <strong>{{formateurInfo.niveau}}</strong></span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="col-md-6">
-                    <p><strong><i class="bi bi-telephone"></i> Téléphone :</strong> {{formateurInfo.tel}}</p>
-                    <p><strong><i class="bi bi-star"></i> Spécialité :</strong> {{formateurInfo.specialite}}</p>
-                    <p><strong><i class="bi bi-graph-up"></i> Niveau :</strong> {{formateurInfo.niveau}}</p>
+                </div>
+                <ng-template #noFormateur>
+                  <p class="text-muted mb-0"><i class="bi bi-info-circle me-2"></i> Informations du formateur non disponibles</p>
+                </ng-template>
+              </div>
+            </div>
+
+            <!-- Liste des étudiants inscrits - Version stylisée sans statut -->
+            <div class="info-section" *ngIf="etudiantsInscrits.length > 0">
+              <div class="section-header d-flex align-items-center mb-3">
+                <div class="section-icon bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                  <i class="bi bi-people fs-6"></i>
+                </div>
+                <h4 class="mb-0 fw-semibold text-dark">Apprenants inscrits ({{etudiantsInscrits.length}})</h4>
+                <div class="section-line ms-3 flex-grow-1"></div>
+              </div>
+              <div class="students-grid">
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits">
+                    <div class="student-card p-3 rounded-3 border text-center">
+                      <div class="student-avatar mx-auto mb-2">
+                        <i class="bi bi-person-circle fs-1 text-orange"></i>
+                      </div>
+                      <h6 class="mb-1 fw-bold">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>
+                      <p class="small text-muted mb-1">{{item.etudiant.mail}}</p>
+                      <p class="small text-muted mb-0">
+                        <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <ng-template #noFormateur>
-                <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Informations du formateur non disponibles</p>
-              </ng-template>
             </div>
-          </div>
 
-          <!-- Liste des étudiants inscrits (uniquement si connecté) -->
-          <div class="card mb-3" *ngIf="etudiantsInscrits.length > 0">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-people"></i> Étudiants inscrits ({{etudiantsInscrits.length}})</h6>
+            <!-- Message si aucun étudiant inscrit -->
+            <div class="alert alert-info text-center rounded-3" *ngIf="etudiantsInscrits.length === 0" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); border: none;">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              Aucun apprenant n'est encore inscrit à cette formation. Soyez le premier !
             </div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Étudiant</th>
-                      <th>Email</th>
-                      <th>Date d'inscription</th>
-                      <th>Statut paiement</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of etudiantsInscrits">
-                      <td>
-                        <i class="bi bi-person-circle me-1"></i>
-                        {{item.etudiant.prenom}} {{item.etudiant.nom}}
-                      </td>
-                      <td>{{item.etudiant.mail}}</td>
-                      <td>{{item.inscription.dateInscription}}</td>
-                      <td>
-                        <span [class]="getInscriptionStatutBadgeClass(item.inscription.statut)">
-                          {{item.inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Message si aucun étudiant inscrit -->
-          <div class="alert alert-secondary" *ngIf="etudiantsInscrits.length === 0">
-            <i class="bi bi-info-circle"></i>
-            Aucun étudiant n'est encore inscrit à cette formation.
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDetailModal()">
-          <i class="bi bi-x-circle"></i> Fermer
+
+      <!-- Footer avec bouton d'inscription stylisé -->
+      <div class="modal-footer border-0 bg-light py-3">
+        <button type="button" class="btn btn-outline-secondary px-4" (click)="closeDetailModal()">
+          <i class="bi bi-x-circle me-2"></i>Fermer
         </button>
-        <a routerLink="/login" class="btn btn-orange">
-          <i class="bi bi-pencil-square"></i> S'inscrire
+        <a routerLink="/login" class="btn btn-orange px-4">
+          <i class="bi bi-pencil-square me-2"></i>S'inscrire maintenant
         </a>
       </div>
     </div>
   </div>
 </div>
-
