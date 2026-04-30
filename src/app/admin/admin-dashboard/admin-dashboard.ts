@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { User } from '../../model/user.model';
 import { AuthService } from '../../services/auth';
-import { Admin, DatabaseService, Etudiant, Formateur, FormationDetail, Inscription } from '../../services/database.service';
+import { Admin, Database, DatabaseService, Etudiant, Formateur, FormationDetail, Inscription } from '../../services/database.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,24 +13,25 @@ import { Admin, DatabaseService, Etudiant, Formateur, FormationDetail, Inscripti
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
-export class AdminDashboard implements OnInit {
+export class AdminDashboard implements OnInit, OnDestroy {
   currentUser: User | null = null;
   adminInfo: Admin | null = null;
+  private dbSubscription: Subscription | null = null;
 
-  // Formations
+  // Données de la base
   formations: FormationDetail[] = [];
+  inscriptions: Inscription[] = [];
+  etudiants: Etudiant[] = [];
+  formateurs: Formateur[] = [];
+
+  // Formations filtrées
   filteredFormations: FormationDetail[] = [];
   searchTerm: string = '';
   selectedStatut: string = 'all';
 
-  // Inscriptions
-  inscriptions: Inscription[] = [];
+  // Inscriptions filtrées
   filteredInscriptions: Inscription[] = [];
   inscriptionSearchTerm: string = '';
-
-  // Étudiants et Formateurs
-  etudiants: Etudiant[] = [];
-  formateurs: Formateur[] = [];
 
   // Statistiques
   stats = {
@@ -40,9 +42,14 @@ export class AdminDashboard implements OnInit {
     inscriptionsPaye: 0,
     inscriptionsNonPaye: 0,
     totalEtudiants: 0,
+    etudiantsActifs: 0,
     totalFormateurs: 0,
+    formateursActifs: 0,
     revenuTotal: 0
   };
+
+  // État de chargement
+  isLoading: boolean = true;
 
   // Onglet actif
   activeTab: string = 'formations';
@@ -59,27 +66,59 @@ export class AdminDashboard implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.auth.getCurrentUser();
+
+    // S'abonner aux changements de la base de données
+    this.dbSubscription = this.databaseService.getDatabase$().subscribe({
+      next: (database: Database | null) => {
+        if (database) {
+          console.log('AdminDashboard: Données reçues de Firebase', database);
+          this.loadDataFromDatabase(database);
+          this.isLoading = false;
+        } else {
+          console.log('AdminDashboard: En attente des données...');
+          // Charger les données si elles ne sont pas encore disponibles
+          if (!this.databaseService.getDatabase()) {
+            this.databaseService.loadDatabase().subscribe();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('AdminDashboard: Erreur lors du chargement des données', err);
+        this.isLoading = false;
+        this.showMessage('Erreur lors du chargement des données', 'error');
+      }
+    });
+
+    // Récupérer les infos admin
     if (this.currentUser) {
       this.adminInfo = this.databaseService.getAdminById(this.currentUser.id) || null;
-      this.loadData();
     }
   }
 
-  loadData() {
-    // Charger les formations
-    this.formations = this.databaseService.getFormations();
+  ngOnDestroy() {
+    if (this.dbSubscription) {
+      this.dbSubscription.unsubscribe();
+    }
+  }
+
+  loadDataFromDatabase(database: Database) {
+    // Charger toutes les données depuis la base
+    this.formations = database.formations || [];
+    this.inscriptions = database.inscriptions || [];
+    this.etudiants = database.etudiants || [];
+    this.formateurs = database.formateurs || [];
+
+    // Initialiser les tableaux filtrés
     this.filteredFormations = [...this.formations];
-
-    // Charger les inscriptions
-    this.inscriptions = this.databaseService.getInscriptions();
     this.filteredInscriptions = [...this.inscriptions];
-
-    // Charger les étudiants et formateurs
-    this.etudiants = this.databaseService.getEtudiants();
-    this.formateurs = this.databaseService.getFormateurs();
 
     // Mettre à jour les statistiques
     this.updateStats();
+
+    console.log('AdminDashboard: Données chargées - Formations:', this.formations.length);
+    console.log('AdminDashboard: Données chargées - Inscriptions:', this.inscriptions.length);
+    console.log('AdminDashboard: Données chargées - Étudiants:', this.etudiants.length);
+    console.log('AdminDashboard: Données chargées - Formateurs:', this.formateurs.length);
   }
 
   updateStats() {
@@ -91,7 +130,9 @@ export class AdminDashboard implements OnInit {
       inscriptionsPaye: this.inscriptions.filter(i => i.statut === 'paye').length,
       inscriptionsNonPaye: this.inscriptions.filter(i => i.statut === 'non paye').length,
       totalEtudiants: this.etudiants.length,
+      etudiantsActifs: this.etudiants.filter(e => e.statut === 'actif').length,
       totalFormateurs: this.formateurs.length,
+      formateursActifs: this.formateurs.filter(f => f.statut === 'actif').length,
       revenuTotal: this.inscriptions
         .filter(i => i.statut === 'paye')
         .reduce((sum, i) => {
@@ -99,6 +140,23 @@ export class AdminDashboard implements OnInit {
           return sum + (formation?.prix || 0);
         }, 0)
     };
+  }
+
+  // Rafraîchir toutes les données
+  refreshData() {
+    this.isLoading = true;
+    this.databaseService.loadDatabase().subscribe({
+      next: (database) => {
+        this.loadDataFromDatabase(database);
+        this.isLoading = false;
+        this.showMessage('Données actualisées avec succès', 'success');
+      },
+      error: (err) => {
+        console.error('Erreur lors du rafraîchissement', err);
+        this.isLoading = false;
+        this.showMessage('Erreur lors de l\'actualisation des données', 'error');
+      }
+    });
   }
 
   // Filtrage des formations
@@ -115,9 +173,10 @@ export class AdminDashboard implements OnInit {
 
     // Filtre par recherche
     if (this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(formation =>
-        formation.intitule.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        formation.description.toLowerCase().includes(this.searchTerm.toLowerCase())
+        formation.intitule.toLowerCase().includes(term) ||
+        formation.description.toLowerCase().includes(term)
       );
     }
 
@@ -133,7 +192,12 @@ export class AdminDashboard implements OnInit {
   toggleFormationStatut(formation: FormationDetail) {
     const nouveauStatut = formation.statut === 'valide' ? 'nonValide' : 'valide';
     this.databaseService.updateFormation(formation.idFormation, { statut: nouveauStatut });
-    this.loadData();
+
+    // Mettre à jour localement
+    formation.statut = nouveauStatut;
+    this.updateStats();
+    this.applyFormationFilters();
+
     this.showMessage(`Formation "${formation.intitule}" ${nouveauStatut === 'valide' ? 'validée' : 'invalidée'} avec succès !`, 'success');
   }
 
@@ -142,21 +206,27 @@ export class AdminDashboard implements OnInit {
     if (this.inscriptionSearchTerm.trim() === '') {
       this.filteredInscriptions = [...this.inscriptions];
     } else {
+      const term = this.inscriptionSearchTerm.toLowerCase();
       this.filteredInscriptions = this.inscriptions.filter(inscription => {
         const formation = this.getFormationById(inscription.idFormation);
         const etudiant = this.getEtudiantById(inscription.idEtudiant);
-        return formation?.intitule.toLowerCase().includes(this.inscriptionSearchTerm.toLowerCase()) ||
-               etudiant?.nom.toLowerCase().includes(this.inscriptionSearchTerm.toLowerCase()) ||
-               etudiant?.prenom.toLowerCase().includes(this.inscriptionSearchTerm.toLowerCase());
+        return formation?.intitule.toLowerCase().includes(term) ||
+               etudiant?.nom.toLowerCase().includes(term) ||
+               etudiant?.prenom.toLowerCase().includes(term) ||
+               `${etudiant?.prenom} ${etudiant?.nom}`.toLowerCase().includes(term);
       });
     }
   }
 
-  // Changer le statut d'une inscription (paye/non paye)
+  // Changer le statut d'une inscription
   toggleInscriptionStatut(inscription: Inscription) {
     const nouveauStatut = inscription.statut === 'paye' ? 'non paye' : 'paye';
     this.databaseService.updateInscription(inscription.idInscription, { statut: nouveauStatut });
-    this.loadData();
+
+    // Mettre à jour localement
+    inscription.statut = nouveauStatut;
+    this.updateStats();
+
     const etudiant = this.getEtudiantById(inscription.idEtudiant);
     const formation = this.getFormationById(inscription.idFormation);
     this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" marquée comme ${nouveauStatut === 'paye' ? 'payée' : 'non payée'}`, 'success');
@@ -166,7 +236,15 @@ export class AdminDashboard implements OnInit {
   deleteInscription(inscription: Inscription) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette inscription ?')) {
       this.databaseService.deleteInscription(inscription.idInscription);
-      this.loadData();
+
+      // Supprimer localement
+      const index = this.inscriptions.findIndex(i => i.idInscription === inscription.idInscription);
+      if (index !== -1) {
+        this.inscriptions.splice(index, 1);
+        this.filteredInscriptions = [...this.inscriptions];
+        this.updateStats();
+      }
+
       const etudiant = this.getEtudiantById(inscription.idEtudiant);
       const formation = this.getFormationById(inscription.idFormation);
       this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" supprimée`, 'success');
@@ -175,9 +253,32 @@ export class AdminDashboard implements OnInit {
 
   // Supprimer une formation
   deleteFormation(formation: FormationDetail) {
+    // Vérifier si des inscriptions existent pour cette formation
+    const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
+    if (inscriptionsLiees.length > 0) {
+      if (!confirm(`Cette formation a ${inscriptionsLiees.length} inscription(s). Les supprimer également ?`)) {
+        return;
+      }
+      // Supprimer les inscriptions liées
+      inscriptionsLiees.forEach(ins => {
+        this.databaseService.deleteInscription(ins.idInscription);
+      });
+    }
+
     if (confirm(`Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?`)) {
       this.databaseService.deleteFormation(formation.idFormation);
-      this.loadData();
+
+      // Supprimer localement
+      const index = this.formations.findIndex(f => f.idFormation === formation.idFormation);
+      if (index !== -1) {
+        this.formations.splice(index, 1);
+        // Supprimer aussi les inscriptions liées localement
+        this.inscriptions = this.inscriptions.filter(i => i.idFormation !== formation.idFormation);
+        this.filteredInscriptions = [...this.inscriptions];
+        this.applyFormationFilters();
+        this.updateStats();
+      }
+
       this.showMessage(`Formation "${formation.intitule}" supprimée`, 'success');
     }
   }
@@ -228,10 +329,6 @@ export class AdminDashboard implements OnInit {
       return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`;
     }
     return 'A';
-  }
-
-  getCardHeaderClass(index: number): string {
-    return `card-header-color-${index % 10}`;
   }
 
   setActiveTab(tab: string) {

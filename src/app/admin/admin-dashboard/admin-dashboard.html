@@ -19,6 +19,11 @@
                 <i class="bi bi-person"></i> Mon profil
               </a>
             </li>
+            <li>
+              <a class="dropdown-item" (click)="refreshData()" style="cursor: pointer;">
+                <i class="bi bi-arrow-repeat"></i> Rafraîchir
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
@@ -35,299 +40,401 @@
 <div class="container mt-4 content-with-header">
   <!-- Message de notification -->
   <div *ngIf="message" class="alert alert-{{messageType === 'success' ? 'success' : 'danger'}} alert-dismissible fade show" role="alert">
+    <i class="bi {{messageType === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'}}"></i>
     {{message}}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
-  <!-- Bienvenue -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h3 class="text-orange">Bonjour, {{getFullName()}} !</h3>
-          <p class="text-muted">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
-        </div>
-      </div>
+  <!-- Écran de chargement -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-orange" role="status">
+      <span class="visually-hidden">Chargement...</span>
     </div>
+    <p class="mt-3 text-muted">Chargement des données depuis Firebase...</p>
   </div>
 
-  <!-- Cartes de statistiques -->
-  <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card text-white bg-primary h-100">
-        <div class="card-body">
-          <h5 class="card-title">📚 Formations</h5>
-          <p class="card-text display-6">{{stats.totalFormations}}</p>
-          <small>{{stats.formationsValides}} validées / {{stats.formationsNonValides}} non validées</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-white bg-success h-100">
-        <div class="card-body">
-          <h5 class="card-title">📝 Inscriptions</h5>
-          <p class="card-text display-6">{{stats.totalInscriptions}}</p>
-          <small>{{stats.inscriptionsPaye}} payées / {{stats.inscriptionsNonPaye}} non payées</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-white bg-info h-100">
-        <div class="card-body">
-          <h5 class="card-title">👥 Utilisateurs</h5>
-          <p class="card-text display-6">{{stats.totalEtudiants + stats.totalFormateurs}}</p>
-          <small>{{stats.totalEtudiants}} étudiants / {{stats.totalFormateurs}} formateurs</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-white bg-warning h-100">
-        <div class="card-body">
-          <h5 class="card-title">💰 Revenus</h5>
-          <p class="card-text display-6">{{stats.revenuTotal}} €</p>
-          <small>Total généré</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Onglets de navigation -->
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'formations'" (click)="setActiveTab('formations')" style="cursor: pointer;">
-        📋 Formations
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'inscriptions'" (click)="setActiveTab('inscriptions')" style="cursor: pointer;">
-      📝 Inscriptions
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'etudiants'" (click)="setActiveTab('etudiants')" style="cursor: pointer;">
-        👨‍🎓 Étudiants
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'formateurs'" (click)="setActiveTab('formateurs')" style="cursor: pointer;">
-        👨‍🏫 Formateurs
-      </a>
-    </li>
-  </ul>
-
-  <!-- Onglet Formations -->
-  <div *ngIf="activeTab === 'formations'">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-light">
-        <div class="row align-items-center">
-          <div class="col-md-4">
-            <h5 class="mb-0">Gestion des formations</h5>
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading">
+    <!-- Bienvenue -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm mb-4 border-0">
+          <div class="card-body bg-gradient-light">
+            <h3 class="text-orange mb-2">Bonjour, {{getFullName()}} !</h3>
+            <p class="text-muted mb-0">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
           </div>
-          <div class="col-md-8">
-            <div class="row">
-              <div class="col-md-6 mb-2 mb-md-0">
-                <input type="text" class="form-control" placeholder="Rechercher une formation..." [(ngModel)]="searchTerm" (input)="onSearchFormations()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Formations</h6>
+                <p class="card-text display-6 mb-0">{{stats.totalFormations}}</p>
+                <small class="opacity-75">{{stats.formationsValides}} validées / {{stats.formationsNonValides}} non validées</small>
               </div>
-              <div class="col-md-4">
-                <select class="form-select" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
-                  <option value="all">Tous les statuts</option>
-                  <option value="valide">Validées</option>
-                  <option value="nonValide">Non validées</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <button class="btn btn-orange w-100">+ Nouvelle</button>
-              </div>
+              <i class="bi bi-book display-4 opacity-50"></i>
             </div>
           </div>
         </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Intitulé</th>
-                <th>Formateur</th>
-                <th>Durée</th>
-                <th>Prix</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let formation of filteredFormations">
-                <td>{{formation.idFormation}}</td>
-                <td>
-                  <strong>{{formation.intitule}}</strong><br>
-                  <small class="text-muted">{{formation.description | slice:0:50}}...</small>
-                </td>
-                <td>{{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}</td>
-                <td>{{formation.duree}}</td>
-                <td>{{formation.prix}} €</td>
-                <td>
-                  <span [class]="getFormationStatutBadgeClass(formation.statut)">
-                    {{formation.statut === 'valide' ? 'Validée' : 'Non validée'}}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-success me-1"
-                          (click)="toggleFormationStatut(formation)"
-                          [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
-                    {{formation.statut === 'valide' ? '🔴 Invalider' : '🟢 Valider'}}
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger"
-                          (click)="deleteFormation(formation)">
-                    🗑️ Supprimer
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="filteredFormations.length === 0">
-                <td colspan="7" class="text-center">Aucune formation trouvée</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Onglet Inscriptions -->
-  <div *ngIf="activeTab === 'inscriptions'">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-light">
-        <div class="row">
-          <div class="col-md-6">
-            <h5 class="mb-0">Gestion des inscriptions</h5>
-          </div>
-          <div class="col-md-6">
-            <input type="text" class="form-control" placeholder="Rechercher par étudiant ou formation..." [(ngModel)]="inscriptionSearchTerm" (input)="onSearchInscriptions()">
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Inscriptions</h6>
+                <p class="card-text display-6 mb-0">{{stats.totalInscriptions}}</p>
+                <small class="opacity-75">{{stats.inscriptionsPaye}} payées / {{stats.inscriptionsNonPaye}} non payées</small>
+              </div>
+              <i class="bi bi-journal-check display-4 opacity-50"></i>
+            </div>
           </div>
         </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Étudiant</th>
-                <th>Formation</th>
-                <th>Date d'inscription</th>
-                <th>Statut paiement</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let inscription of filteredInscriptions">
-                <td>{{inscription.idInscription}}</td>
-                <td>
-                  {{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}
-                </td>
-                <td>{{getFormationById(inscription.idFormation)?.intitule}}</td>
-                <td>{{inscription.dateInscription}}</td>
-                <td>
-                  <span [class]="getInscriptionStatutBadgeClass(inscription.statut)">
-                    {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-success me-1"
-                          (click)="toggleInscriptionStatut(inscription)">
-                    {{inscription.statut === 'paye' ? '💰 Marquer non payée' : '💵 Marquer payée'}}
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger"
-                          (click)="deleteInscription(inscription)">
-                    🗑️ Supprimer
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="filteredInscriptions.length === 0">
-                <td colspan="6" class="text-center">Aucune inscription trouvée</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Utilisateurs</h6>
+                <p class="card-text display-6 mb-0">{{stats.totalEtudiants + stats.totalFormateurs}}</p>
+                <small class="opacity-75">{{stats.totalEtudiants}} étudiants / {{stats.totalFormateurs}} formateurs</small>
+              </div>
+              <i class="bi bi-people display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Revenus</h6>
+                <p class="card-text display-6 mb-0">{{stats.revenuTotal}} €</p>
+                <small class="opacity-75">Total généré</small>
+              </div>
+              <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Onglet Étudiants -->
-  <div *ngIf="activeTab === 'etudiants'">
-    <div class="card shadow-sm">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">Liste des étudiants ({{etudiants.length}})</h5>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nom complet</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Niveau</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let etudiant of etudiants">
-                <td>{{etudiant.idEtudiant}}</td>
-                <td>{{etudiant.prenom}} {{etudiant.nom}}</td>
-                <td>{{etudiant.mail}}</td>
-                <td>{{etudiant.tel}}</td>
-                <td>{{etudiant.niveau}}</td>
-                <td>
-                  <span [class]="etudiant.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
-                    {{etudiant.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'formations'" (click)="setActiveTab('formations')" style="cursor: pointer;">
+          <i class="bi bi-book me-1"></i> Formations
+          <span class="badge bg-orange ms-1">{{formations.length}}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'inscriptions'" (click)="setActiveTab('inscriptions')" style="cursor: pointer;">
+          <i class="bi bi-journal-bookmark me-1"></i> Inscriptions
+          <span class="badge bg-orange ms-1">{{inscriptions.length}}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'etudiants'" (click)="setActiveTab('etudiants')" style="cursor: pointer;">
+          <i class="bi bi-person-graduate me-1"></i> Étudiants
+          <span class="badge bg-orange ms-1">{{etudiants.length}}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'formateurs'" (click)="setActiveTab('formateurs')" style="cursor: pointer;">
+          <i class="bi bi-person-badge me-1"></i> Formateurs
+          <span class="badge bg-orange ms-1">{{formateurs.length}}</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Onglet Formations -->
+    <div *ngIf="activeTab === 'formations'">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h5 class="mb-0">
+                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Gestion des formations
+              </h5>
+            </div>
+            <div class="col-md-8">
+              <div class="row g-2">
+                <div class="col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Rechercher une formation..." [(ngModel)]="searchTerm" (input)="onSearchFormations()">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+                    <option value="all">📊 Tous les statuts</option>
+                    <option value="valide">✅ Validées</option>
+                    <option value="nonValide">⏳ Non validées</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-orange btn-sm w-100">
+                    <i class="bi bi-plus-circle"></i> Nouvelle formation
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 5%">ID</th>
+                  <th style="width: 30%">Intitulé</th>
+                  <th style="width: 15%">Formateur</th>
+                  <th style="width: 8%">Durée</th>
+                  <th style="width: 8%">Prix</th>
+                  <th style="width: 10%">Statut</th>
+                  <th style="width: 24%">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let formation of filteredFormations">
+                  <td class="align-middle">#{{formation.idFormation}}</td>
+                  <td class="align-middle">
+                    <strong>{{formation.intitule}}</strong><br>
+                    <small class="text-muted">{{formation.description | slice:0:60}}...</small>
+                  </td>
+                  <td class="align-middle">
+                    <span class="badge bg-secondary">
+                      {{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}
+                    </span>
+                  </td>
+                  <td class="align-middle">{{formation.duree}}</td>
+                  <td class="align-middle">{{formation.prix}} €</td>
+                  <td class="align-middle">
+                    <span [class]="getFormationStatutBadgeClass(formation.statut)">
+                      {{formation.statut === 'valide' ? '✅ Validée' : '⏳ Non validée'}}
+                    </span>
+                  </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-success me-1"
+                            (click)="toggleFormationStatut(formation)"
+                            [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
+                      <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
+                      {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteFormation(formation)">
+                      <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredFormations.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucune formation trouvée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{filteredFormations.length}} formation(s)</small>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Onglet Formateurs -->
-  <div *ngIf="activeTab === 'formateurs'">
-    <div class="card shadow-sm">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">Liste des formateurs ({{formateurs.length}})</h5>
+    <!-- Onglet Inscriptions -->
+    <div *ngIf="activeTab === 'inscriptions'">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h5 class="mb-0">
+                <i class="bi bi-journal-bookmark-fill me-1"></i> Gestion des inscriptions
+              </h5>
+            </div>
+            <div class="col-md-8">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Rechercher par étudiant ou formation..." [(ngModel)]="inscriptionSearchTerm" (input)="onSearchInscriptions()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 8%">ID</th>
+                  <th style="width: 25%">Étudiant</th>
+                  <th style="width: 30%">Formation</th>
+                  <th style="width: 15%">Date d'inscription</th>
+                  <th style="width: 12%">Statut paiement</th>
+                  <th style="width: 20%">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let inscription of filteredInscriptions">
+                  <td class="align-middle">#{{inscription.idInscription}}</td>
+                  <td class="align-middle">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}
+                  </td>
+                  <td class="align-middle">
+                    {{getFormationById(inscription.idFormation)?.intitule}}
+                  </td>
+                  <td class="align-middle">{{inscription.dateInscription}}</td>
+                  <td class="align-middle">
+                    <span [class]="getInscriptionStatutBadgeClass(inscription.statut)">
+                      {{inscription.statut === 'paye' ? '💰 Payée' : '💳 Non payée'}}
+                    </span>
+                  </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-success me-1"
+                            (click)="toggleInscriptionStatut(inscription)"
+                            [title]="inscription.statut === 'paye' ? 'Marquer non payée' : 'Marquer payée'">
+                      <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card'}}"></i>
+                      {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteInscription(inscription)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredInscriptions.length === 0">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucune inscription trouvée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{filteredInscriptions.length}} inscription(s)</small>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nom complet</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Spécialité</th>
-                <th>Niveau</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let formateur of formateurs">
-                <td>{{formateur.idFormateur}}</td>
-                <td>{{formateur.prenom}} {{formateur.nom}}</td>
-                <td>{{formateur.mail}}</td>
-                <td>{{formateur.tel}}</td>
-                <td>{{formateur.specialite}}</td>
-                <td>{{formateur.niveau}}</td>
-                <td>
-                  <span [class]="formateur.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
-                    {{formateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    </div>
+
+    <!-- Onglet Étudiants -->
+    <div *ngIf="activeTab === 'etudiants'">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-person-video3 me-1"></i> Liste des étudiants
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nom complet</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Niveau</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let etudiant of etudiants">
+                  <td class="align-middle">#{{etudiant.idEtudiant}}</td>
+                  <td class="align-middle">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{etudiant.prenom}} {{etudiant.nom}}
+                  </td>
+                  <td class="align-middle">{{etudiant.mail}}</td>
+                  <td class="align-middle">{{etudiant.tel}}</td>
+                  <td class="align-middle">
+                    <span class="badge bg-info">{{etudiant.niveau}}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span [class]="etudiant.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
+                      {{etudiant.statut === 'actif' ? '🟢 Actif' : '🔴 Bloqué'}}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="etudiants.length === 0">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucun étudiant trouvé
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{etudiants.length}} étudiant(s)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Formateurs -->
+    <div *ngIf="activeTab === 'formateurs'">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-person-badge me-1"></i> Liste des formateurs
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nom complet</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Spécialité</th>
+                  <th>Niveau</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let formateur of formateurs">
+                  <td class="align-middle">#{{formateur.idFormateur}}</td>
+                  <td class="align-middle">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{formateur.prenom}} {{formateur.nom}}
+                  </td>
+                  <td class="align-middle">{{formateur.mail}}</td>
+                  <td class="align-middle">{{formateur.tel}}</td>
+                  <td class="align-middle">
+                    <span class="badge bg-primary">{{formateur.specialite}}</span>
+                  </td>
+                  <td class="align-middle">{{formateur.niveau}}</td>
+                  <td class="align-middle">
+                    <span [class]="formateur.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
+                      {{formateur.statut === 'actif' ? '🟢 Actif' : '🔴 Bloqué'}}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="formateurs.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucun formateur trouvé
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{formateurs.length}} formateur(s)</small>
         </div>
       </div>
     </div>
