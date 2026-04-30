@@ -27,8 +27,10 @@ export class LoginComponent {
 
     if (this.auth.login(this.email, this.password, this.selectedRole)) {
       const userRole = this.auth.getUserRole();
+
+      // Redirection selon le rôle
       if (userRole === 'userAdmin') {
-        this.router.navigate(['/formateur']);
+        this.router.navigate(['/admin']);
       } else if (userRole === 'userTrainer') {
         this.router.navigate(['/formateur']);
       } else if (userRole === 'userStudent') {
