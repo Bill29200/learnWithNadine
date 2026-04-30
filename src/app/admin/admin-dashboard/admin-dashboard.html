@@ -1,1 +1,335 @@
-<p>admin-dashboard works!</p>
+<!-- Barre supérieure avec le profil et déconnexion -->
+<div class="main-header bg-light border-bottom">
+  <div class="container">
+    <div class="row py-3 align-items-center">
+      <div class="col-md-6">
+        <h5 class="mb-0">
+          <span class="text-orange">🎓 Learn With Nadine - Administration</span>
+        </h5>
+      </div>
+      <div class="col-md-6 text-end">
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-outline-orange dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="avatar-circle me-2">{{getInitials()}}</span>
+            {{getFullName()}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-person"></i> Mon profil
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4 content-with-header">
+  <!-- Message de notification -->
+  <div *ngIf="message" class="alert alert-{{messageType === 'success' ? 'success' : 'danger'}} alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  <!-- Bienvenue -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h3 class="text-orange">Bonjour, {{getFullName()}} !</h3>
+          <p class="text-muted">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-white bg-primary h-100">
+        <div class="card-body">
+          <h5 class="card-title">📚 Formations</h5>
+          <p class="card-text display-6">{{stats.totalFormations}}</p>
+          <small>{{stats.formationsValides}} validées / {{stats.formationsNonValides}} non validées</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-white bg-success h-100">
+        <div class="card-body">
+          <h5 class="card-title">📝 Inscriptions</h5>
+          <p class="card-text display-6">{{stats.totalInscriptions}}</p>
+          <small>{{stats.inscriptionsPaye}} payées / {{stats.inscriptionsNonPaye}} non payées</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-white bg-info h-100">
+        <div class="card-body">
+          <h5 class="card-title">👥 Utilisateurs</h5>
+          <p class="card-text display-6">{{stats.totalEtudiants + stats.totalFormateurs}}</p>
+          <small>{{stats.totalEtudiants}} étudiants / {{stats.totalFormateurs}} formateurs</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-white bg-warning h-100">
+        <div class="card-body">
+          <h5 class="card-title">💰 Revenus</h5>
+          <p class="card-text display-6">{{stats.revenuTotal}} €</p>
+          <small>Total généré</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets de navigation -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'formations'" (click)="setActiveTab('formations')" style="cursor: pointer;">
+        📋 Formations
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'inscriptions'" (click)="setActiveTab('inscriptions')" style="cursor: pointer;">
+      📝 Inscriptions
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'etudiants'" (click)="setActiveTab('etudiants')" style="cursor: pointer;">
+        👨‍🎓 Étudiants
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'formateurs'" (click)="setActiveTab('formateurs')" style="cursor: pointer;">
+        👨‍🏫 Formateurs
+      </a>
+    </li>
+  </ul>
+
+  <!-- Onglet Formations -->
+  <div *ngIf="activeTab === 'formations'">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <div class="row align-items-center">
+          <div class="col-md-4">
+            <h5 class="mb-0">Gestion des formations</h5>
+          </div>
+          <div class="col-md-8">
+            <div class="row">
+              <div class="col-md-6 mb-2 mb-md-0">
+                <input type="text" class="form-control" placeholder="Rechercher une formation..." [(ngModel)]="searchTerm" (input)="onSearchFormations()">
+              </div>
+              <div class="col-md-4">
+                <select class="form-select" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+                  <option value="all">Tous les statuts</option>
+                  <option value="valide">Validées</option>
+                  <option value="nonValide">Non validées</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-orange w-100">+ Nouvelle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Intitulé</th>
+                <th>Formateur</th>
+                <th>Durée</th>
+                <th>Prix</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let formation of filteredFormations">
+                <td>{{formation.idFormation}}</td>
+                <td>
+                  <strong>{{formation.intitule}}</strong><br>
+                  <small class="text-muted">{{formation.description | slice:0:50}}...</small>
+                </td>
+                <td>{{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}</td>
+                <td>{{formation.duree}}</td>
+                <td>{{formation.prix}} €</td>
+                <td>
+                  <span [class]="getFormationStatutBadgeClass(formation.statut)">
+                    {{formation.statut === 'valide' ? 'Validée' : 'Non validée'}}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-success me-1"
+                          (click)="toggleFormationStatut(formation)"
+                          [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
+                    {{formation.statut === 'valide' ? '🔴 Invalider' : '🟢 Valider'}}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="deleteFormation(formation)">
+                    🗑️ Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredFormations.length === 0">
+                <td colspan="7" class="text-center">Aucune formation trouvée</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet Inscriptions -->
+  <div *ngIf="activeTab === 'inscriptions'">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="mb-0">Gestion des inscriptions</h5>
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Rechercher par étudiant ou formation..." [(ngModel)]="inscriptionSearchTerm" (input)="onSearchInscriptions()">
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Étudiant</th>
+                <th>Formation</th>
+                <th>Date d'inscription</th>
+                <th>Statut paiement</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inscription of filteredInscriptions">
+                <td>{{inscription.idInscription}}</td>
+                <td>
+                  {{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}
+                </td>
+                <td>{{getFormationById(inscription.idFormation)?.intitule}}</td>
+                <td>{{inscription.dateInscription}}</td>
+                <td>
+                  <span [class]="getInscriptionStatutBadgeClass(inscription.statut)">
+                    {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-success me-1"
+                          (click)="toggleInscriptionStatut(inscription)">
+                    {{inscription.statut === 'paye' ? '💰 Marquer non payée' : '💵 Marquer payée'}}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="deleteInscription(inscription)">
+                    🗑️ Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredInscriptions.length === 0">
+                <td colspan="6" class="text-center">Aucune inscription trouvée</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet Étudiants -->
+  <div *ngIf="activeTab === 'etudiants'">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Liste des étudiants ({{etudiants.length}})</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Niveau</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let etudiant of etudiants">
+                <td>{{etudiant.idEtudiant}}</td>
+                <td>{{etudiant.prenom}} {{etudiant.nom}}</td>
+                <td>{{etudiant.mail}}</td>
+                <td>{{etudiant.tel}}</td>
+                <td>{{etudiant.niveau}}</td>
+                <td>
+                  <span [class]="etudiant.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
+                    {{etudiant.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet Formateurs -->
+  <div *ngIf="activeTab === 'formateurs'">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Liste des formateurs ({{formateurs.length}})</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Spécialité</th>
+                <th>Niveau</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let formateur of formateurs">
+                <td>{{formateur.idFormateur}}</td>
+                <td>{{formateur.prenom}} {{formateur.nom}}</td>
+                <td>{{formateur.mail}}</td>
+                <td>{{formateur.tel}}</td>
+                <td>{{formateur.specialite}}</td>
+                <td>{{formateur.niveau}}</td>
+                <td>
+                  <span [class]="formateur.statut === 'actif' ? 'badge bg-success' : 'badge bg-danger'">
+                    {{formateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

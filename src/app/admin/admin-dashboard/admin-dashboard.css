@@ -1,0 +1,101 @@
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  background-color: white;
+}
+
+.content-with-header {
+  padding-top: 90px;
+}
+
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #ff5928;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.dropdown-toggle::after {
+  margin-left: 8px;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+}
+
+.bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+.display-6 {
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+  color: #ff5928;
+  border-bottom: 2px solid #ff5928;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #ff5928;
+  border-color: #ff5928 #ff5928 #dee2e6;
+}
+
+.btn-orange {
+  background-color: #ff5928;
+  border: 1px solid #ff5928;
+  color: white;
+}
+
+.btn-orange:hover {
+  background-color: #e64d1f;
+  border-color: #e64d1f;
+  color: white;
+}
+
+.text-orange {
+  color: #ff5928 !important;
+}
+
+.badge {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
