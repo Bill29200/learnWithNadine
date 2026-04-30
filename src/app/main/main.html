@@ -65,7 +65,9 @@
           <h5 [ngClass]="'card-title card-header-color-' + (i % 10)">{{formation.intitule}}</h5>
           <p class="card-text text-muted">{{formation.description | slice:0:100}}...</p>
           <p class="card-text">
+            <span>⏰</span>
             <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
+            <span>💰</span>
             <span class="badge bg-success">Prix: {{formation.prix}} €</span>
           </p>
           <div class="d-grid gap-2">
