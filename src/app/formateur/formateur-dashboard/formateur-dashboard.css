@@ -44,16 +44,62 @@
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
 }
 
-.card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-}
-
-.display-4 {
-  font-size: 2.5rem;
+.display-6 {
+  font-size: 1.8rem;
   font-weight: 300;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+  color: #ff5928;
+  border-bottom: 2px solid #ff5928;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #ff5928;
+}
+
+.btn-orange {
+  background-color: #ff5928;
+  border: 1px solid #ff5928;
+  color: white;
+}
+
+.btn-orange:hover {
+  background-color: #e64d1f;
+  border-color: #e64d1f;
+  color: white;
+}
+
+.text-orange {
+  color: #ff5928 !important;
+}
+
+.badge {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.modal.show {
+  display: block;
+  z-index: 1050;
+}
+
+.modal.fade .modal-dialog {
+  transform: translate(0, 0);
 }

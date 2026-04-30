@@ -4,7 +4,7 @@
     <div class="row py-3 align-items-center">
       <div class="col-md-6">
         <h5 class="mb-0">
-          <span class="text-orange">🎓 Learn With Nadine</span>
+          <span class="text-orange">🎓 Learn With Nadine - Espace Formateur</span>
         </h5>
       </div>
       <div class="col-md-6 text-end">
@@ -20,8 +20,8 @@
               </a>
             </li>
             <li>
-              <a class="dropdown-item" href="#">
-                <i class="bi bi-gear"></i> Paramètres
+              <a class="dropdown-item" (click)="loadMesFormations()" style="cursor: pointer;">
+                <i class="bi bi-arrow-repeat"></i> Rafraîchir
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -38,93 +38,336 @@
 </div>
 
 <div class="container mt-4 content-with-header">
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h3 class="text-orange">Bienvenue, {{getFullName()}} !</h3>
-          <p class="text-muted">Tableau de bord formateur - Gérez vos formations et suivez vos étudiants</p>
-        </div>
-      </div>
-    </div>
+  <!-- Message de notification -->
+  <div *ngIf="message" class="alert alert-{{messageType === 'success' ? 'success' : 'danger'}} alert-dismissible fade show" role="alert">
+    <i class="bi {{messageType === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'}}"></i>
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
-  <!-- Cartes de statistiques -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="card text-white bg-primary">
-        <div class="card-body">
-          <h5 class="card-title">Mes Formations</h5>
-          <p class="card-text display-4">{{formateurInfo ? '0' : '0'}}</p>
-          <small>Formations créées</small>
-        </div>
-      </div>
+  <!-- Écran de chargement -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-orange" role="status">
+      <span class="visually-hidden">Chargement...</span>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white bg-success">
-        <div class="card-body">
-          <h5 class="card-title">Étudiants</h5>
-          <p class="card-text display-4">0</p>
-          <small>Étudiants inscrits</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-white bg-info">
-        <div class="card-body">
-          <h5 class="card-title">Revenus</h5>
-          <p class="card-text display-4">0€</p>
-          <small>Total généré</small>
-        </div>
-      </div>
-    </div>
+    <p class="mt-3 text-muted">Chargement de vos données...</p>
   </div>
 
-  <!-- Section principale du dashboard formateur -->
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header bg-orange text-white">
-          <h5 class="mb-0">📋 Mes Formations</h5>
-        </div>
-        <div class="card-body">
-          <p class="text-muted">Vous n'avez pas encore de formations.</p>
-          <button class="btn btn-outline-orange w-100">+ Créer une formation</button>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header bg-orange text-white">
-          <h5 class="mb-0">👥 Demandes d'inscription</h5>
-        </div>
-        <div class="card-body">
-          <p class="text-muted">Aucune demande en attente.</p>
-          <button class="btn btn-outline-orange w-100">Voir les demandes</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Informations du profil -->
-  <div class="row mt-3">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">ℹ️ Mes Informations</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <p><strong>Nom complet :</strong> {{getFullName()}}</p>
-              <p><strong>Email :</strong> {{currentUser?.email}}</p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Téléphone :</strong> {{currentUser?.phone}}</p>
-              <p><strong>Spécialité :</strong> {{formateurInfo?.specialite || 'Non renseignée'}}</p>
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading">
+    <!-- Bienvenue -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm mb-4 border-0">
+          <div class="card-body bg-gradient-light">
+            <h3 class="text-orange mb-2">Bienvenue, {{getFullName()}} !</h3>
+            <p class="text-muted mb-0">Gérez vos formations et suivez vos étudiants inscrits</p>
+            <div class="mt-2" *ngIf="formateurInfo">
+              <span class="badge bg-primary me-2">Spécialité: {{formateurInfo.specialite}}</span>
+              <span class="badge bg-info">Niveau: {{formateurInfo.niveau}}</span>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-primary h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Mes Formations</h6>
+                <p class="card-text display-6 mb-0">{{mesFormations.length}}</p>
+                <small class="opacity-75">{{getFormationsValides().length}} validées / {{getFormationsNonValides().length}} non validées</small>
+              </div>
+              <i class="bi bi-book display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-success h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Total Inscriptions</h6>
+                <p class="card-text display-6 mb-0">{{getTotalInscriptions()}}</p>
+                <small class="opacity-75">Étudiants inscrits</small>
+              </div>
+              <i class="bi bi-people display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-info h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Revenus Estimés</h6>
+                <p class="card-text display-6 mb-0">{{getRevenusTotaux()}} €</p>
+                <small class="opacity-75">Basé sur les inscriptions payées</small>
+              </div>
+              <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'formations'" (click)="setActiveTab('formations')" style="cursor: pointer;">
+          <i class="bi bi-book me-1"></i> Mes Formations
+          <span class="badge bg-orange ms-1">{{mesFormations.length}}</span>
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="selectedFormation">
+        <a class="nav-link" [class.active]="activeTab === 'etudiants'" (click)="setActiveTab('etudiants')" style="cursor: pointer;">
+          <i class="bi bi-people me-1"></i> Étudiants - {{selectedFormation.intitule}}
+          <span class="badge bg-orange ms-1">{{etudiantsInscrits.length}}</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- ==================== ONGLET MES FORMATIONS ==================== -->
+    <div *ngIf="activeTab === 'formations'">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h5 class="mb-0">
+                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Gestion de mes formations
+              </h5>
+            </div>
+            <div class="col-md-8">
+              <div class="row g-2">
+                <div class="col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Rechercher une formation..." [(ngModel)]="searchTerm" (input)="onSearchFormations()">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+                    <option value="all">📊 Tous les statuts</option>
+                    <option value="valide">✅ Validées</option>
+                    <option value="nonValide">⏳ Non validées</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-orange btn-sm w-100" (click)="openAddFormation()">
+                    <i class="bi bi-plus-circle"></i> Nouvelle formation
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 5%">ID</th>
+                  <th style="width: 25%">Intitulé</th>
+                  <th style="width: 10%">Durée</th>
+                  <th style="width: 8%">Prix</th>
+                  <th style="width: 10%">Statut</th>
+                  <th style="width: 15%">Inscrits</th>
+                  <th style="width: 27%">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let formation of filteredFormations">
+                  <td class="align-middle">#{{formation.idFormation}}</td>
+                  <td class="align-middle">
+                    <strong>{{formation.intitule}}</strong><br>
+                    <small class="text-muted">{{formation.description | slice:0:50}}...</small>
+                  </td>
+                  <td class="align-middle">{{formation.duree}}</td>
+                  <td class="align-middle">{{formation.prix}} €</td>
+                  <td class="align-middle">
+                    <span [class]="getFormationStatutBadgeClass(formation.statut)">
+                      {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+                    </span>
+                    <small *ngIf="formation.statut === 'nonValide'" class="text-muted d-block">
+                      En attente de validation admin
+                    </small>
+                  </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-info"
+                            (click)="voirEtudiantsInscrits(formation)"
+                            [disabled]="formation.statut !== 'valide'">
+                      <i class="bi bi-people"></i>
+                      {{getNombreInscrits(formation.idFormation)}} inscrits
+                    </button>
+                  </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-primary me-1"
+                            (click)="openEditFormation(formation)">
+                      <i class="bi bi-pencil"></i> Modifier
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="confirmDeleteFormation(formation)">
+                      <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredFormations.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucune formation trouvée
+                    <button class="btn btn-sm btn-orange mt-2 d-block mx-auto" (click)="openAddFormation()">
+                      <i class="bi bi-plus-circle"></i> Créer ma première formation
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{filteredFormations.length}} formation(s)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ONGLET ÉTUDIANTS INSCRITS ==================== -->
+    <div *ngIf="activeTab === 'etudiants' && selectedFormation">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h5 class="mb-0">
+                <i class="bi bi-people-fill me-1"></i>
+                Étudiants inscrits à "{{selectedFormation.intitule}}"
+              </h5>
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-sm btn-secondary" (click)="closeEtudiantsView()">
+                <i class="bi bi-arrow-left"></i> Retour aux formations
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Étudiant</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Niveau</th>
+                  <th>Date inscription</th>
+                  <th>Statut paiement</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of etudiantsInscrits">
+                  <td class="align-middle">#{{item.etudiant.idEtudiant}}</td>
+                  <td class="align-middle">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{item.etudiant.prenom}} {{item.etudiant.nom}}
+                  </td>
+                  <td class="align-middle">{{item.etudiant.mail}}</td>
+                  <td class="align-middle">{{item.etudiant.tel}}</td>
+                  <td class="align-middle">
+                    <span class="badge bg-info">{{item.etudiant.niveau}}</span>
+                  </td>
+                  <td class="align-middle">{{item.inscription.dateInscription}}</td>
+                  <td class="align-middle">
+                    <span [class]="getInscriptionStatutBadgeClass(item.inscription.statut)">
+                      {{item.inscription.statut === 'paye' ? '💰 Payée' : '💳 Non payée'}}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="etudiantsInscrits.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                    Aucun étudiant inscrit à cette formation
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">Total: {{etudiantsInscrits.length}} étudiant(s) inscrit(s)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL FORMATION ==================== -->
+<div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormModal" [style.display]="showFormModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi {{isEditing ? 'bi-pencil-square' : 'bi-plus-circle'}} me-2"></i>
+          {{isEditing ? 'Modifier la formation' : 'Ajouter une nouvelle formation'}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Intitulé de la formation *</label>
+            <input type="text" class="form-control" [(ngModel)]="formationForm.intitule" name="intitule" required>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Durée</label>
+              <input type="text" class="form-control" [(ngModel)]="formationForm.duree" name="duree" placeholder="Ex: 35h">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prix (€)</label>
+              <input type="number" class="form-control" [(ngModel)]="formationForm.prix" name="prix" placeholder="Ex: 299">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description *</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formationForm.description" name="description" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Programme de la formation</label>
+            <div class="input-group mb-2">
+              <input type="text" class="form-control" [(ngModel)]="programmeInput" name="programmeInput" placeholder="Ajouter un point du programme">
+              <button class="btn btn-outline-orange" type="button" (click)="addProgrammePoint()">
+                <i class="bi bi-plus"></i> Ajouter
+              </button>
+            </div>
+            <ul class="list-group mt-2">
+              <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let point of formationForm.programme; let i = index">
+                {{point}}
+                <button class="btn btn-sm btn-outline-danger" (click)="removeProgrammePoint(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="alert alert-info" *ngIf="!isEditing">
+            <i class="bi bi-info-circle"></i>
+            Note: Les nouvelles formations sont créées avec le statut "Non validée". Un administrateur devra les valider avant qu'elles soient visibles par les étudiants.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="saveFormation()">
+          {{isEditing ? 'Mettre à jour' : 'Créer la formation'}}
+        </button>
       </div>
     </div>
   </div>

@@ -155,7 +155,7 @@
       </li>
     </ul>
 
-    <!-- Onglet Formations -->
+    <!-- ==================== ONGLET FORMATIONS ==================== -->
     <div *ngIf="activeTab === 'formations'">
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
@@ -230,7 +230,7 @@
                       {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
                     </button>
                     <button class="btn btn-sm btn-outline-danger"
-                            (click)="deleteFormation(formation)">
+                            (click)="confirmDeleteFormation(formation)">
                       <i class="bi bi-trash"></i> Supprimer
                     </button>
                   </td>
@@ -251,7 +251,7 @@
       </div>
     </div>
 
-    <!-- Onglet Inscriptions -->
+    <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <div *ngIf="activeTab === 'inscriptions'">
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
@@ -279,7 +279,7 @@
                   <th style="width: 30%">Formation</th>
                   <th style="width: 15%">Date d'inscription</th>
                   <th style="width: 12%">Statut paiement</th>
-                  <th style="width: 20%">Actions</th>
+                  <th style="width: 10%">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -303,10 +303,9 @@
                             (click)="toggleInscriptionStatut(inscription)"
                             [title]="inscription.statut === 'paye' ? 'Marquer non payée' : 'Marquer payée'">
                       <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card'}}"></i>
-                      {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
                     </button>
                     <button class="btn btn-sm btn-outline-danger"
-                            (click)="deleteInscription(inscription)">
+                            (click)="confirmDeleteInscription(inscription)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </td>
@@ -327,13 +326,22 @@
       </div>
     </div>
 
-    <!-- Onglet Étudiants -->
+    <!-- ==================== ONGLET ÉTUDIANTS ==================== -->
     <div *ngIf="activeTab === 'etudiants'">
       <div class="card shadow-sm">
         <div class="card-header bg-light">
-          <h5 class="mb-0">
-            <i class="bi bi-person-video3 me-1"></i> Liste des étudiants
-          </h5>
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h5 class="mb-0">
+                <i class="bi bi-person-video3 me-1"></i> Liste des étudiants
+              </h5>
+            </div>
+            <div class="col-md-6 text-end">
+              <button class="btn btn-sm btn-orange">
+                <i class="bi bi-plus-circle"></i> Ajouter un étudiant
+              </button>
+            </div>
+          </div>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -346,6 +354,7 @@
                   <th>Téléphone</th>
                   <th>Niveau</th>
                   <th>Statut</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,9 +374,15 @@
                       {{etudiant.statut === 'actif' ? '🟢 Actif' : '🔴 Bloqué'}}
                     </span>
                   </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="confirmDeleteEtudiant(etudiant)">
+                      <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                  </td>
                 </tr>
                 <tr *ngIf="etudiants.length === 0">
-                  <td colspan="6" class="text-center py-4 text-muted">
+                  <td colspan="7" class="text-center py-4 text-muted">
                     <i class="bi bi-inbox display-6 d-block mb-2"></i>
                     Aucun étudiant trouvé
                   </td>
@@ -382,13 +397,22 @@
       </div>
     </div>
 
-    <!-- Onglet Formateurs -->
+    <!-- ==================== ONGLET FORMATEURS ==================== -->
     <div *ngIf="activeTab === 'formateurs'">
       <div class="card shadow-sm">
         <div class="card-header bg-light">
-          <h5 class="mb-0">
-            <i class="bi bi-person-badge me-1"></i> Liste des formateurs
-          </h5>
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h5 class="mb-0">
+                <i class="bi bi-person-badge me-1"></i> Liste des formateurs
+              </h5>
+            </div>
+            <div class="col-md-6 text-end">
+              <button class="btn btn-sm btn-orange">
+                <i class="bi bi-plus-circle"></i> Ajouter un formateur
+              </button>
+            </div>
+          </div>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -402,6 +426,7 @@
                   <th>Spécialité</th>
                   <th>Niveau</th>
                   <th>Statut</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -422,9 +447,15 @@
                       {{formateur.statut === 'actif' ? '🟢 Actif' : '🔴 Bloqué'}}
                     </span>
                   </td>
+                  <td class="align-middle">
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="confirmDeleteFormateur(formateur)">
+                      <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                  </td>
                 </tr>
                 <tr *ngIf="formateurs.length === 0">
-                  <td colspan="7" class="text-center py-4 text-muted">
+                  <td colspan="8" class="text-center py-4 text-muted">
                     <i class="bi bi-inbox display-6 d-block mb-2"></i>
                     Aucun formateur trouvé
                   </td>
