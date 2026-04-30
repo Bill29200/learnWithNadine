@@ -415,4 +415,13 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
+  // Ajoutez ces méthodes pour les statistiques des inscriptions
+
+getPayeCount(): number {
+  return this.filteredInscriptions.filter(i => i.statut === 'paye').length;
+}
+
+getNonPayeCount(): number {
+  return this.filteredInscriptions.filter(i => i.statut === 'non paye').length;
+}
 }
