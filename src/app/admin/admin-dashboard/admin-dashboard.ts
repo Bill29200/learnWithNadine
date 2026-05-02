@@ -32,14 +32,17 @@ export class AdminDashboard implements OnInit, OnDestroy {
   // Recherche Inscriptions
   searchInscriptionTerm: string = '';
   filteredInscriptions: Inscription[] = [];
+  selectedPaiementStatut: string = 'all';
 
   // Recherche Étudiants
   searchEtudiantTerm: string = '';
   filteredEtudiants: Etudiant[] = [];
+  selectedEtudiantStatut: string = 'all';
 
   // Recherche Formateurs
   searchFormateurTerm: string = '';
   filteredFormateurs: Formateur[] = [];
+  selectedFormateurStatut: string = 'all';
 
   // Statistiques
   stats = {
@@ -168,7 +171,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
   applyFormationFilters() {
     let filtered = [...this.formations];
 
-    // Recherche textuelle
     if (this.searchFormationTerm && this.searchFormationTerm.trim() !== '') {
       const searchTermLower = this.searchFormationTerm.toLowerCase().trim();
       const searchWords = searchTermLower.split(/\s+/);
@@ -202,7 +204,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
       });
     }
 
-    // Filtre par statut
     if (this.selectedStatut !== 'all') {
       filtered = filtered.filter(formation => formation.statut === this.selectedStatut);
     }
@@ -219,6 +220,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   // ==================== RECHERCHE INSCRIPTIONS ====================
   onSearchInscription() {
+    this.applyInscriptionFilters();
+  }
+
+  onPaiementStatutChange() {
     this.applyInscriptionFilters();
   }
 
@@ -257,6 +262,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
       });
     }
 
+    if (this.selectedPaiementStatut !== 'all') {
+      filtered = filtered.filter(inscription => inscription.statut === this.selectedPaiementStatut);
+    }
+
     this.filteredInscriptions = filtered;
   }
 
@@ -269,6 +278,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   // ==================== RECHERCHE ÉTUDIANTS ====================
   onSearchEtudiant() {
+    this.applyEtudiantFilters();
+  }
+
+  onEtudiantStatutChange() {
     this.applyEtudiantFilters();
   }
 
@@ -300,6 +313,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
       });
     }
 
+    if (this.selectedEtudiantStatut !== 'all') {
+      filtered = filtered.filter(etudiant => etudiant.statut === this.selectedEtudiantStatut);
+    }
+
     this.filteredEtudiants = filtered;
   }
 
@@ -312,6 +329,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   // ==================== RECHERCHE FORMATEURS ====================
   onSearchFormateur() {
+    this.applyFormateurFilters();
+  }
+
+  onFormateurStatutChange() {
     this.applyFormateurFilters();
   }
 
@@ -344,6 +365,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
       });
     }
 
+    if (this.selectedFormateurStatut !== 'all') {
+      filtered = filtered.filter(formateur => formateur.statut === this.selectedFormateurStatut);
+    }
+
     this.filteredFormateurs = filtered;
   }
 
@@ -354,7 +379,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.highlightText(text, this.searchFormateurTerm);
   }
 
-  // Utilitaire de surbrillance
   private highlightText(text: string, searchTerm: string): string {
     if (!searchTerm || searchTerm.trim() === '') {
       return text;
@@ -375,7 +399,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return result;
   }
 
-  // ==================== CRUD ACTIONS ====================
+  // ==================== ACTIONS CRUD ====================
   toggleFormationStatut(formation: FormationDetail) {
     const nouveauStatut = formation.statut === 'valide' ? 'nonValide' : 'valide';
     this.databaseService.updateFormation(formation.idFormation, { statut: nouveauStatut });

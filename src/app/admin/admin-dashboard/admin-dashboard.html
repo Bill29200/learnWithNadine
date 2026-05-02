@@ -167,7 +167,7 @@
             </div>
             <div class="col-md-8">
               <div class="row g-2">
-                <div class="col-md-12">
+                <div class="col-md-7">
                   <div class="search-container">
                     <div class="input-group input-group-sm">
                       <span class="input-group-text bg-white border-end-0">
@@ -187,7 +187,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-12 mt-2">
+                <div class="col-md-5">
                   <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
                     <option value="all">📊 Tous les statuts</option>
                     <option value="valide">✅ Validées</option>
@@ -238,7 +238,7 @@
                     <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
                     {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
                   </button>
-                  <button class="btn btn-sm btn-outline-danger"
+                  <button class="btn btn-sm btn-danger"
                           (click)="confirmDeleteFormation(formation)">
                     <i class="bi bi-trash"></i> Supprimer
                   </button>
@@ -271,22 +271,33 @@
               </h5>
             </div>
             <div class="col-md-8">
-              <div class="search-container">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-orange"></i>
-                  </span>
-                  <input type="text"
-                         class="form-control border-start-0"
-                         placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
-                         [(ngModel)]="searchInscriptionTerm"
-                         (input)="onSearchInscription()">
-                  <button class="btn btn-outline-orange" type="button" (click)="searchInscriptionTerm = ''; onSearchInscription()" *ngIf="searchInscriptionTerm">
-                    <i class="bi bi-x-lg"></i> Effacer
-                  </button>
-                  <button class="btn btn-outline-orange" type="button" *ngIf="!searchInscriptionTerm">
-                    <i class="bi bi-search"></i> Rechercher
-                  </button>
+              <div class="row g-2">
+                <div class="col-md-7">
+                  <div class="search-container">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-orange"></i>
+                      </span>
+                      <input type="text"
+                             class="form-control border-start-0"
+                             placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
+                             [(ngModel)]="searchInscriptionTerm"
+                             (input)="onSearchInscription()">
+                      <button class="btn btn-outline-orange" type="button" (click)="searchInscriptionTerm = ''; onSearchInscription()" *ngIf="searchInscriptionTerm">
+                        <i class="bi bi-x-lg"></i> Effacer
+                      </button>
+                      <button class="btn btn-outline-orange" type="button" *ngIf="!searchInscriptionTerm">
+                        <i class="bi bi-search"></i> Rechercher
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedPaiementStatut" (change)="onPaiementStatutChange()">
+                    <option value="all">💳 Tous les statuts</option>
+                    <option value="paye">💰 Payées</option>
+                    <option value="non paye">⏳ Non payées</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -371,22 +382,33 @@
               </h5>
             </div>
             <div class="col-md-8">
-              <div class="search-container">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-orange"></i>
-                  </span>
-                  <input type="text"
-                         class="form-control border-start-0"
-                         placeholder="🔍 Rechercher par nom, prénom, email, téléphone ou niveau..."
-                         [(ngModel)]="searchEtudiantTerm"
-                         (input)="onSearchEtudiant()">
-                  <button class="btn btn-outline-orange" type="button" (click)="searchEtudiantTerm = ''; onSearchEtudiant()" *ngIf="searchEtudiantTerm">
-                    <i class="bi bi-x-lg"></i> Effacer
-                  </button>
-                  <button class="btn btn-outline-orange" type="button" *ngIf="!searchEtudiantTerm">
-                    <i class="bi bi-search"></i> Rechercher
-                  </button>
+              <div class="row g-2">
+                <div class="col-md-7">
+                  <div class="search-container">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-orange"></i>
+                      </span>
+                      <input type="text"
+                             class="form-control border-start-0"
+                             placeholder="🔍 Rechercher par nom, prénom, email, téléphone ou niveau..."
+                             [(ngModel)]="searchEtudiantTerm"
+                             (input)="onSearchEtudiant()">
+                      <button class="btn btn-outline-orange" type="button" (click)="searchEtudiantTerm = ''; onSearchEtudiant()" *ngIf="searchEtudiantTerm">
+                        <i class="bi bi-x-lg"></i> Effacer
+                      </button>
+                      <button class="btn btn-outline-orange" type="button" *ngIf="!searchEtudiantTerm">
+                        <i class="bi bi-search"></i> Rechercher
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedEtudiantStatut" (change)="onEtudiantStatutChange()">
+                    <option value="all">👥 Tous les statuts</option>
+                    <option value="actif">🟢 Actifs</option>
+                    <option value="bloque">🔴 Bloqués</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -422,7 +444,7 @@
                     </span>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-outline-danger" (click)="confirmDeleteEtudiant(etudiant)">
+                  <button class="btn btn-sm btn-danger" (click)="confirmDeleteEtudiant(etudiant)">
                     <i class="bi bi-trash"></i> Supprimer
                   </button>
                 </td>
@@ -454,22 +476,33 @@
               </h5>
             </div>
             <div class="col-md-8">
-              <div class="search-container">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-orange"></i>
-                  </span>
-                  <input type="text"
-                         class="form-control border-start-0"
-                         placeholder="🔍 Rechercher par nom, prénom, email, spécialité ou niveau..."
-                         [(ngModel)]="searchFormateurTerm"
-                         (input)="onSearchFormateur()">
-                  <button class="btn btn-outline-orange" type="button" (click)="searchFormateurTerm = ''; onSearchFormateur()" *ngIf="searchFormateurTerm">
-                    <i class="bi bi-x-lg"></i> Effacer
-                  </button>
-                  <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormateurTerm">
-                    <i class="bi bi-search"></i> Rechercher
-                  </button>
+              <div class="row g-2">
+                <div class="col-md-7">
+                  <div class="search-container">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-orange"></i>
+                      </span>
+                      <input type="text"
+                             class="form-control border-start-0"
+                             placeholder="🔍 Rechercher par nom, prénom, email, spécialité ou niveau..."
+                             [(ngModel)]="searchFormateurTerm"
+                             (input)="onSearchFormateur()">
+                      <button class="btn btn-outline-orange" type="button" (click)="searchFormateurTerm = ''; onSearchFormateur()" *ngIf="searchFormateurTerm">
+                        <i class="bi bi-x-lg"></i> Effacer
+                      </button>
+                      <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormateurTerm">
+                        <i class="bi bi-search"></i> Rechercher
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedFormateurStatut" (change)="onFormateurStatutChange()">
+                    <option value="all">👥 Tous les statuts</option>
+                    <option value="actif">🟢 Actifs</option>
+                    <option value="bloque">🔴 Bloqués</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -509,7 +542,7 @@
                     </span>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-outline-danger" (click)="confirmDeleteFormateur(formateur)">
+                  <button class="btn btn-sm btn-danger" (click)="confirmDeleteFormateur(formateur)">
                     <i class="bi bi-trash"></i> Supprimer
                   </button>
                 </td>
