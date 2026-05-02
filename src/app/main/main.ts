@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { DatabaseService, Etudiant, Formateur, FormationDetail, Inscription } from '../services/database.service';
+import { DatabaseService, FormationDetail, Formateur, Etudiant, Inscription } from '../services/database.service';
 
 @Component({
   selector: 'app-main',
@@ -28,10 +28,8 @@ export class MainComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Charger la base de données et récupérer les formations valides
     console.log('MainComponent: Démarrage du chargement des formations...');
 
-    // Utiliser l'observable pour réagir aux changements de données
     this.databaseService.getDatabase$().subscribe({
       next: (database) => {
         if (database) {
@@ -51,37 +49,117 @@ export class MainComponent implements OnInit {
       }
     });
 
-    // Charger les données si elles ne sont pas encore chargées
     if (!this.databaseService.getDatabase()) {
       this.databaseService.loadDatabase().subscribe();
     }
   }
 
+  // Méthode de recherche multi-critères améliorée
   onSearch() {
-    if (this.searchTerm.trim() === '') {
+    if (!this.searchTerm || this.searchTerm.trim() === '') {
       this.filteredFormations = this.formations;
-    } else {
-      this.filteredFormations = this.formations.filter(formation =>
-        formation.intitule.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        formation.description.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
+      return;
     }
+
+    const searchTermLower = this.searchTerm.toLowerCase().trim();
+    const searchWords = searchTermLower.split(/\s+/); // Découpe en mots pour recherche plus précise
+
+    this.filteredFormations = this.formations.filter(formation => {
+      // 1. Recherche dans l'intitulé (nom)
+      const intituleMatch = formation.intitule.toLowerCase().includes(searchTermLower);
+
+      // 2. Recherche dans la description
+      const descriptionMatch = formation.description.toLowerCase().includes(searchTermLower);
+
+      // 3. Recherche dans le programme (chaque point du programme)
+      const programmeMatch = formation.programme.some(point =>
+        point.toLowerCase().includes(searchTermLower)
+      );
+
+      // 4. Recherche dans la durée (supporte: "35h", "35 heures", "35")
+      const dureeMatch = formation.duree.toLowerCase().includes(searchTermLower);
+
+      // 5. Recherche avancée dans le prix (supporte: "299", "299€", "299 euros", "299.00")
+      const prixString = formation.prix.toString();
+      const prixAvecEuro = `${formation.prix} €`;
+      const prixAvecEuros = `${formation.prix} euros`;
+      const prixAvecPoint = `${formation.prix}.00 €`;
+
+      let prixMatch = prixString.includes(searchTermLower) ||
+        prixAvecEuro.toLowerCase().includes(searchTermLower) ||
+        prixAvecEuros.toLowerCase().includes(searchTermLower) ||
+        prixAvecPoint.toLowerCase().includes(searchTermLower);
+
+      // Support des recherches comme "299€" sans espace
+      if (!prixMatch && searchTermLower.includes('€')) {
+        const prixSansEuro = searchTermLower.replace('€', '').trim();
+        prixMatch = prixString.includes(prixSansEuro);
+      }
+
+      // 6. Recherche dans le formateur (nom, prénom, spécialité)
+      const formateur = this.databaseService.getFormateurById(formation.idFormateur);
+      let formateurMatch = false;
+      if (formateur) {
+        formateurMatch = formateur.nom.toLowerCase().includes(searchTermLower) ||
+          formateur.prenom.toLowerCase().includes(searchTermLower) ||
+          formateur.specialite.toLowerCase().includes(searchTermLower) ||
+          `${formateur.prenom} ${formateur.nom}`.toLowerCase().includes(searchTermLower);
+      }
+
+      // 7. Recherche par mots-clés multiples
+      let multiWordMatch = false;
+      if (searchWords.length > 1) {
+        multiWordMatch = searchWords.every(word =>
+          formation.intitule.toLowerCase().includes(word) ||
+          formation.description.toLowerCase().includes(word) ||
+          formation.programme.some(p => p.toLowerCase().includes(word)) ||
+          (formateur && (formateur.prenom.toLowerCase().includes(word) ||
+            formateur.nom.toLowerCase().includes(word)))
+        );
+      }
+
+      // Retourne vrai si au moins un champ correspond
+      return intituleMatch || descriptionMatch || programmeMatch ||
+        dureeMatch || prixMatch || formateurMatch || multiWordMatch;
+    });
   }
 
+  // Méthode pour obtenir la couleur de la carte
   getCardHeaderClass(index: number): string {
     return `card-header-color-${index % 10}`;
   }
 
-  // Nouvelle méthode pour voir les détails d'une formation
+  // Méthode pour mettre en évidence les termes recherchés
+  highlightText(text: string): string {
+    if (!this.searchTerm || this.searchTerm.trim() === '') {
+      return text;
+    }
+
+    const searchTermLower = this.searchTerm.toLowerCase().trim();
+    const searchWords = searchTermLower.split(/\s+/);
+
+    let result = text;
+
+    // Échapper les caractères spéciaux pour la regex
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Trier les mots par longueur décroissante pour éviter les chevauchements
+    const sortedWords = [...searchWords].sort((a, b) => b.length - a.length);
+
+    for (const word of sortedWords) {
+      const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
+      result = result.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    return result;
+  }
+
+  // Ouvrir les détails d'une formation
   voirDetails(formation: FormationDetail) {
     this.selectedFormation = formation;
-
-    // Récupérer les informations du formateur
     this.formateurInfo = this.databaseService.getFormateurById(formation.idFormateur) || null;
 
-    // Récupérer les inscriptions pour cette formation
     const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
-
     this.etudiantsInscrits = [];
     inscriptions.forEach(inscription => {
       const etudiant = this.databaseService.getEtudiantById(inscription.idEtudiant);
@@ -96,7 +174,7 @@ export class MainComponent implements OnInit {
     this.showDetailModal = true;
   }
 
-  // Fermer le modal de détails
+  // Fermer le modal
   closeDetailModal() {
     this.showDetailModal = false;
     this.selectedFormation = null;
@@ -104,48 +182,28 @@ export class MainComponent implements OnInit {
     this.etudiantsInscrits = [];
   }
 
-  getInscriptionStatutBadgeClass(statut: string): string {
-    return statut === 'paye' ? 'badge bg-success' : 'badge bg-warning text-dark';
+  // Couleurs pour les cartes étudiants
+  getStudentCardColor(index: number): string {
+    const colors = [
+      'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',
+      'linear-gradient(135deg, #F0FFF4 0%, #E0FFE8 100%)',
+      'linear-gradient(135deg, #EBF8FF 0%, #D0EEFF 100%)',
+      'linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%)',
+      'linear-gradient(135deg, #F3E8FF 0%, #E8D5FF 100%)',
+      'linear-gradient(135deg, #FFE0F0 0%, #FFCCE6 100%)',
+      'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)',
+      'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',
+      'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
+      'linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%)',
+    ];
+    return colors[index % colors.length];
   }
 
-  // Rediriger vers l'inscription (si connecté)
-  sInscrire(formationId: number) {
-    this.router.navigate(['/inscription', formationId]);
+  getStudentIconColor(index: number): string {
+    const iconColors = [
+      '#e74c3c', '#27ae60', '#2980b9', '#f39c12', '#8e44ad',
+      '#e91e63', '#00bcd4', '#4caf50', '#ff9800', '#3f51b5'
+    ];
+    return iconColors[index % iconColors.length];
   }
-  // Tableau de couleurs claires différentes pour les cartes étudiants
-private studentCardColors: string[] = [
-  'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',  // Rouge clair
-  'linear-gradient(135deg, #F0FFF4 0%, #E0FFE8 100%)',  // Vert clair
-  'linear-gradient(135deg, #EBF8FF 0%, #D0EEFF 100%)',  // Bleu clair
-  'linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%)',  // Jaune clair
-  'linear-gradient(135deg, #F3E8FF 0%, #E8D5FF 100%)',  // Violet clair
-  'linear-gradient(135deg, #FFE0F0 0%, #FFCCE6 100%)',  // Rose clair
-  'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)',  // Cyan clair
-  'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',  // Vert menthe
-  'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',  // Orange clair
-  'linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%)',  // Indigo clair
-];
-
-private studentIconColors: string[] = [
-  '#e74c3c',  // Rouge
-  '#27ae60',  // Vert
-  '#2980b9',  // Bleu
-  '#f39c12',  // Orange
-  '#8e44ad',  // Violet
-  '#e91e63',  // Rose
-  '#00bcd4',  // Cyan
-  '#4caf50',  // Vert clair
-  '#ff9800',  // Orange
-  '#3f51b5',  // Indigo
-];
-
-// Méthode pour obtenir la couleur d'arrière-plan d'une carte étudiant
-getStudentCardColor(index: number): string {
-  return this.studentCardColors[index % this.studentCardColors.length];
-}
-
-// Méthode pour obtenir la couleur de l'icône d'une carte étudiant
-getStudentIconColor(index: number): string {
-  return this.studentIconColors[index % this.studentIconColors.length];
-}
 }

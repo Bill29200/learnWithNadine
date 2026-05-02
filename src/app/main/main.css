@@ -29,377 +29,344 @@
 .card-header-color-8 { background-color: #6a4c93; }
 .card-header-color-9 { background-color: #ff5d8f; }
 
-/* Style Modal */
+/* ==================== STYLES DU MODAL ==================== */
 
+.modal.show {
+  display: block;
+}
 
- /* Styles du modal professionnel */
-  .modal.show {
-    display: block;
+.modal-content {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+/* Bannière */
+.formation-banner {
+  position: relative;
+  overflow: hidden;
+}
+
+.formation-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+}
+
+.badge-custom {
+  font-weight: 500;
+  border-radius: 30px;
+  transition: transform 0.3s ease;
+}
+
+.badge-custom:hover {
+  transform: translateY(-2px);
+}
+
+/* Programme */
+.programme-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.programme-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.programme-item:last-child {
+  border-bottom: none;
+}
+
+.programme-number {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  color: white;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.programme-text {
+  color: #495057;
+  font-size: 14px;
+}
+
+/* Carte formateur */
+.formateur-avatar {
+  width: 70px;
+  height: 70px;
+  font-size: 32px;
+}
+
+.formateur-card {
+  transition: transform 0.3s ease;
+}
+
+.formateur-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Grille étudiants */
+.students-grid {
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.students-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.students-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.students-grid::-webkit-scrollbar-thumb {
+  background: #ff5928;
+  border-radius: 10px;
+}
+
+.student-card {
+  transition: all 0.3s ease;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.student-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.student-avatar i {
+  transition: transform 0.3s ease;
+}
+
+.student-card:hover .student-avatar i {
+  transform: scale(1.1);
+}
+
+/* ==================== BARRE DE RECHERCHE ==================== */
+
+.search-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.input-group {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.input-group-text {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.input-group-text i {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  height: 38px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #ced4da;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: #ff5928;
+}
+
+/* Bouton de recherche - style identique aux autres boutons */
+.input-group .btn-outline-orange {
+  border: 1px solid #ff5928;
+  background: transparent;
+  color: #ff5928;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.input-group .btn-outline-orange:hover {
+  background-color: #ff5928;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+}
+
+.input-group .btn-orange {
+  background: linear-gradient(135deg, #ff5928 0%, #ff7043 100%);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.input-group .btn-orange:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+}
+
+/* Conseils de recherche */
+.search-tips {
+  font-size: 0.75rem;
+}
+
+.search-tips .badge {
+  font-size: 0.7rem;
+  font-weight: normal;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.search-tips .badge:hover {
+  background-color: #ff5928 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  border-color: #ff5928;
+}
+
+/* Résultats de recherche */
+.search-results .alert {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  display: inline-block;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  color: #856404;
+}
+
+/* Surbrillance des termes recherchés */
+.search-highlight {
+  background-color: #ffeb3b;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #000;
+  transition: all 0.2s ease;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+  .input-group {
+    width: 85%;
   }
+}
 
-  .modal-content {
-    border-radius: 20px;
-    overflow: hidden;
-  }
-
-  .modal-dialog-centered {
-    display: flex;
-    align-items: center;
-    min-height: calc(100% - 1rem);
-  }
-
-  /* Bannière */
-  .formation-banner {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .formation-banner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-    pointer-events: none;
-  }
-
-  .badge-custom {
-    font-weight: 500;
-    border-radius: 30px;
-    transition: transform 0.3s ease;
-  }
-
-  .badge-custom:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Sections */
-  .section-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-
-  .section-line {
-    height: 2px;
-    background: linear-gradient(90deg, #ff5928 0%, #ffd0c2 100%);
-  }
-
-  /* Programme */
-  .programme-list {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .programme-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  .programme-item:last-child {
-    border-bottom: none;
-  }
-
+@media (max-width: 768px) {
   .programme-number {
-    width: 30px;
-    height: 30px;
-    background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
-    color: white;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 12px;
-    margin-right: 12px;
-    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
   }
 
   .programme-text {
-    color: #495057;
-    font-size: 14px;
-  }
-
-  /* Carte formateur */
-  .formateur-avatar {
-    width: 70px;
-    height: 70px;
-    font-size: 32px;
-  }
-
-  .formateur-card {
-    transition: transform 0.3s ease;
-  }
-
-  .formateur-card:hover {
-    transform: translateY(-3px);
-  }
-
-  /* Grille étudiants */
-  .students-grid {
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 5px;
-  }
-
-  .students-grid::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .students-grid::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-
-  .students-grid::-webkit-scrollbar-thumb {
-    background: #ff5928;
-    border-radius: 10px;
-  }
-
-  .student-card {
-    transition: all 0.3s ease;
-    background: white;
-    border-color: #f0f0f0 !important;
-  }
-
-  .student-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(255, 89, 40, 0.15);
-    border-color: #ff5928 !important;
-  }
-
-  .student-avatar i {
-    transition: transform 0.3s ease;
-  }
-
-  .student-card:hover .student-avatar i {
-    transform: scale(1.1);
-  }
-
-  /* Bouttons */
-  .btn-orange {
-    background: linear-gradient(135deg, #ff5928 0%, #ff7043 100%);
-    border: none;
-    color: white;
-    transition: all 0.3s ease;
-  }
-
-  .btn-orange:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
-    color: white;
-  }
-
-  .btn-outline-secondary:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .programme-number {
-      width: 24px;
-      height: 24px;
-      font-size: 10px;
-    }
-
-    .programme-text {
-      font-size: 12px;
-    }
-
-    .formateur-avatar {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-    }
-
-    .modal-body {
-      padding: 0;
-    }
-
-    .p-4 {
-      padding: 1rem !important;
-    }
-  }
-/* Styles du modal professionnel */
-  .modal.show {
-    display: block;
-  }
-
-  .modal-content {
-    border-radius: 20px;
-    overflow: hidden;
-  }
-
-  .modal-dialog-centered {
-    display: flex;
-    align-items: center;
-    min-height: calc(100% - 1rem);
-  }
-
-  /* Bannière */
-  .formation-banner {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .formation-banner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-    pointer-events: none;
-  }
-
-  .badge-custom {
-    font-weight: 500;
-    border-radius: 30px;
-    transition: transform 0.3s ease;
-  }
-
-  .badge-custom:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Programme */
-  .programme-list {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .programme-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  .programme-item:last-child {
-    border-bottom: none;
-  }
-
-  .programme-number {
-    width: 30px;
-    height: 30px;
-    background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
-    color: white;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
     font-size: 12px;
-    margin-right: 12px;
-    flex-shrink: 0;
   }
 
-  .programme-text {
-    color: #495057;
-    font-size: 14px;
-  }
-
-  /* Carte formateur */
   .formateur-avatar {
-    width: 70px;
-    height: 70px;
-    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
   }
 
-  .formateur-card {
-    transition: transform 0.3s ease;
+  .modal-body {
+    padding: 0;
   }
 
-  .formateur-card:hover {
-    transform: translateY(-3px);
+  .p-4 {
+    padding: 1rem !important;
   }
 
-  /* Grille étudiants */
-  .students-grid {
-    max-height: 350px;
-    overflow-y: auto;
-    padding-right: 5px;
+  .search-tips .badge {
+    font-size: 0.6rem;
+    margin: 2px;
   }
 
-  .students-grid::-webkit-scrollbar {
-    width: 6px;
+  .search-tips {
+    font-size: 0.65rem;
   }
 
-  .students-grid::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+  .form-control {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
   }
 
-  .students-grid::-webkit-scrollbar-thumb {
-    background: #ff5928;
-    border-radius: 10px;
+  .input-group-text {
+    padding: 0.4rem 0.6rem;
   }
 
-  .student-card {
-    transition: all 0.3s ease;
-    border: none !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  .input-group-text i {
+    font-size: 0.8rem;
   }
 
-  .student-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  .input-group .btn-outline-orange,
+  .input-group .btn-orange {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 
-  .student-avatar i {
-    transition: transform 0.3s ease;
+  .input-group {
+    width: 95%;
+  }
+}
+
+@media (max-width: 576px) {
+  .input-group {
+    width: 100%;
   }
 
-  .student-card:hover .student-avatar i {
-    transform: scale(1.1);
+  .search-tips .badge {
+    font-size: 0.55rem;
   }
-
-  /* Boutons */
-  .btn-orange {
-    background: linear-gradient(135deg, #ff5928 0%, #ff7043 100%);
-    border: none;
-    color: white;
-    transition: all 0.3s ease;
-  }
-
-  .btn-orange:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
-    color: white;
-  }
-
-  .btn-outline-secondary:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .programme-number {
-      width: 24px;
-      height: 24px;
-      font-size: 10px;
-    }
-
-    .programme-text {
-      font-size: 12px;
-    }
-
-    .formateur-avatar {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-    }
-
-    .modal-body {
-      padding: 0;
-    }
-
-    .p-4 {
-      padding: 1rem !important;
-    }
-  }
+}

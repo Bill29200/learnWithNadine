@@ -7,6 +7,9 @@
           <span class="text-orange">🎓 Learn With Nadine</span>
         </h5>
       </div>
+
+
+
       <div class="col-md-6 text-end">
         <a routerLink="/register" class="btn btn-outline-orange btn-sm me-2">
           ✨ Créer un compte
@@ -23,20 +26,59 @@
   <div class="row">
     <div class="col-12 text-center mb-5">
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
-
-      <!-- Barre de recherche -->
+      <!-- Barre de recherche multi-critères -->
       <div class="row justify-content-center mt-4">
-        <div class="col-md-6">
-          <div class="input-group">
-            <input type="text"
-                   class="form-control form-control-md"
-                   placeholder="🔍 Rechercher une formation..."
-                   [(ngModel)]="searchTerm"
-                   (input)="onSearch()"
-                   name="search">
-            <button class="btn btn-outline-orange" type="button" (click)="onSearch()">
-              <i class="bi bi-search"></i> Rechercher
-            </button>
+        <div class="col-md-8">
+          <div class="search-container">
+            <div class="input-group input-group-lg shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-orange fs-5"></i>
+        </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher par titre, programme, durée, prix ou formateur..."
+                     [(ngModel)]="searchTerm"
+                     (input)="onSearch()"
+                     name="search"
+                     autocomplete="off">
+              <button class="btn btn-orange" type="button" (click)="searchTerm = ''; onSearch()" *ngIf="searchTerm">
+                <i class="bi bi-x-lg"></i> Effacer
+              </button>
+              <button class="btn btn-outline-orange" type="button" (click)="onSearch()" *ngIf="!searchTerm">
+                <i class="bi bi-search"></i> Rechercher
+              </button>
+            </div>
+
+            <!-- Conseils de recherche multi-critères -->
+            <div class="search-tips mt-3 text-center">
+              <small class="text-muted">
+                <i class="bi bi-lightbulb text-orange me-1"></i>
+                Recherche multi-critères :
+                <span class="badge bg-light text-dark mx-1">Angular</span>
+                <span class="badge bg-light text-dark mx-1">35h</span>
+                <span class="badge bg-light text-dark mx-1">299€</span>
+                <span class="badge bg-light text-dark mx-1">Développement</span>
+                <span class="badge bg-light text-dark mx-1">Master</span>
+              </small>
+            </div>
+
+            <!-- Résultats de recherche -->
+            <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length > 0">
+              <div class="alert alert-success py-2 px-3 d-inline-block rounded-pill">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                <strong>{{filteredFormations.length}}</strong> formation(s) trouvée(s) pour "<strong>{{searchTerm}}</strong>"
+              </div>
+            </div>
+
+            <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length === 0 && formations.length > 0">
+              <div class="alert alert-warning py-2 px-3 d-inline-block rounded-pill">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Aucune formation trouvée pour "<strong>{{searchTerm}}</strong>"
+                <a href="javascript:void(0)" (click)="searchTerm = ''; onSearch()" class="text-orange ms-2">
+                  <i class="bi bi-arrow-repeat"></i> Voir toutes
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
