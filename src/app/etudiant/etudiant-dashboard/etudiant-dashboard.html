@@ -4,7 +4,7 @@
     <div class="row py-3 align-items-center">
       <div class="col-md-6">
         <h5 class="mb-0">
-          <span class="text-orange">🎓 Learn With Nadine</span>
+          <span class="text-orange">🎓 Learn With Nadine - Espace Étudiant</span>
         </h5>
       </div>
       <div class="col-md-6 text-end">
@@ -40,43 +40,58 @@
 <div class="container mt-4 content-with-header">
   <!-- Message de notification -->
   <div *ngIf="message" class="alert alert-{{messageType === 'success' ? 'success' : 'danger'}} alert-dismissible fade show" role="alert">
+    <i class="bi {{messageType === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'}}"></i>
     {{message}}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
-  <!-- Bienvenue -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h3 class="text-orange">Bienvenue, {{getFullName()}} !</h3>
-          <p class="text-muted">Tableau de bord étudiant - Gérez vos inscriptions et découvrez de nouvelles formations</p>
+  <!-- Écran de chargement -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-orange" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement de vos données...</p>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading">
+    <!-- Bienvenue -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm mb-4 border-0">
+          <div class="card-body">
+            <h3 class="text-orange mb-2">Bienvenue, {{getFullName()}} !</h3>
+            <p class="text-muted mb-0">Tableau de bord étudiant - Gérez vos inscriptions et découvrez de nouvelles formations</p>
+            <div class="mt-2" *ngIf="etudiantInfo">
+              <span class="badge bg-info">Niveau: {{etudiantInfo.niveau}}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mes formations (inscrit) -->
-  <div class="row mb-4" *ngIf="mesFormations.length > 0">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-orange text-white">
-          <h5 class="mb-0">📚 Mes Formations ({{mesFormations.length}})</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6 mb-3" *ngFor="let formation of mesFormations; let i = index">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h6 [ngClass]="'badge-card card-header-color-' + (i % 10)">{{formation.intitule}}</h6>
-                  <p class="card-text small text-muted">{{formation.description | slice:0:100}}...</p>
-                  <p class="card-text">
-                    <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
-                    <span class="badge bg-success">Prix: {{formation.prix}} €</span>
-                  </p>
-                  <button class="btn btn-sm btn-success w-100" disabled>
-                    ✅ Inscrit
-                  </button>
+    <!-- Mes formations (inscrit) -->
+    <div class="row mb-4" *ngIf="mesFormations.length > 0">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-orange text-white">
+            <h5 class="mb-0">📚 Mes Formations ({{mesFormations.length}})</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3" *ngFor="let formation of mesFormations; let i = index">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 [ngClass]="'badge-card card-header-color-' + (i % 10)">{{formation.intitule}}</h6>
+                    <p class="card-text small text-muted">{{formation.description | slice:0:100}}...</p>
+                    <p class="card-text">
+                      <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
+                      <span class="badge bg-success">Prix: {{formation.prix}} €</span>
+                    </p>
+                    <button class="btn btn-sm btn-success w-100" disabled>
+                      ✅ Inscrit
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -84,87 +99,123 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Barre de recherche des formations -->
-  <div class="row mt-4 mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">🔍 Toutes les formations disponibles</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6 mx-auto">
-              <div class="input-group">
-                <input type="text"
-                       class="form-control"
-                       placeholder="Rechercher une formation..."
-                       [(ngModel)]="searchTerm">
-                <button class="btn btn-outline-orange" type="button">
-                  <i class="bi bi-search"></i> Rechercher
-                </button>
-              </div>
+    <!-- Barre de recherche multi-critères -->
+    <div class="row justify-content-center mt-4 mb-4">
+      <div class="col-md-8">
+        <div class="search-container">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-orange"></i>
+            </span>
+            <input type="text"
+                   class="form-control border-start-0"
+                   placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
+                   [(ngModel)]="searchTerm"
+                   name="search"
+                   autocomplete="off">
+            <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''" *ngIf="searchTerm">
+              <i class="bi bi-x-lg"></i> Effacer
+            </button>
+            <button class="btn btn-outline-orange" type="button" *ngIf="!searchTerm">
+              <i class="bi bi-search"></i> Rechercher
+            </button>
+          </div>
+
+          <!-- Conseils de recherche -->
+          <div class="search-tips mt-2 text-center">
+            <small class="text-muted">
+              <i class="bi bi-lightbulb text-orange me-1"></i>
+              Recherche multi-critères :
+              <span class="badge bg-light text-dark mx-1">Angular</span>
+              <span class="badge bg-light text-dark mx-1">35h</span>
+              <span class="badge bg-light text-dark mx-1">299€</span>
+              <span class="badge bg-light text-dark mx-1">Développement</span>
+              <span class="badge bg-light text-dark mx-1">Master</span>
+            </small>
+          </div>
+
+          <!-- Résultats de recherche -->
+          <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length > 0">
+            <div class="alert alert-success py-1 px-3 d-inline-block rounded-pill">
+              <i class="bi bi-check-circle-fill me-1"></i>
+              <strong>{{filteredFormations.length}}</strong> formation(s) trouvée(s) pour "<strong>{{searchTerm}}</strong>"
+            </div>
+          </div>
+
+          <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length === 0 && formations.length > 0">
+            <div class="alert alert-warning py-1 px-3 d-inline-block rounded-pill">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              Aucune formation trouvée pour "<strong>{{searchTerm}}</strong>"
+              <a href="javascript:void(0)" (click)="searchTerm = ''" class="text-orange ms-2">
+                <i class="bi bi-arrow-repeat"></i> Voir toutes
+              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Liste des formations disponibles -->
-  <div class="row">
-    <div class="col-12 mb-3" *ngIf="formations.length === 0">
-      <div class="alert alert-warning">
-        <h5>⏳ Chargement des formations...</h5>
-        <p>Les formations sont en cours de chargement.</p>
+    <!-- Liste des formations disponibles -->
+    <div class="row">
+      <div class="col-12 mb-3" *ngIf="formations.length === 0">
+        <div class="alert alert-warning">
+          <h5>⏳ Chargement des formations...</h5>
+          <p>Les formations sont en cours de chargement.</p>
+        </div>
       </div>
-    </div>
-    <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
-      <div class="card h-100 shadow-sm card-hover">
-        <div class="card-body">
-          <h5 [ngClass]="'card-title card-header-color-' + (i % 10)">{{formation.intitule}}</h5>
-          <p class="card-text text-muted small">{{formation.description | slice:0:120}}...</p>
-          <p class="card-text">
-            <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
-            <span class="badge bg-success">Prix: {{formation.prix}} €</span>
-          </p>
-          <button class="btn btn-outline-orange w-100"
-                  (click)="sInscrire(formation)"
-                  [disabled]="formationDejaInscrit(formation.idFormation)">
-            {{formationDejaInscrit(formation.idFormation) ? 'Déjà inscrit' : "S'inscrire"}}
-          </button>
+      <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+        <div class="card h-100 shadow-sm card-hover">
+          <div class="card-body">
+            <h5 [ngClass]="'card-title card-header-color-' + (i % 10)" [innerHTML]="highlightText(formation.intitule)"></h5>
+            <p class="card-text text-muted small" [innerHTML]="highlightText(formation.description | slice:0:120) + (formation.description.length > 120 ? '...' : '')"></p>
+            <p class="card-text">
+              <span class="badge text-orange me-2">
+                <i class="bi bi-clock"></i>
+                <span [innerHTML]="highlightText(formation.duree)"></span>
+              </span>
+              <span class="badge bg-success">
+                <i class="bi bi-cash-stack"></i>
+                <span [innerHTML]="highlightText(formation.prix + ' €')"></span>
+              </span>
+            </p>
+            <button class="btn btn-outline-orange w-100"
+                    (click)="sInscrire(formation)"
+                    [disabled]="formationDejaInscrit(formation.idFormation)">
+              {{formationDejaInscrit(formation.idFormation) ? '✅ Déjà inscrit' : '📝 S\'inscrire'}}
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Message si aucune formation trouvée -->
-  <div class="row" *ngIf="filteredFormations.length === 0 && formations.length > 0">
-    <div class="col-12 text-center">
-      <div class="alert alert-info">
-        <h5>🔍 Aucune formation trouvée</h5>
-        <p>Essayez avec d'autres mots-clés.</p>
+    <!-- Message si aucune formation trouvée -->
+    <div class="row" *ngIf="filteredFormations.length === 0 && formations.length > 0 && searchTerm">
+      <div class="col-12 text-center">
+        <div class="alert alert-info">
+          <h5>🔍 Aucune formation trouvée</h5>
+          <p>Essayez avec d'autres mots-clés.</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Informations du profil -->
-  <div class="row mt-4 mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">ℹ️ Mes Informations</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <p><strong>Nom complet :</strong> {{getFullName()}}</p>
-              <p><strong>Email :</strong> {{currentUser?.email}}</p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Téléphone :</strong> {{currentUser?.phone}}</p>
-              <p><strong>Niveau d'études :</strong> {{etudiantInfo?.niveau || 'Non renseigné'}}</p>
+    <!-- Informations du profil -->
+    <div class="row mt-4 mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">ℹ️ Mes Informations</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Nom complet :</strong> {{getFullName()}}</p>
+                <p><strong>Email :</strong> {{currentUser?.email}}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Téléphone :</strong> {{currentUser?.phone}}</p>
+                <p><strong>Niveau d'études :</strong> {{etudiantInfo?.niveau || 'Non renseigné'}}</p>
+              </div>
             </div>
           </div>
         </div>
