@@ -501,3 +501,91 @@
     padding: 0.25rem 0.4rem;
   }
 }
+/* Styles pour le regroupement par formation */
+.formation-group-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.formation-group-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.inscription-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.inscription-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  padding: 12px;
+}
+
+.inscription-table tbody td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.inscription-table tbody tr:hover {
+  background-color: rgba(255, 89, 40, 0.05);
+}
+
+.student-avatar-sm {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 50%;
+}
+
+/* Boutons d'action mieux espacés */
+.d-flex.gap-2 {
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-sm:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formation-group-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .inscription-table td,
+  .inscription-table th {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+
+  .student-avatar-sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  .student-avatar-sm i {
+    font-size: 1.2rem;
+  }
+}

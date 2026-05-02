@@ -7,6 +7,13 @@ import { AuthService } from '../../services/auth';
 import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, Admin, Database } from '../../services/database.service';
 import { User } from '../../model/user.model';
 
+// Interface pour le regroupement par formation
+interface FormationInscriptionGroup {
+  formationId: number;
+  formationName: string;
+  inscriptions: Inscription[];
+}
+
 @Component({
   selector: 'app-admin-dashboard',
   imports: [CommonModule, RouterModule, FormsModule],
@@ -499,6 +506,44 @@ export class AdminDashboard implements OnInit, OnDestroy {
       this.updateStats();
       this.showMessage(`Formateur "${formateur.prenom} ${formateur.nom}" supprimé`, 'success');
     }
+  }
+
+  // ==================== REGROUPEMENT PAR FORMATION POUR INSCRIPTIONS ====================
+
+  getInscriptionsByFormation(): FormationInscriptionGroup[] {
+    const groups: { [key: number]: FormationInscriptionGroup } = {};
+
+    this.filteredInscriptions.forEach(inscription => {
+      const formation = this.getFormationById(inscription.idFormation);
+      if (formation) {
+        if (!groups[formation.idFormation]) {
+          groups[formation.idFormation] = {
+            formationId: formation.idFormation,
+            formationName: formation.intitule,
+            inscriptions: []
+          };
+        }
+        groups[formation.idFormation].inscriptions.push(inscription);
+      }
+    });
+
+    // Trier par nom de formation
+    return Object.values(groups).sort((a, b) =>
+      a.formationName.localeCompare(b.formationName)
+    );
+  }
+
+  getUniqueFormationsCount(): number {
+    const uniqueFormations = new Set(this.filteredInscriptions.map(i => i.idFormation));
+    return uniqueFormations.size;
+  }
+
+  getFormationPayeCount(inscriptions: Inscription[]): number {
+    return inscriptions.filter(i => i.statut === 'paye').length;
+  }
+
+  getFormationNonPayeCount(inscriptions: Inscription[]): number {
+    return inscriptions.filter(i => i.statut === 'non paye').length;
   }
 
   // ==================== HELPER METHODS ====================
