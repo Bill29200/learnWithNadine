@@ -3,9 +3,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { User } from '../../model/user.model';
 import { AuthService } from '../../services/auth';
-import { Admin, Database, DatabaseService, Etudiant, Formateur, FormationDetail, Inscription } from '../../services/database.service';
+import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, Admin, Database } from '../../services/database.service';
+import { User } from '../../model/user.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,14 +24,22 @@ export class AdminDashboard implements OnInit, OnDestroy {
   etudiants: Etudiant[] = [];
   formateurs: Formateur[] = [];
 
-  // Formations filtrées
+  // Recherche Formations
+  searchFormationTerm: string = '';
   filteredFormations: FormationDetail[] = [];
-  searchTerm: string = '';
   selectedStatut: string = 'all';
 
-  // Inscriptions filtrées
+  // Recherche Inscriptions
+  searchInscriptionTerm: string = '';
   filteredInscriptions: Inscription[] = [];
-  inscriptionSearchTerm: string = '';
+
+  // Recherche Étudiants
+  searchEtudiantTerm: string = '';
+  filteredEtudiants: Etudiant[] = [];
+
+  // Recherche Formateurs
+  searchFormateurTerm: string = '';
+  filteredFormateurs: Formateur[] = [];
 
   // Statistiques
   stats = {
@@ -67,7 +75,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
   ngOnInit() {
     this.currentUser = this.auth.getCurrentUser();
 
-    // S'abonner aux changements de la base de données
     this.dbSubscription = this.databaseService.getDatabase$().subscribe({
       next: (database: Database | null) => {
         if (database) {
@@ -75,7 +82,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
           this.loadDataFromDatabase(database);
           this.isLoading = false;
         } else {
-          console.log('AdminDashboard: En attente des données...');
           if (!this.databaseService.getDatabase()) {
             this.databaseService.loadDatabase().subscribe();
           }
@@ -105,8 +111,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.etudiants = database.etudiants || [];
     this.formateurs = database.formateurs || [];
 
-    this.filteredFormations = [...this.formations];
-    this.filteredInscriptions = [...this.inscriptions];
+    this.applyFormationFilters();
+    this.applyInscriptionFilters();
+    this.applyEtudiantFilters();
+    this.applyFormateurFilters();
 
     this.updateStats();
   }
@@ -148,180 +156,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
     });
   }
 
-  // ============ MÉTHODES DE CONFIRMATION AVEC BOÎTES DE DIALOGUE ============
-
-  // Confirmation suppression formation
-  confirmDeleteFormation(formation: FormationDetail) {
-    const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
-    let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
-
-    if (inscriptionsLiees.length > 0) {
-      message += `⚠️ Attention : Cette formation a ${inscriptionsLiees.length} inscription(s) liée(s).\n`;
-      message += `Ces inscriptions seront également supprimées.\n\n`;
-    }
-    message += `Cette action est irréversible.`;
-
-    if (confirm(message)) {
-      this.deleteFormation(formation, inscriptionsLiees);
-    }
-  }
-
-  // Suppression formation
-  private deleteFormation(formation: FormationDetail, inscriptionsLiees: Inscription[]) {
-    // Supprimer les inscriptions liées
-    inscriptionsLiees.forEach(ins => {
-      this.databaseService.deleteInscription(ins.idInscription);
-    });
-
-    // Supprimer la formation
-    this.databaseService.deleteFormation(formation.idFormation);
-
-    // Mettre à jour localement
-    const index = this.formations.findIndex(f => f.idFormation === formation.idFormation);
-    if (index !== -1) {
-      this.formations.splice(index, 1);
-      this.inscriptions = this.inscriptions.filter(i => i.idFormation !== formation.idFormation);
-      this.filteredInscriptions = [...this.inscriptions];
-      this.applyFormationFilters();
-      this.updateStats();
-    }
-
-    this.showMessage(`Formation "${formation.intitule}" supprimée avec succès`, 'success');
-  }
-
-  // Confirmation suppression étudiant
-  confirmDeleteEtudiant(etudiant: Etudiant) {
-    const inscriptionsEtudiant = this.inscriptions.filter(i => i.idEtudiant === etudiant.idEtudiant);
-    let message = `Êtes-vous sûr de vouloir supprimer l'étudiant "${etudiant.prenom} ${etudiant.nom}" ?\n\n`;
-
-    if (inscriptionsEtudiant.length > 0) {
-      message += `⚠️ Attention : Cet étudiant a ${inscriptionsEtudiant.length} inscription(s).\n`;
-      message += `Ces inscriptions seront également supprimées.\n\n`;
-    }
-    message += `Cette action est irréversible.`;
-
-    if (confirm(message)) {
-      this.deleteEtudiant(etudiant, inscriptionsEtudiant);
-    }
-  }
-
-  // Suppression étudiant
-  private deleteEtudiant(etudiant: Etudiant, inscriptionsEtudiant: Inscription[]) {
-    // Supprimer les inscriptions de l'étudiant
-    inscriptionsEtudiant.forEach(ins => {
-      this.databaseService.deleteInscription(ins.idInscription);
-    });
-
-    // Supprimer l'étudiant
-    this.databaseService.deleteEtudiant(etudiant.idEtudiant);
-
-    // Mettre à jour localement
-    const index = this.etudiants.findIndex(e => e.idEtudiant === etudiant.idEtudiant);
-    if (index !== -1) {
-      this.etudiants.splice(index, 1);
-      this.inscriptions = this.inscriptions.filter(i => i.idEtudiant !== etudiant.idEtudiant);
-      this.filteredInscriptions = [...this.inscriptions];
-      this.updateStats();
-    }
-
-    this.showMessage(`Étudiant "${etudiant.prenom} ${etudiant.nom}" supprimé avec succès`, 'success');
-  }
-
-  // Confirmation suppression formateur
-  confirmDeleteFormateur(formateur: Formateur) {
-    const formationsFormateur = this.formations.filter(f => f.idFormateur === formateur.idFormateur);
-    let message = `Êtes-vous sûr de vouloir supprimer le formateur "${formateur.prenom} ${formateur.nom}" ?\n\n`;
-
-    if (formationsFormateur.length > 0) {
-      message += `⚠️ Attention : Ce formateur a ${formationsFormateur.length} formation(s).\n`;
-      message += `Ces formations et leurs inscriptions seront également supprimées.\n\n`;
-    }
-    message += `Cette action est irréversible.`;
-
-    if (confirm(message)) {
-      this.deleteFormateur(formateur, formationsFormateur);
-    }
-  }
-
-  // Suppression formateur
-  private deleteFormateur(formateur: Formateur, formationsFormateur: FormationDetail[]) {
-    // Pour chaque formation du formateur, supprimer ses inscriptions
-    formationsFormateur.forEach(formation => {
-      const inscriptionsFormation = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
-      inscriptionsFormation.forEach(ins => {
-        this.databaseService.deleteInscription(ins.idInscription);
-      });
-      this.databaseService.deleteFormation(formation.idFormation);
-    });
-
-    // Supprimer le formateur
-    this.databaseService.deleteFormateur(formateur.idFormateur);
-
-    // Mettre à jour localement
-    const index = this.formateurs.findIndex(f => f.idFormateur === formateur.idFormateur);
-    if (index !== -1) {
-      this.formateurs.splice(index, 1);
-      this.formations = this.formations.filter(f => f.idFormateur !== formateur.idFormateur);
-      this.inscriptions = this.inscriptions.filter(i => {
-        const formation = this.formations.find(f => f.idFormation === i.idFormation);
-        return formation !== undefined;
-      });
-      this.filteredFormations = [...this.formations];
-      this.filteredInscriptions = [...this.inscriptions];
-      this.applyFormationFilters();
-      this.updateStats();
-    }
-
-    this.showMessage(`Formateur "${formateur.prenom} ${formateur.nom}" supprimé avec succès`, 'success');
-  }
-
-  // Confirmation suppression inscription
-  confirmDeleteInscription(inscription: Inscription) {
-    const etudiant = this.getEtudiantById(inscription.idEtudiant);
-    const formation = this.getFormationById(inscription.idFormation);
-    const message = `Êtes-vous sûr de vouloir supprimer l'inscription de "${etudiant?.prenom} ${etudiant?.nom}" à la formation "${formation?.intitule}" ?\n\nCette action est irréversible.`;
-
-    if (confirm(message)) {
-      this.deleteInscription(inscription, etudiant, formation);
-    }
-  }
-
-  // Suppression inscription
-  private deleteInscription(inscription: Inscription, etudiant?: Etudiant, formation?: FormationDetail) {
-    this.databaseService.deleteInscription(inscription.idInscription);
-
-    // Mettre à jour localement
-    const index = this.inscriptions.findIndex(i => i.idInscription === inscription.idInscription);
-    if (index !== -1) {
-      this.inscriptions.splice(index, 1);
-      this.filteredInscriptions = [...this.inscriptions];
-      this.updateStats();
-    }
-
-    this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" supprimée`, 'success');
-  }
-
-  // ============ MÉTHODES EXISTANTES ============
-
-  applyFormationFilters() {
-    let filtered = [...this.formations];
-
-    if (this.searchTerm.trim() !== '') {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(formation =>
-        formation.intitule.toLowerCase().includes(term) ||
-        formation.description.toLowerCase().includes(term)
-      );
-    }
-
-    if (this.selectedStatut !== 'all') {
-      filtered = filtered.filter(formation => formation.statut === this.selectedStatut);
-    }
-
-    this.filteredFormations = filtered;
-  }
-
-  onSearchFormations() {
+  // ==================== RECHERCHE FORMATIONS ====================
+  onSearchFormation() {
     this.applyFormationFilters();
   }
 
@@ -329,6 +165,217 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.applyFormationFilters();
   }
 
+  applyFormationFilters() {
+    let filtered = [...this.formations];
+
+    // Recherche textuelle
+    if (this.searchFormationTerm && this.searchFormationTerm.trim() !== '') {
+      const searchTermLower = this.searchFormationTerm.toLowerCase().trim();
+      const searchWords = searchTermLower.split(/\s+/);
+
+      filtered = filtered.filter(formation => {
+        const intituleMatch = formation.intitule.toLowerCase().includes(searchTermLower);
+        const descriptionMatch = formation.description.toLowerCase().includes(searchTermLower);
+        const programmeMatch = formation.programme.some(point => point.toLowerCase().includes(searchTermLower));
+        const dureeMatch = formation.duree.toLowerCase().includes(searchTermLower);
+        const prixString = formation.prix.toString();
+        const prixMatch = prixString.includes(searchTermLower) || `${formation.prix} €`.toLowerCase().includes(searchTermLower);
+
+        const formateur = this.getFormateurById(formation.idFormateur);
+        let formateurMatch = false;
+        if (formateur) {
+          formateurMatch = formateur.nom.toLowerCase().includes(searchTermLower) ||
+            formateur.prenom.toLowerCase().includes(searchTermLower) ||
+            formateur.specialite.toLowerCase().includes(searchTermLower);
+        }
+
+        let multiWordMatch = false;
+        if (searchWords.length > 1) {
+          multiWordMatch = searchWords.every(word =>
+            formation.intitule.toLowerCase().includes(word) ||
+            formation.description.toLowerCase().includes(word) ||
+            formation.programme.some(p => p.toLowerCase().includes(word))
+          );
+        }
+
+        return intituleMatch || descriptionMatch || programmeMatch || dureeMatch || prixMatch || formateurMatch || multiWordMatch;
+      });
+    }
+
+    // Filtre par statut
+    if (this.selectedStatut !== 'all') {
+      filtered = filtered.filter(formation => formation.statut === this.selectedStatut);
+    }
+
+    this.filteredFormations = filtered;
+  }
+
+  highlightFormationText(text: string): string {
+    if (!this.searchFormationTerm || this.searchFormationTerm.trim() === '') {
+      return text;
+    }
+    return this.highlightText(text, this.searchFormationTerm);
+  }
+
+  // ==================== RECHERCHE INSCRIPTIONS ====================
+  onSearchInscription() {
+    this.applyInscriptionFilters();
+  }
+
+  applyInscriptionFilters() {
+    let filtered = [...this.inscriptions];
+
+    if (this.searchInscriptionTerm && this.searchInscriptionTerm.trim() !== '') {
+      const searchTermLower = this.searchInscriptionTerm.toLowerCase().trim();
+      const searchWords = searchTermLower.split(/\s+/);
+
+      filtered = filtered.filter(inscription => {
+        const etudiant = this.getEtudiantById(inscription.idEtudiant);
+        const formation = this.getFormationById(inscription.idFormation);
+
+        const etudiantMatch = etudiant ?
+          (etudiant.nom.toLowerCase().includes(searchTermLower) ||
+            etudiant.prenom.toLowerCase().includes(searchTermLower) ||
+            etudiant.mail.toLowerCase().includes(searchTermLower)) : false;
+
+        const formationMatch = formation ?
+          formation.intitule.toLowerCase().includes(searchTermLower) : false;
+
+        const dateMatch = inscription.dateInscription.toLowerCase().includes(searchTermLower);
+        const statutMatch = inscription.statut.toLowerCase().includes(searchTermLower);
+
+        let multiWordMatch = false;
+        if (searchWords.length > 1 && etudiant) {
+          multiWordMatch = searchWords.every(word =>
+            etudiant.nom.toLowerCase().includes(word) ||
+            etudiant.prenom.toLowerCase().includes(word) ||
+            (formation && formation.intitule.toLowerCase().includes(word))
+          );
+        }
+
+        return etudiantMatch || formationMatch || dateMatch || statutMatch || multiWordMatch;
+      });
+    }
+
+    this.filteredInscriptions = filtered;
+  }
+
+  highlightInscriptionText(text: string): string {
+    if (!this.searchInscriptionTerm || this.searchInscriptionTerm.trim() === '') {
+      return text;
+    }
+    return this.highlightText(text, this.searchInscriptionTerm);
+  }
+
+  // ==================== RECHERCHE ÉTUDIANTS ====================
+  onSearchEtudiant() {
+    this.applyEtudiantFilters();
+  }
+
+  applyEtudiantFilters() {
+    let filtered = [...this.etudiants];
+
+    if (this.searchEtudiantTerm && this.searchEtudiantTerm.trim() !== '') {
+      const searchTermLower = this.searchEtudiantTerm.toLowerCase().trim();
+      const searchWords = searchTermLower.split(/\s+/);
+
+      filtered = filtered.filter(etudiant => {
+        const nomMatch = etudiant.nom.toLowerCase().includes(searchTermLower);
+        const prenomMatch = etudiant.prenom.toLowerCase().includes(searchTermLower);
+        const emailMatch = etudiant.mail.toLowerCase().includes(searchTermLower);
+        const telMatch = etudiant.tel.toLowerCase().includes(searchTermLower);
+        const niveauMatch = etudiant.niveau.toLowerCase().includes(searchTermLower);
+        const statutMatch = etudiant.statut.toLowerCase().includes(searchTermLower);
+
+        let multiWordMatch = false;
+        if (searchWords.length > 1) {
+          multiWordMatch = searchWords.every(word =>
+            etudiant.nom.toLowerCase().includes(word) ||
+            etudiant.prenom.toLowerCase().includes(word) ||
+            etudiant.mail.toLowerCase().includes(word)
+          );
+        }
+
+        return nomMatch || prenomMatch || emailMatch || telMatch || niveauMatch || statutMatch || multiWordMatch;
+      });
+    }
+
+    this.filteredEtudiants = filtered;
+  }
+
+  highlightEtudiantText(text: string): string {
+    if (!this.searchEtudiantTerm || this.searchEtudiantTerm.trim() === '') {
+      return text;
+    }
+    return this.highlightText(text, this.searchEtudiantTerm);
+  }
+
+  // ==================== RECHERCHE FORMATEURS ====================
+  onSearchFormateur() {
+    this.applyFormateurFilters();
+  }
+
+  applyFormateurFilters() {
+    let filtered = [...this.formateurs];
+
+    if (this.searchFormateurTerm && this.searchFormateurTerm.trim() !== '') {
+      const searchTermLower = this.searchFormateurTerm.toLowerCase().trim();
+      const searchWords = searchTermLower.split(/\s+/);
+
+      filtered = filtered.filter(formateur => {
+        const nomMatch = formateur.nom.toLowerCase().includes(searchTermLower);
+        const prenomMatch = formateur.prenom.toLowerCase().includes(searchTermLower);
+        const emailMatch = formateur.mail.toLowerCase().includes(searchTermLower);
+        const telMatch = formateur.tel.toLowerCase().includes(searchTermLower);
+        const specialiteMatch = formateur.specialite.toLowerCase().includes(searchTermLower);
+        const niveauMatch = formateur.niveau.toLowerCase().includes(searchTermLower);
+        const statutMatch = formateur.statut.toLowerCase().includes(searchTermLower);
+
+        let multiWordMatch = false;
+        if (searchWords.length > 1) {
+          multiWordMatch = searchWords.every(word =>
+            formateur.nom.toLowerCase().includes(word) ||
+            formateur.prenom.toLowerCase().includes(word) ||
+            formateur.specialite.toLowerCase().includes(word)
+          );
+        }
+
+        return nomMatch || prenomMatch || emailMatch || telMatch || specialiteMatch || niveauMatch || statutMatch || multiWordMatch;
+      });
+    }
+
+    this.filteredFormateurs = filtered;
+  }
+
+  highlightFormateurText(text: string): string {
+    if (!this.searchFormateurTerm || this.searchFormateurTerm.trim() === '') {
+      return text;
+    }
+    return this.highlightText(text, this.searchFormateurTerm);
+  }
+
+  // Utilitaire de surbrillance
+  private highlightText(text: string, searchTerm: string): string {
+    if (!searchTerm || searchTerm.trim() === '') {
+      return text;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase().trim();
+    const searchWords = searchTermLower.split(/\s+/);
+    let result = text;
+
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const sortedWords = [...searchWords].sort((a, b) => b.length - a.length);
+
+    for (const word of sortedWords) {
+      const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
+      result = result.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    return result;
+  }
+
+  // ==================== CRUD ACTIONS ====================
   toggleFormationStatut(formation: FormationDetail) {
     const nouveauStatut = formation.statut === 'valide' ? 'nonValide' : 'valide';
     this.databaseService.updateFormation(formation.idFormation, { statut: nouveauStatut });
@@ -336,21 +383,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.updateStats();
     this.applyFormationFilters();
     this.showMessage(`Formation "${formation.intitule}" ${nouveauStatut === 'valide' ? 'validée' : 'invalidée'}`, 'success');
-  }
-
-  onSearchInscriptions() {
-    if (this.inscriptionSearchTerm.trim() === '') {
-      this.filteredInscriptions = [...this.inscriptions];
-    } else {
-      const term = this.inscriptionSearchTerm.toLowerCase();
-      this.filteredInscriptions = this.inscriptions.filter(inscription => {
-        const formation = this.getFormationById(inscription.idFormation);
-        const etudiant = this.getEtudiantById(inscription.idEtudiant);
-        return formation?.intitule.toLowerCase().includes(term) ||
-               etudiant?.nom.toLowerCase().includes(term) ||
-               etudiant?.prenom.toLowerCase().includes(term);
-      });
-    }
   }
 
   toggleInscriptionStatut(inscription: Inscription) {
@@ -363,8 +395,89 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" marquée comme ${nouveauStatut === 'paye' ? 'payée' : 'non payée'}`, 'success');
   }
 
-  // ============ MÉTHODES HELPER ============
+  confirmDeleteFormation(formation: FormationDetail) {
+    const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
+    let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
+    if (inscriptionsLiees.length > 0) {
+      message += `⚠️ Attention : Cette formation a ${inscriptionsLiees.length} inscription(s) liée(s).\n`;
+      message += `Ces inscriptions seront également supprimées.\n\n`;
+    }
+    message += `Cette action est irréversible.`;
+    if (confirm(message)) {
+      inscriptionsLiees.forEach(ins => this.databaseService.deleteInscription(ins.idInscription));
+      this.databaseService.deleteFormation(formation.idFormation);
+      this.formations = this.formations.filter(f => f.idFormation !== formation.idFormation);
+      this.inscriptions = this.inscriptions.filter(i => i.idFormation !== formation.idFormation);
+      this.applyFormationFilters();
+      this.applyInscriptionFilters();
+      this.updateStats();
+      this.showMessage(`Formation "${formation.intitule}" supprimée`, 'success');
+    }
+  }
 
+  confirmDeleteInscription(inscription: Inscription) {
+    const etudiant = this.getEtudiantById(inscription.idEtudiant);
+    const formation = this.getFormationById(inscription.idFormation);
+    const message = `Êtes-vous sûr de vouloir supprimer l'inscription de "${etudiant?.prenom} ${etudiant?.nom}" à la formation "${formation?.intitule}" ?\n\nCette action est irréversible.`;
+    if (confirm(message)) {
+      this.databaseService.deleteInscription(inscription.idInscription);
+      this.inscriptions = this.inscriptions.filter(i => i.idInscription !== inscription.idInscription);
+      this.applyInscriptionFilters();
+      this.updateStats();
+      this.showMessage(`Inscription supprimée`, 'success');
+    }
+  }
+
+  confirmDeleteEtudiant(etudiant: Etudiant) {
+    const inscriptionsEtudiant = this.inscriptions.filter(i => i.idEtudiant === etudiant.idEtudiant);
+    let message = `Êtes-vous sûr de vouloir supprimer l'étudiant "${etudiant.prenom} ${etudiant.nom}" ?\n\n`;
+    if (inscriptionsEtudiant.length > 0) {
+      message += `⚠️ Attention : Cet étudiant a ${inscriptionsEtudiant.length} inscription(s).\n`;
+      message += `Ces inscriptions seront également supprimées.\n\n`;
+    }
+    message += `Cette action est irréversible.`;
+    if (confirm(message)) {
+      inscriptionsEtudiant.forEach(ins => this.databaseService.deleteInscription(ins.idInscription));
+      this.databaseService.deleteEtudiant(etudiant.idEtudiant);
+      this.etudiants = this.etudiants.filter(e => e.idEtudiant !== etudiant.idEtudiant);
+      this.inscriptions = this.inscriptions.filter(i => i.idEtudiant !== etudiant.idEtudiant);
+      this.applyEtudiantFilters();
+      this.applyInscriptionFilters();
+      this.updateStats();
+      this.showMessage(`Étudiant "${etudiant.prenom} ${etudiant.nom}" supprimé`, 'success');
+    }
+  }
+
+  confirmDeleteFormateur(formateur: Formateur) {
+    const formationsFormateur = this.formations.filter(f => f.idFormateur === formateur.idFormateur);
+    let message = `Êtes-vous sûr de vouloir supprimer le formateur "${formateur.prenom} ${formateur.nom}" ?\n\n`;
+    if (formationsFormateur.length > 0) {
+      message += `⚠️ Attention : Ce formateur a ${formationsFormateur.length} formation(s).\n`;
+      message += `Ces formations et leurs inscriptions seront également supprimées.\n\n`;
+    }
+    message += `Cette action est irréversible.`;
+    if (confirm(message)) {
+      formationsFormateur.forEach(formation => {
+        const inscriptionsFormation = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
+        inscriptionsFormation.forEach(ins => this.databaseService.deleteInscription(ins.idInscription));
+        this.databaseService.deleteFormation(formation.idFormation);
+      });
+      this.databaseService.deleteFormateur(formateur.idFormateur);
+      this.formateurs = this.formateurs.filter(f => f.idFormateur !== formateur.idFormateur);
+      this.formations = this.formations.filter(f => f.idFormateur !== formateur.idFormateur);
+      this.inscriptions = this.inscriptions.filter(i => {
+        const formation = this.formations.find(f => f.idFormation === i.idFormation);
+        return formation !== undefined;
+      });
+      this.applyFormationFilters();
+      this.applyInscriptionFilters();
+      this.applyFormateurFilters();
+      this.updateStats();
+      this.showMessage(`Formateur "${formateur.prenom} ${formateur.nom}" supprimé`, 'success');
+    }
+  }
+
+  // ==================== HELPER METHODS ====================
   getFormationById(id: number): FormationDetail | undefined {
     return this.formations.find(f => f.idFormation === id);
   }
@@ -383,6 +496,14 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   getInscriptionStatutBadgeClass(statut: string): string {
     return statut === 'paye' ? 'badge bg-success' : 'badge bg-danger';
+  }
+
+  getPayeCount(): number {
+    return this.filteredInscriptions.filter(i => i.statut === 'paye').length;
+  }
+
+  getNonPayeCount(): number {
+    return this.filteredInscriptions.filter(i => i.statut === 'non paye').length;
   }
 
   showMessage(msg: string, type: 'success' | 'error') {
@@ -415,13 +536,4 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
-  // Ajoutez ces méthodes pour les statistiques des inscriptions
-
-getPayeCount(): number {
-  return this.filteredInscriptions.filter(i => i.statut === 'paye').length;
-}
-
-getNonPayeCount(): number {
-  return this.filteredInscriptions.filter(i => i.statut === 'non paye').length;
-}
 }
