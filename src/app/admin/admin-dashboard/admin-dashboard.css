@@ -371,3 +371,133 @@
     font-size: 0.6rem;
   }
 }
+/* ==================== BOUTONS SPECIFIQUES INSCRIPTIONS ==================== */
+
+/* Bouton statut paiement */
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  border: none;
+  color: #000;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  background: linear-gradient(135deg, #ffcd39 0%, #ffaa00 100%);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+/* Taille des boutons dans le tableau */
+.table .btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+
+/* Avatar étudiant */
+.student-avatar-sm {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 50%;
+}
+
+.student-avatar-sm i {
+  font-size: 1.5rem;
+}
+
+/* Badge statut paiement */
+.badge.bg-success,
+.badge.bg-danger {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 30px;
+}
+
+.badge.bg-light {
+  background: #f8f9fa !important;
+  color: #495057 !important;
+  padding: 0.4rem 0.75rem;
+  border-radius: 30px;
+}
+
+/* Espacement des boutons */
+.table .btn + .btn {
+  margin-left: 6px;
+}
+
+/* Responsive pour les boutons */
+@media (max-width: 768px) {
+  .table .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+    min-width: 70px !important;
+  }
+
+  .badge.bg-success,
+  .badge.bg-danger {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .student-avatar-sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  .student-avatar-sm i {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .table .btn-sm {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.6rem;
+    min-width: 60px !important;
+  }
+
+  .table td {
+    font-size: 0.7rem;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.4rem;
+  }
+}

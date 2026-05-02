@@ -275,9 +275,9 @@
                 <div class="col-md-7">
                   <div class="search-container">
                     <div class="input-group input-group-sm">
-                      <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-orange"></i>
-                      </span>
+                  <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-orange"></i>
+                  </span>
                       <input type="text"
                              class="form-control border-start-0"
                              placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
@@ -318,37 +318,52 @@
               </thead>
               <tbody>
               <tr *ngFor="let inscription of filteredInscriptions">
-                <td class="align-middle">#{{inscription.idInscription}}</td>
+                <td class="align-middle fw-bold">#{{inscription.idInscription}}</td>
                 <td class="align-middle">
                   <div class="d-flex align-items-center">
-                    <i class="bi bi-person-circle me-2"></i>
+                    <div class="student-avatar-sm me-2">
+                      <i class="bi bi-person-circle fs-4 text-secondary"></i>
+                    </div>
                     <div>
                       <div class="fw-semibold" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.prenom + ' ' + getEtudiantById(inscription.idEtudiant)?.nom)"></div>
                       <small class="text-muted" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.mail || '')"></small>
                     </div>
                   </div>
                 </td>
-                <td class="align-middle" [innerHTML]="highlightInscriptionText(getFormationById(inscription.idFormation)?.intitule || '')"></td>
-                <td class="align-middle" [innerHTML]="highlightInscriptionText(inscription.dateInscription)"></td>
                 <td class="align-middle">
-                    <span [class]="getInscriptionStatutBadgeClass(inscription.statut)">
-                      {{inscription.statut === 'paye' ? '💰 Payée' : '💳 Non payée'}}
-                    </span>
+                  <span class="badge bg-secondary" [innerHTML]="highlightInscriptionText(getFormationById(inscription.idFormation)?.intitule || '')"></span>
                 </td>
                 <td class="align-middle">
-                  <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-sm {{inscription.statut === 'paye' ? 'btn-warning' : 'btn-success'}}"
-                            (click)="toggleInscriptionStatut(inscription)"
-                            [title]="inscription.statut === 'paye' ? 'Marquer comme non payée' : 'Marquer comme payée'">
-                      <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card'}}"></i>
-                      {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
-                    </button>
-                    <button class="btn btn-sm btn-danger"
-                            (click)="confirmDeleteInscription(inscription)"
-                            title="Supprimer l'inscription">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
+                <span class="badge bg-light text-dark">
+                  <i class="bi bi-calendar3 me-1"></i>
+                  {{inscription.dateInscription}}
+                </span>
+                </td>
+                <td class="align-middle">
+                <span [class]="getInscriptionStatutBadgeClass(inscription.statut)" class="px-3 py-2 rounded-pill">
+                  <i class="bi {{inscription.statut === 'paye' ? 'bi-check-circle-fill' : 'bi-clock-fill'}} me-1"></i>
+                  {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                </span>
+                </td>
+                <td class="align-middle">
+                  <!-- Bouton Changer statut -->
+                  <button class="btn btn-sm me-1 mb-1"
+                          [class.btn-success]="inscription.statut !== 'paye'"
+                          [class.btn-warning]="inscription.statut === 'paye'"
+                          (click)="toggleInscriptionStatut(inscription)"
+                          [title]="inscription.statut === 'paye' ? 'Marquer comme non payée' : 'Marquer comme payée'"
+                          style="min-width: 85px;">
+                    <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card-2-front'}} me-1"></i>
+                    {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
+                  </button>
+                  <!-- Bouton Supprimer -->
+                  <button class="btn btn-sm btn-danger mb-1"
+                          (click)="confirmDeleteInscription(inscription)"
+                          title="Supprimer l'inscription"
+                          style="min-width: 85px;">
+                    <i class="bi bi-trash3 me-1"></i>
+                    Supprimer
+                  </button>
                 </td>
               </tr>
               <tr *ngIf="filteredInscriptions.length === 0">
@@ -361,11 +376,20 @@
             </table>
           </div>
         </div>
-        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
-          <small class="text-muted">Total: {{filteredInscriptions.length}} inscription(s)</small>
+        <div class="card-footer bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Total: <strong>{{filteredInscriptions.length}}</strong> inscription(s)
+          </small>
           <div class="d-flex gap-3">
-            <small class="text-success">Payées: {{getPayeCount()}}</small>
-            <small class="text-warning">Non payées: {{getNonPayeCount()}}</small>
+            <small class="text-success">
+              <i class="bi bi-check-circle-fill me-1"></i>
+              Payées: <strong>{{getPayeCount()}}</strong>
+            </small>
+            <small class="text-warning">
+              <i class="bi bi-clock-fill me-1"></i>
+              Non payées: <strong>{{getNonPayeCount()}}</strong>
+            </small>
           </div>
         </div>
       </div>
