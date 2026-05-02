@@ -589,3 +589,80 @@
     font-size: 1.2rem;
   }
 }
+/* Styles pour l'ID réduit */
+.bg-secondary-subtle {
+  background-color: #e9ecef !important;
+}
+
+.inscription-table .badge.bg-secondary-subtle {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Espacement des boutons d'action */
+.d-flex.gap-3 {
+  gap: 12px;
+}
+
+/* Taille des boutons */
+.btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-sm:hover {
+  transform: translateY(-2px);
+}
+
+/* Ajustement des colonnes */
+.inscription-table th,
+.inscription-table td {
+  vertical-align: middle;
+  padding: 12px 8px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .inscription-table th,
+  .inscription-table td {
+    padding: 8px 6px;
+  }
+
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .d-flex.gap-3 {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .formation-group-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .inscription-table {
+    font-size: 0.75rem;
+  }
+
+  .inscription-table .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .student-avatar-sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  .student-avatar-sm i {
+    font-size: 1.2rem;
+  }
+}

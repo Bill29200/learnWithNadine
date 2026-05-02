@@ -251,14 +251,18 @@
                   </button>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-outline-primary me-1"
-                          (click)="openEditFormation(formation)">
-                    <i class="bi bi-pencil"></i> Modifier
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger"
-                          (click)="confirmDeleteFormation(formation)">
-                    <i class="bi bi-trash"></i> Supprimer
-                  </button>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary"
+                            (click)="openEditFormation(formation)"
+                            title="Modifier la formation">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="confirmDeleteFormation(formation)"
+                            title="Supprimer la formation">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
               <tr *ngIf="filteredFormations.length === 0">

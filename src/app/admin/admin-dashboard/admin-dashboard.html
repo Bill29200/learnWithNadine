@@ -232,16 +232,19 @@
                     </span>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-outline-success me-1"
-                          (click)="toggleFormationStatut(formation)"
-                          [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
-                    <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
-                    {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
-                  </button>
-                  <button class="btn btn-sm btn-danger"
-                          (click)="confirmDeleteFormation(formation)">
-                    <i class="bi bi-trash"></i> Supprimer
-                  </button>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-success"
+                            (click)="toggleFormationStatut(formation)"
+                            [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
+                      <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
+                      {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="confirmDeleteFormation(formation)"
+                            title="Supprimer la formation">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
               <tr *ngIf="filteredFormations.length === 0">
@@ -259,8 +262,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <div *ngIf="activeTab === 'inscriptions'">
       <div class="card shadow-sm mb-4">
@@ -334,17 +335,20 @@
               <table class="table table-hover table-bordered mb-0 inscription-table">
                 <thead class="table-light">
                 <tr>
-                  <th style="width: 8%">ID</th>
-                  <th style="width: 25%">Étudiant</th>
+                  <th style="width: 5%">ID</th>
+                  <th style="width: 27%">Étudiant</th>
                   <th style="width: 25%">Email</th>
                   <th style="width: 12%">Date d'inscription</th>
-                  <th style="width: 12%">Statut paiement</th>
-                  <th style="width: 18%">Actions</th>
+                  <th style="width: 11%">Statut</th>
+                  <th style="width: 20%">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let inscription of formationGroup.inscriptions">
-                  <td class="align-middle fw-bold">#{{inscription.idInscription}}</td>
+                  <!-- ID réduit -->
+                  <td class="align-middle text-center">
+                    <span class="badge bg-secondary-subtle text-dark px-2 py-1 rounded-pill" style="font-size: 0.7rem;">#{{inscription.idInscription}}</span>
+                  </td>
                   <td class="align-middle">
                     <div class="d-flex align-items-center gap-2">
                       <div class="student-avatar-sm">
@@ -371,7 +375,8 @@
                   </span>
                   </td>
                   <td class="align-middle">
-                    <div class="d-flex gap-2 flex-wrap">
+                    <!-- Boutons avec plus d'espace -->
+                    <div class="d-flex gap-3 flex-wrap">
                       <button class="btn btn-sm"
                               [class.btn-success]="inscription.statut !== 'paye'"
                               [class.btn-warning]="inscription.statut === 'paye'"
@@ -380,11 +385,10 @@
                         <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card-2-front'}} me-1"></i>
                         {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
                       </button>
-                      <button class="btn btn-sm btn-danger"
+                      <button class="btn btn-sm btn-outline-danger"
                               (click)="confirmDeleteInscription(inscription)"
                               title="Supprimer l'inscription">
-                        <i class="bi bi-trash3 me-1"></i>
-                        Supprimer
+                        <i class="bi bi-trash3"></i>
                       </button>
                     </div>
                   </td>
@@ -505,8 +509,10 @@
                     </span>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-danger" (click)="confirmDeleteEtudiant(etudiant)">
-                    <i class="bi bi-trash"></i> Supprimer
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="confirmDeleteEtudiant(etudiant)"
+                          title="Supprimer l'étudiant">
+                    <i class="bi bi-trash3"></i>
                   </button>
                 </td>
               </tr>
@@ -603,8 +609,10 @@
                     </span>
                 </td>
                 <td class="align-middle">
-                  <button class="btn btn-sm btn-danger" (click)="confirmDeleteFormateur(formateur)">
-                    <i class="bi bi-trash"></i> Supprimer
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="confirmDeleteFormateur(formateur)"
+                          title="Supprimer le formateur">
+                    <i class="bi bi-trash3"></i>
                   </button>
                 </td>
               </tr>
