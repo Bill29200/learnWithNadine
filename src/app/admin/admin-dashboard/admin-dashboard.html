@@ -24,6 +24,11 @@
                 <i class="bi bi-arrow-repeat"></i> Rafraîchir
               </a>
             </li>
+            <li>
+              <a class="dropdown-item" (click)="openParamModal()" style="cursor: pointer;">
+                <i class="bi bi-gear"></i> Paramètres
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
@@ -117,10 +122,17 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="card-title mb-0 opacity-75">Revenus</h6>
-                <p class="card-text display-6 mb-0">{{stats.revenuTotal}} €</p>
+                <p class="card-text display-6 mb-0">{{stats.revenuTotal}} {{selectedDevise}}</p>
                 <small class="opacity-75">Total généré</small>
               </div>
               <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+            <div class="mt-2 pt-2 border-top border-white border-opacity-25">
+              <small>
+                <i class="bi bi-pie-chart me-1"></i>
+                Bénéfice ({{pourcentageBenefice}}%) :
+                <strong>{{stats.beneficeTotal}} {{selectedDevise}}</strong>
+              </small>
             </div>
           </div>
         </div>
@@ -154,17 +166,17 @@
         </a>
       </li>
     </ul>
+
     <!-- ==================== ONGLET FORMATIONS ==================== -->
     <div *ngIf="activeTab === 'formations'">
-      <!-- Barre de recherche et filtres -->
       <div class="filters-section mb-4">
         <div class="row g-2">
           <div class="col-md-7">
             <div class="search-container">
               <div class="input-group input-group-sm">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-orange"></i>
-            </span>
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-orange"></i>
+                </span>
                 <input type="text"
                        class="form-control border-start-0"
                        placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
@@ -189,10 +201,8 @@
         </div>
       </div>
 
-      <!-- Grille des cartes formations -->
       <div class="row">
         <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
-          <!-- Mini carte formation -->
           <div class="formation-mini-card" (click)="selectedFormationDetail = formation; showFormationModal = true">
             <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
               <div class="formation-mini-badge">
@@ -205,7 +215,7 @@
               <div class="formation-mini-info">
                 <span><i class="bi bi-person-badge"></i> {{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}</span>
                 <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightFormationText(formation.duree)"></span></span>
-                <span><i class="bi bi-tag"></i> <span [innerHTML]="highlightFormationText(formation.prix + ' €')"></span></span>
+                <span><i class="bi bi-tag"></i> {{formatPrice(formation.prix)}}</span>
               </div>
             </div>
             <div class="formation-mini-footer">
@@ -234,7 +244,6 @@
           </div>
         </div>
       </div>
-
       <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
     </div>
 
@@ -250,35 +259,28 @@
             <button type="button" class="btn-close btn-close-white" (click)="showFormationModal = false"></button>
           </div>
           <div class="modal-body p-4" *ngIf="selectedFormationDetail">
-            <!-- Titre et statut -->
             <div class="text-center mb-4">
               <div class="modal-formation-icon mx-auto">
                 <i class="bi bi-journal-bookmark-fill fs-1"></i>
               </div>
               <h3 class="mt-3 mb-2 fw-bold" [innerHTML]="highlightFormationText(selectedFormationDetail.intitule)"></h3>
               <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-            {{selectedFormationDetail.statut === 'valide' ? '✅ Formation validée' : '⏳ En attente de validation'}}
-          </span>
+                {{selectedFormationDetail.statut === 'valide' ? '✅ Formation validée' : '⏳ En attente de validation'}}
+              </span>
             </div>
 
-            <!-- Description -->
             <div class="info-card p-3 mb-3 rounded-3">
               <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-orange me-2"></i>Description</h6>
               <p class="mb-0" [innerHTML]="highlightFormationText(selectedFormationDetail.description)"></p>
             </div>
 
-            <!-- Programme -->
             <div class="info-card p-3 mb-3 rounded-3" *ngIf="selectedFormationDetail.programme.length > 0">
               <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
               <ul class="mb-0 ps-3">
                 <li *ngFor="let point of selectedFormationDetail.programme" [innerHTML]="highlightFormationText(point)"></li>
               </ul>
-              <div *ngIf="selectedFormationDetail.programme.length === 0" class="text-muted">
-                <i class="bi bi-info-circle"></i> Aucun programme renseigné
-              </div>
             </div>
 
-            <!-- Informations générales -->
             <div class="info-card p-3 mb-3 rounded-3">
               <div class="row">
                 <div class="col-md-6">
@@ -288,7 +290,7 @@
                   </div>
                   <div class="info-row d-flex align-items-center mb-2">
                     <i class="bi bi-tag text-orange me-3" style="width: 24px;"></i>
-                    <span>Prix: <strong [innerHTML]="highlightFormationText(selectedFormationDetail.prix + ' €')"></strong></span>
+                    <span>Prix: <strong>{{formatPrice(selectedFormationDetail.prix)}}</strong></span>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -304,7 +306,6 @@
               </div>
             </div>
 
-            <!-- Inscriptions à cette formation -->
             <div class="mt-3" *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length > 0">
               <h6 class="fw-bold mb-2">
                 <i class="bi bi-people me-2 text-orange"></i>
@@ -317,9 +318,9 @@
                     <small class="text-muted d-block">{{getEtudiantById(inscription.idEtudiant)?.mail}}</small>
                   </div>
                   <div class="text-end">
-                <span class="badge" [ngClass]="inscription.statut === 'paye' ? 'bg-success' : 'bg-warning'">
-                  {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                </span>
+                    <span class="badge" [ngClass]="inscription.statut === 'paye' ? 'bg-success' : 'bg-warning'">
+                      {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                    </span>
                     <small class="text-muted d-block">{{inscription.dateInscription}}</small>
                   </div>
                 </div>
@@ -359,9 +360,9 @@
                 <div class="col-md-7">
                   <div class="search-container">
                     <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-orange"></i>
-                  </span>
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-orange"></i>
+                      </span>
                       <input type="text"
                              class="form-control border-start-0"
                              placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
@@ -440,16 +441,16 @@
                     <small [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.mail || '')"></small>
                   </td>
                   <td class="align-middle">
-                    <span class="badge bg-light text-dark">
-                      <i class="bi bi-calendar3 me-1"></i>
-                      {{inscription.dateInscription}}
-                    </span>
+                      <span class="badge bg-light text-dark">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        {{inscription.dateInscription}}
+                      </span>
                   </td>
                   <td class="align-middle">
-                    <span [class]="getInscriptionStatutBadgeClass(inscription.statut)" class="px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
-                      <i class="bi {{inscription.statut === 'paye' ? 'bi-check-circle-fill' : 'bi-clock-fill'}}"></i>
-                      {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                    </span>
+                      <span [class]="getInscriptionStatutBadgeClass(inscription.statut)" class="px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
+                        <i class="bi {{inscription.statut === 'paye' ? 'bi-check-circle-fill' : 'bi-clock-fill'}}"></i>
+                        {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                      </span>
                   </td>
                   <td class="align-middle">
                     <div class="d-flex gap-3 flex-wrap">
@@ -510,9 +511,8 @@
       </div>
     </div>
 
-    <!-- ==================== ONGLET ÉTUDIANTS - CARTES PROFESSIONNELLES ==================== -->
+    <!-- ==================== ONGLET ÉTUDIANTS ==================== -->
     <div *ngIf="activeTab === 'etudiants'">
-      <!-- Barre de recherche et filtres -->
       <div class="filters-section mb-4">
         <div class="row g-2">
           <div class="col-md-7">
@@ -545,10 +545,8 @@
         </div>
       </div>
 
-      <!-- Grille des cartes étudiants -->
       <div class="row">
-        <div class="col-md-4 col-lg-3 mb-4" *ngFor="let etudiant of filteredEtudiants; let i = index">
-          <!-- Mini carte (visible par défaut) -->
+        <div class="col-md-4 col-lg-3 mb-4" *ngFor="let etudiant of filteredEtudiants">
           <div class="student-mini-card" (click)="selectedEtudiant = etudiant; showEtudiantModal = true">
             <div class="student-mini-avatar" [ngClass]="etudiant.statut === 'actif' ? 'active' : 'blocked'">
               <i class="bi bi-person-circle fs-1"></i>
@@ -573,7 +571,6 @@
           </div>
         </div>
       </div>
-
       <div class="mt-3 text-muted small">Total: {{filteredEtudiants.length}} étudiant(s)</div>
     </div>
 
@@ -589,7 +586,6 @@
             <button type="button" class="btn-close btn-close-white" (click)="showEtudiantModal = false"></button>
           </div>
           <div class="modal-body p-4" *ngIf="selectedEtudiant">
-            <!-- Avatar -->
             <div class="text-center mb-4">
               <div class="modal-avatar mx-auto">
                 <i class="bi bi-person-circle fs-1"></i>
@@ -600,7 +596,6 @@
               </span>
             </div>
 
-            <!-- Informations détaillées -->
             <div class="info-card p-3 mb-3 rounded-3">
               <div class="info-row d-flex align-items-center mb-2">
                 <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
@@ -620,7 +615,6 @@
               </div>
             </div>
 
-            <!-- Inscriptions de l'étudiant -->
             <div class="mt-3" *ngIf="getInscriptionsByEtudiant(selectedEtudiant.idEtudiant).length > 0">
               <h6 class="fw-bold mb-2">
                 <i class="bi bi-journal-bookmark me-2 text-orange"></i>
@@ -651,17 +645,15 @@
     </div>
 
     <!-- ==================== ONGLET FORMATEURS ==================== -->
-    <!-- ==================== ONGLET FORMATEURS ==================== -->
     <div *ngIf="activeTab === 'formateurs'">
-      <!-- Barre de recherche et filtres -->
       <div class="filters-section mb-4">
         <div class="row g-2">
           <div class="col-md-7">
             <div class="search-container">
               <div class="input-group input-group-sm">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-orange"></i>
-            </span>
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-orange"></i>
+                </span>
                 <input type="text"
                        class="form-control border-start-0"
                        placeholder="🔍 Rechercher par nom, prénom, email, spécialité ou niveau..."
@@ -686,7 +678,6 @@
         </div>
       </div>
 
-      <!-- Grille des cartes formateurs -->
       <div class="row">
         <div class="col-md-4 col-lg-3 mb-4" *ngFor="let formateur of filteredFormateurs">
           <div class="formateur-mini-card" (click)="selectedFormateur = formateur; showFormateurModal = true">
@@ -696,8 +687,8 @@
             <div class="formateur-mini-info">
               <h6 class="mb-0 fw-bold" [innerHTML]="highlightFormateurText(formateur.prenom + ' ' + formateur.nom)"></h6>
               <span class="badge" [ngClass]="formateur.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-            {{formateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-          </span>
+                {{formateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+              </span>
               <small class="text-muted d-block">{{formateur.specialite}}</small>
             </div>
             <div class="formateur-mini-icon">
@@ -713,7 +704,6 @@
           </div>
         </div>
       </div>
-
       <div class="mt-3 text-muted small">Total: {{filteredFormateurs.length}} formateur(s)</div>
     </div>
 
@@ -735,8 +725,8 @@
               </div>
               <h4 class="mt-3 mb-1 fw-bold">{{selectedFormateur.prenom}} {{selectedFormateur.nom}}</h4>
               <span class="badge" [ngClass]="selectedFormateur.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-            {{selectedFormateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-          </span>
+                {{selectedFormateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+              </span>
               <div class="mt-2">
                 <span class="badge bg-primary">{{selectedFormateur.specialite}}</span>
               </div>
@@ -745,19 +735,19 @@
             <div class="info-card p-3 mb-3 rounded-3">
               <div class="info-row d-flex align-items-center mb-2">
                 <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
-                <span [innerHTML]="highlightFormateurText(selectedFormateur.mail)"></span>
+                <span>{{selectedFormateur.mail}}</span>
               </div>
               <div class="info-row d-flex align-items-center mb-2">
                 <i class="bi bi-telephone text-orange me-3" style="width: 24px;"></i>
-                <span [innerHTML]="highlightFormateurText(selectedFormateur.tel)"></span>
+                <span>{{selectedFormateur.tel}}</span>
               </div>
               <div class="info-row d-flex align-items-center mb-2">
                 <i class="bi bi-star text-orange me-3" style="width: 24px;"></i>
-                <span>Spécialité: <strong [innerHTML]="highlightFormateurText(selectedFormateur.specialite)"></strong></span>
+                <span>Spécialité: <strong>{{selectedFormateur.specialite}}</strong></span>
               </div>
               <div class="info-row d-flex align-items-center mb-2">
                 <i class="bi bi-graph-up text-orange me-3" style="width: 24px;"></i>
-                <span>Niveau: <strong [innerHTML]="highlightFormateurText(selectedFormateur.niveau)"></strong></span>
+                <span>Niveau: <strong>{{selectedFormateur.niveau}}</strong></span>
               </div>
               <div class="info-row d-flex align-items-center">
                 <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
@@ -774,11 +764,11 @@
                 <div *ngFor="let formation of getFormationsByFormateur(selectedFormateur.idFormateur)" class="formation-item d-flex justify-content-between align-items-center p-2 mb-1 rounded-2">
                   <div>
                     <span class="small fw-semibold">{{formation.intitule}}</span>
-                    <small class="text-muted d-block">{{formation.duree}} - {{formation.prix}} €</small>
+                    <small class="text-muted d-block">{{formation.duree}} - {{formatPrice(formation.prix)}}</small>
                   </div>
                   <span class="badge" [ngClass]="formation.statut === 'valide' ? 'bg-success' : 'bg-warning'">
-                {{formation.statut === 'valide' ? 'Validée' : 'Non validée'}}
-              </span>
+                    {{formation.statut === 'valide' ? 'Validée' : 'Non validée'}}
+                  </span>
                 </div>
               </div>
             </div>
@@ -794,6 +784,59 @@
             <button class="btn btn-secondary" (click)="showFormateurModal = false">Fermer</button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Paramètres -->
+<div class="modal fade" id="paramModal" tabindex="-1" [class.show]="showParamModal" [style.display]="showParamModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-gear-fill me-2"></i>
+          Paramètres de l'application
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeParamModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <!-- Devise -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">
+            <i class="bi bi-currency-exchange text-orange me-2"></i>
+            Devise par défaut
+          </label>
+          <select class="form-select" [(ngModel)]="selectedDevise">
+            <option value="€">Euro (€)</option>
+            <option value="$">Dollar ($)</option>
+            <option value="£">Livre Sterling (£)</option>
+            <option value="DA">Dinar Algérien (DA)</option>
+            <option value="CFA">Franc CFA (CFA)</option>
+            <option value="CHF">Franc Suisse (CHF)</option>
+            <option value="CAD">Dollar Canadien (CAD)</option>
+          </select>
+          <small class="text-muted">Cette devise sera utilisée pour tous les prix affichés</small>
+        </div>
+
+        <!-- Pourcentage de bénéfice -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">
+            <i class="bi bi-graph-up text-orange me-2"></i>
+            Pourcentage de bénéfice
+          </label>
+          <div class="input-group">
+            <input type="number" class="form-control" [(ngModel)]="pourcentageBenefice" min="0" max="100" step="5">
+            <span class="input-group-text">%</span>
+          </div>
+          <small class="text-muted">Le bénéfice est calculé sur le prix total des formations payées</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeParamModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="saveParametres()">
+          <i class="bi bi-save me-1"></i> Sauvegarder
+        </button>
       </div>
     </div>
   </div>

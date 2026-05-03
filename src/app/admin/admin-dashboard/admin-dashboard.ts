@@ -19,6 +19,7 @@ interface FormationInscriptionGroup {
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
+  standalone: true
 })
 export class AdminDashboard implements OnInit, OnDestroy {
   currentUser: User | null = null;
@@ -63,6 +64,12 @@ export class AdminDashboard implements OnInit, OnDestroy {
   selectedFormateur: Formateur | null = null;
   showFormateurModal: boolean = false;
 
+  // Paramètres
+  selectedDevise: string = '€';
+  devises: string[] = ['€', '$', '£', 'DA', 'CFA', 'CHF', 'CAD'];
+  pourcentageBenefice: number = 50;
+  showParamModal: boolean = false;
+
   // Statistiques
   stats = {
     totalFormations: 0,
@@ -75,7 +82,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
     etudiantsActifs: 0,
     totalFormateurs: 0,
     formateursActifs: 0,
-    revenuTotal: 0
+    revenuTotal: 0,
+    beneficeTotal: 0
   };
 
   // État de chargement
@@ -95,6 +103,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.loadParametres();
     this.currentUser = this.auth.getCurrentUser();
 
     this.dbSubscription = this.databaseService.getDatabase$().subscribe({
@@ -142,6 +151,13 @@ export class AdminDashboard implements OnInit, OnDestroy {
   }
 
   updateStats() {
+    const revenuTotal = this.inscriptions
+      .filter(i => i.statut === 'paye')
+      .reduce((sum, i) => {
+        const formation = this.formations.find(f => f.idFormation === i.idFormation);
+        return sum + (formation?.prix || 0);
+      }, 0);
+
     this.stats = {
       totalFormations: this.formations.length,
       formationsValides: this.formations.filter(f => f.statut === 'valide').length,
@@ -153,12 +169,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
       etudiantsActifs: this.etudiants.filter(e => e.statut === 'actif').length,
       totalFormateurs: this.formateurs.length,
       formateursActifs: this.formateurs.filter(f => f.statut === 'actif').length,
-      revenuTotal: this.inscriptions
-        .filter(i => i.statut === 'paye')
-        .reduce((sum, i) => {
-          const formation = this.formations.find(f => f.idFormation === i.idFormation);
-          return sum + (formation?.prix || 0);
-        }, 0)
+      revenuTotal: revenuTotal,
+      beneficeTotal: revenuTotal * this.pourcentageBenefice / 100
     };
   }
 
@@ -176,6 +188,49 @@ export class AdminDashboard implements OnInit, OnDestroy {
         this.showMessage('Erreur lors de l\'actualisation des données', 'error');
       }
     });
+  }
+
+  // ==================== PARAMÈTRES ====================
+
+  openParamModal() {
+    this.showParamModal = true;
+  }
+
+  closeParamModal() {
+    this.showParamModal = false;
+  }
+
+  saveParametres() {
+    localStorage.setItem('selectedDevise', this.selectedDevise);
+    localStorage.setItem('pourcentageBenefice', this.pourcentageBenefice.toString());
+    this.updateStats();
+    this.showMessage('Paramètres sauvegardés avec succès', 'success');
+    this.closeParamModal();
+  }
+
+  loadParametres() {
+    const savedDevise = localStorage.getItem('selectedDevise');
+    const savedPourcentage = localStorage.getItem('pourcentageBenefice');
+    if (savedDevise) this.selectedDevise = savedDevise;
+    if (savedPourcentage) this.pourcentageBenefice = parseFloat(savedPourcentage);
+  }
+
+  formatPrice(prix: number): string {
+    const symboles: { [key: string]: string } = {
+      '€': '€',
+      '$': '$',
+      '£': '£',
+      'DA': 'DA',
+      'CFA': 'CFA',
+      'CHF': 'CHF',
+      'CAD': 'CAD'
+    };
+    const symbole = symboles[this.selectedDevise] || this.selectedDevise;
+
+    if (this.selectedDevise === 'DA') {
+      return `${prix} ${symbole}`;
+    }
+    return `${symbole}${prix}`;
   }
 
   // ==================== RECHERCHE FORMATIONS ====================
@@ -459,14 +514,9 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" marquée comme ${nouveauStatut === 'paye' ? 'payée' : 'non payée'}`, 'success');
   }
 
-  confirmDeleteFormation(formation: FormationDetail) {
-    // Vérifier si la formation peut être supprimée
-    if (!this.canDeleteFormation(formation)) {
-      this.showMessage('Impossible de supprimer une formation déjà validée par l\'administrateur', 'error');
-      return;
-    }
-
-    const inscriptionsLiees = this.databaseService.getInscriptionsByFormation(formation.idFormation);
+  confirmDeleteFormation(formation: FormationDetail | null) {
+    if (!formation) return;
+    const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
     let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
     if (inscriptionsLiees.length > 0) {
       message += `⚠️ Attention : Cette formation a ${inscriptionsLiees.length} inscription(s) liée(s).\n`;
@@ -474,11 +524,14 @@ export class AdminDashboard implements OnInit, OnDestroy {
     }
     message += `Cette action est irréversible.`;
     if (confirm(message)) {
-      inscriptionsLiees.forEach(ins => {
-        this.databaseService.deleteInscription(ins.idInscription);
-      });
+      inscriptionsLiees.forEach(ins => this.databaseService.deleteInscription(ins.idInscription));
       this.databaseService.deleteFormation(formation.idFormation);
-
+      this.formations = this.formations.filter(f => f.idFormation !== formation.idFormation);
+      this.inscriptions = this.inscriptions.filter(i => i.idFormation !== formation.idFormation);
+      this.applyFormationFilters();
+      this.applyInscriptionFilters();
+      this.updateStats();
+      this.showFormationModal = false;
       this.showMessage(`Formation "${formation.intitule}" supprimée`, 'success');
     }
   }
@@ -645,16 +698,4 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
-  canDeleteFormation(formation: FormationDetail): boolean {
-    // Une formation validée ne peut pas être supprimée
-    // Une formation non validée peut être supprimée
-    return formation.statut !== 'valide';
-  }
-  getDeleteButtonTitle(formation: FormationDetail): string {
-    if (formation.statut === 'valide') {
-      return 'Impossible de supprimer une formation validée';
-    }
-    return 'Supprimer la formation';
-  }
-
 }
