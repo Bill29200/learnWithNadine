@@ -248,3 +248,258 @@
     font-size: 0.9rem;
   }
 }
+/* ==================== CARTES ÉTUDIANTS PROFESSIONNELLES ==================== */
+
+.student-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.student-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(255, 89, 40, 0.25);
+}
+
+/* En-tête de la carte */
+.student-card-header {
+  padding: 1.5rem 1rem 1rem;
+  text-align: center;
+  color: white;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.student-card-header.status-active {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.student-card-header.status-blocked {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+/* Avatar */
+.student-avatar {
+  margin-bottom: 0.75rem;
+}
+
+.avatar-initials {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 1.8rem;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.student-card:hover .avatar-initials {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.student-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-status-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.65rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Corps compact (visible par défaut) */
+.student-card-body.compact {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.student-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+  padding: 0.3rem 0;
+}
+
+.student-info-row i {
+  width: 20px;
+  color: #ff5928;
+  font-size: 0.85rem;
+}
+
+.student-info-row .truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* Corps étendu (visible au survol) */
+.student-card-body.expanded {
+  padding: 1rem;
+  background: #f8f9fa;
+  display: none;
+  animation: fadeInUp 0.3s ease;
+}
+
+.student-card:hover .student-card-body.compact {
+  display: none;
+}
+
+.student-card:hover .student-card-body.expanded {
+  display: block;
+}
+
+.student-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.detail-value {
+  color: #6c757d;
+  text-align: right;
+  word-break: break-word;
+  max-width: 60%;
+}
+
+.detail-value .badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+}
+
+/* Footer */
+.student-card-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e9ecef;
+  margin-top: auto;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .col-xl-3 {
+    width: 33.333%;
+  }
+}
+
+@media (max-width: 992px) {
+  .col-lg-4 {
+    width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .student-card-header {
+    padding: 1rem 0.75rem 0.75rem;
+  }
+
+  .avatar-initials {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+
+  .student-name {
+    font-size: 0.85rem;
+  }
+
+  .student-info-row {
+    font-size: 0.7rem;
+  }
+
+  .detail-row {
+    font-size: 0.7rem;
+  }
+
+  .detail-value {
+    max-width: 55%;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-md-6 {
+    width: 100%;
+  }
+
+  .student-card-body.expanded {
+    padding: 0.75rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .detail-value {
+    text-align: left;
+    max-width: 100%;
+  }
+}

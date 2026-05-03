@@ -666,3 +666,136 @@
     font-size: 1.2rem;
   }
 }
+
+/* ==================== CARTES ÉTUDIANTS PROFESSIONNELLES ==================== */
+
+/* Mini carte */
+.student-mini-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.student-mini-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+}
+
+.student-mini-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.student-mini-avatar.active {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.student-mini-avatar.blocked {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.student-mini-avatar i {
+  font-size: 1.8rem;
+}
+
+.student-mini-info {
+  flex: 1;
+}
+
+.student-mini-info h6 {
+  font-size: 0.9rem;
+}
+
+.student-mini-info .badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.student-mini-icon {
+  color: #ff5928;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.student-mini-card:hover .student-mini-icon {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* Modal détails */
+.modal-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.info-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.inscriptions-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.formation-item {
+  background: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.formation-item:hover {
+  background: #e9ecef;
+}
+
+/* Filtre section */
+.filters-section {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .student-mini-card {
+    padding: 0.75rem;
+  }
+
+  .student-mini-avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .student-mini-avatar i {
+    font-size: 1.5rem;
+  }
+
+  .student-mini-info h6 {
+    font-size: 0.8rem;
+  }
+
+  .student-mini-info .badge {
+    font-size: 0.55rem;
+  }
+}

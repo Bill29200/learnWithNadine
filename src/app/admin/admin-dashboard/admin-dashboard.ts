@@ -46,6 +46,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
   filteredEtudiants: Etudiant[] = [];
   selectedEtudiantStatut: string = 'all';
 
+  // Étudiant sélectionné pour le modal
+  selectedEtudiant: Etudiant | null = null;
+  showEtudiantModal: boolean = false;
+
   // Recherche Formateurs
   searchFormateurTerm: string = '';
   filteredFormateurs: Formateur[] = [];
@@ -334,6 +338,12 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.highlightText(text, this.searchEtudiantTerm);
   }
 
+  // ==================== MÉTHODES POUR LES CARTES ÉTUDIANTS ====================
+
+  getInscriptionsByEtudiant(idEtudiant: number): Inscription[] {
+    return this.inscriptions.filter(i => i.idEtudiant === idEtudiant);
+  }
+
   // ==================== RECHERCHE FORMATEURS ====================
   onSearchFormateur() {
     this.applyFormateurFilters();
@@ -459,7 +469,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
     }
   }
 
-  confirmDeleteEtudiant(etudiant: Etudiant) {
+  confirmDeleteEtudiant(etudiant: Etudiant | null) {
+    if (!etudiant) return;
     const inscriptionsEtudiant = this.inscriptions.filter(i => i.idEtudiant === etudiant.idEtudiant);
     let message = `Êtes-vous sûr de vouloir supprimer l'étudiant "${etudiant.prenom} ${etudiant.nom}" ?\n\n`;
     if (inscriptionsEtudiant.length > 0) {
@@ -475,6 +486,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
       this.applyEtudiantFilters();
       this.applyInscriptionFilters();
       this.updateStats();
+      this.showEtudiantModal = false;
       this.showMessage(`Étudiant "${etudiant.prenom} ${etudiant.nom}" supprimé`, 'success');
     }
   }
@@ -527,7 +539,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
       }
     });
 
-    // Trier par nom de formation
     return Object.values(groups).sort((a, b) =>
       a.formationName.localeCompare(b.formationName)
     );
