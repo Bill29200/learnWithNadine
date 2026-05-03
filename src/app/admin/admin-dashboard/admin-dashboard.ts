@@ -55,6 +55,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
   filteredFormateurs: Formateur[] = [];
   selectedFormateurStatut: string = 'all';
 
+  // Formateur sélectionné pour le modal
+  selectedFormateur: Formateur | null = null;
+  showFormateurModal: boolean = false;
+
   // Statistiques
   stats = {
     totalFormations: 0,
@@ -396,6 +400,14 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.highlightText(text, this.searchFormateurTerm);
   }
 
+  // ==================== MÉTHODES POUR LES CARTES FORMATEURS ====================
+
+  getFormationsByFormateur(idFormateur: number): FormationDetail[] {
+    return this.formations.filter(f => f.idFormateur === idFormateur);
+  }
+
+  // ==================== UTILITAIRE DE SURBRILLANCE ====================
+
   private highlightText(text: string, searchTerm: string): string {
     if (!searchTerm || searchTerm.trim() === '') {
       return text;
@@ -491,7 +503,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
     }
   }
 
-  confirmDeleteFormateur(formateur: Formateur) {
+  confirmDeleteFormateur(formateur: Formateur | null) {
+    if (!formateur) return;
     const formationsFormateur = this.formations.filter(f => f.idFormateur === formateur.idFormateur);
     let message = `Êtes-vous sûr de vouloir supprimer le formateur "${formateur.prenom} ${formateur.nom}" ?\n\n`;
     if (formationsFormateur.length > 0) {
@@ -516,6 +529,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
       this.applyInscriptionFilters();
       this.applyFormateurFilters();
       this.updateStats();
+      this.showFormateurModal = false;
       this.showMessage(`Formateur "${formateur.prenom} ${formateur.nom}" supprimé`, 'success');
     }
   }
