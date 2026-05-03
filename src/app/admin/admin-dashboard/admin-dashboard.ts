@@ -459,9 +459,14 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" marquée comme ${nouveauStatut === 'paye' ? 'payée' : 'non payée'}`, 'success');
   }
 
-  confirmDeleteFormation(formation: FormationDetail | null) {
-    if (!formation) return;
-    const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
+  confirmDeleteFormation(formation: FormationDetail) {
+    // Vérifier si la formation peut être supprimée
+    if (!this.canDeleteFormation(formation)) {
+      this.showMessage('Impossible de supprimer une formation déjà validée par l\'administrateur', 'error');
+      return;
+    }
+
+    const inscriptionsLiees = this.databaseService.getInscriptionsByFormation(formation.idFormation);
     let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
     if (inscriptionsLiees.length > 0) {
       message += `⚠️ Attention : Cette formation a ${inscriptionsLiees.length} inscription(s) liée(s).\n`;
@@ -469,14 +474,11 @@ export class AdminDashboard implements OnInit, OnDestroy {
     }
     message += `Cette action est irréversible.`;
     if (confirm(message)) {
-      inscriptionsLiees.forEach(ins => this.databaseService.deleteInscription(ins.idInscription));
+      inscriptionsLiees.forEach(ins => {
+        this.databaseService.deleteInscription(ins.idInscription);
+      });
       this.databaseService.deleteFormation(formation.idFormation);
-      this.formations = this.formations.filter(f => f.idFormation !== formation.idFormation);
-      this.inscriptions = this.inscriptions.filter(i => i.idFormation !== formation.idFormation);
-      this.applyFormationFilters();
-      this.applyInscriptionFilters();
-      this.updateStats();
-      this.showFormationModal = false;
+
       this.showMessage(`Formation "${formation.intitule}" supprimée`, 'success');
     }
   }
@@ -643,4 +645,16 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
+  canDeleteFormation(formation: FormationDetail): boolean {
+    // Une formation validée ne peut pas être supprimée
+    // Une formation non validée peut être supprimée
+    return formation.statut !== 'valide';
+  }
+  getDeleteButtonTitle(formation: FormationDetail): string {
+    if (formation.statut === 'valide') {
+      return 'Impossible de supprimer une formation validée';
+    }
+    return 'Supprimer la formation';
+  }
+
 }

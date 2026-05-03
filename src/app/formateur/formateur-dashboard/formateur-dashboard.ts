@@ -11,6 +11,7 @@ import { User } from '../../model/user.model';
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './formateur-dashboard.html',
   styleUrl: './formateur-dashboard.css',
+  standalone: true
 })
 export class FormateurDashboard implements OnInit {
   currentUser: User | null = null;
@@ -22,8 +23,9 @@ export class FormateurDashboard implements OnInit {
   searchTerm: string = '';
   selectedStatut: string = 'all';
 
-  // Formation sélectionnée pour voir les étudiants
+  // Formation sélectionnée pour voir les étudiants (modal)
   selectedFormation: FormationDetail | null = null;
+  showFormationModal: boolean = false;
   etudiantsInscrits: { etudiant: Etudiant, inscription: Inscription }[] = [];
 
   // Formulaire de création/modification
@@ -39,9 +41,6 @@ export class FormateurDashboard implements OnInit {
     statut: 'nonValide'
   };
   programmeInput: string = '';
-
-  // Onglet actif
-  activeTab: string = 'formations';
 
   // Message
   message: string = '';
@@ -75,7 +74,7 @@ export class FormateurDashboard implements OnInit {
     this.isLoading = false;
   }
 
-  // Méthode de recherche multi-critères améliorée
+  // Méthode de recherche multi-critères
   onSearch() {
     this.applyFormationFilters();
   }
@@ -162,7 +161,7 @@ export class FormateurDashboard implements OnInit {
     return result;
   }
 
-  // Voir les étudiants inscrits
+  // Voir les étudiants inscrits (ouvre modal)
   voirEtudiantsInscrits(formation: FormationDetail) {
     this.selectedFormation = formation;
     const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
@@ -178,13 +177,13 @@ export class FormateurDashboard implements OnInit {
       }
     });
 
-    this.activeTab = 'etudiants';
+    this.showFormationModal = true;
   }
 
-  closeEtudiantsView() {
+  closeFormationModal() {
+    this.showFormationModal = false;
     this.selectedFormation = null;
     this.etudiantsInscrits = [];
-    this.activeTab = 'formations';
   }
 
   // CRUD Formations
@@ -279,13 +278,11 @@ export class FormateurDashboard implements OnInit {
   confirmDeleteFormation(formation: FormationDetail) {
     const inscriptionsLiees = this.databaseService.getInscriptionsByFormation(formation.idFormation);
     let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
-
     if (inscriptionsLiees.length > 0) {
       message += `⚠️ Attention : Cette formation a ${inscriptionsLiees.length} inscription(s) liée(s).\n`;
       message += `Ces inscriptions seront également supprimées.\n\n`;
     }
     message += `Cette action est irréversible.`;
-
     if (confirm(message)) {
       inscriptionsLiees.forEach(ins => {
         this.databaseService.deleteInscription(ins.idInscription);
@@ -337,7 +334,29 @@ export class FormateurDashboard implements OnInit {
     });
     return total;
   }
+  getStudentCardColor(index: number): string {
+    const colors = [
+      'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',
+      'linear-gradient(135deg, #F0FFF4 0%, #E0FFE8 100%)',
+      'linear-gradient(135deg, #EBF8FF 0%, #D0EEFF 100%)',
+      'linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%)',
+      'linear-gradient(135deg, #F3E8FF 0%, #E8D5FF 100%)',
+      'linear-gradient(135deg, #FFE0F0 0%, #FFCCE6 100%)',
+      'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)',
+      'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',
+      'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
+      'linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%)',
+    ];
+    return colors[index % colors.length];
+  }
 
+  getStudentIconColor(index: number): string {
+    const iconColors = [
+      '#e74c3c', '#27ae60', '#2980b9', '#f39c12', '#8e44ad',
+      '#e91e63', '#00bcd4', '#4caf50', '#ff9800', '#3f51b5'
+    ];
+    return iconColors[index % iconColors.length];
+  }
   showMessage(msg: string, type: 'success' | 'error') {
     this.message = msg;
     this.messageType = type;
@@ -363,10 +382,6 @@ export class FormateurDashboard implements OnInit {
       return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`;
     }
     return 'F';
-  }
-
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
   }
 }
 

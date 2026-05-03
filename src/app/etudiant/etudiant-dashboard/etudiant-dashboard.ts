@@ -9,8 +9,9 @@ import { User } from '../../model/user.model';
 @Component({
   selector: 'app-etudiant-dashboard',
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './etudiant-dashboard.html',
+  templateUrl: './etudiant-dashboard.html',  // ← CORRIGÉ: était './formateur-dashboard.html'
   styleUrl: './etudiant-dashboard.css',
+  standalone: true
 })
 export class EtudiantDashboard implements OnInit {
   currentUser: User | null = null;
@@ -50,7 +51,6 @@ export class EtudiantDashboard implements OnInit {
     this.isLoading = false;
   }
 
-  // Méthode de recherche multi-critères améliorée
   get filteredFormations(): FormationDetail[] {
     if (!this.searchTerm || this.searchTerm.trim() === '') {
       return this.formations;
@@ -60,32 +60,19 @@ export class EtudiantDashboard implements OnInit {
     const searchWords = searchTermLower.split(/\s+/);
 
     return this.formations.filter(formation => {
-      // 1. Recherche dans l'intitulé
       const intituleMatch = formation.intitule.toLowerCase().includes(searchTermLower);
-
-      // 2. Recherche dans la description
       const descriptionMatch = formation.description.toLowerCase().includes(searchTermLower);
-
-      // 3. Recherche dans le programme
-      const programmeMatch = formation.programme.some(point =>
-        point.toLowerCase().includes(searchTermLower)
-      );
-
-      // 4. Recherche dans la durée
+      const programmeMatch = formation.programme.some(point => point.toLowerCase().includes(searchTermLower));
       const dureeMatch = formation.duree.toLowerCase().includes(searchTermLower);
-
-      // 5. Recherche dans le prix
       const prixString = formation.prix.toString();
       const prixAvecEuro = `${formation.prix} €`;
-      let prixMatch = prixString.includes(searchTermLower) ||
-        prixAvecEuro.toLowerCase().includes(searchTermLower);
+      let prixMatch = prixString.includes(searchTermLower) || prixAvecEuro.toLowerCase().includes(searchTermLower);
 
       if (!prixMatch && searchTermLower.includes('€')) {
         const prixSansEuro = searchTermLower.replace('€', '').trim();
         prixMatch = prixString.includes(prixSansEuro);
       }
 
-      // 6. Recherche dans le formateur
       const formateur = this.databaseService.getFormateurById(formation.idFormateur);
       let formateurMatch = false;
       if (formateur) {
@@ -95,24 +82,20 @@ export class EtudiantDashboard implements OnInit {
           `${formateur.prenom} ${formateur.nom}`.toLowerCase().includes(searchTermLower);
       }
 
-      // 7. Recherche par mots-clés multiples
       let multiWordMatch = false;
       if (searchWords.length > 1) {
         multiWordMatch = searchWords.every(word =>
           formation.intitule.toLowerCase().includes(word) ||
           formation.description.toLowerCase().includes(word) ||
           formation.programme.some(p => p.toLowerCase().includes(word)) ||
-          (formateur && (formateur.prenom.toLowerCase().includes(word) ||
-            formateur.nom.toLowerCase().includes(word)))
+          (formateur && (formateur.prenom.toLowerCase().includes(word) || formateur.nom.toLowerCase().includes(word)))
         );
       }
 
-      return intituleMatch || descriptionMatch || programmeMatch ||
-        dureeMatch || prixMatch || formateurMatch || multiWordMatch;
+      return intituleMatch || descriptionMatch || programmeMatch || dureeMatch || prixMatch || formateurMatch || multiWordMatch;
     });
   }
 
-  // Mise en évidence des termes recherchés
   highlightText(text: string): string {
     if (!this.searchTerm || this.searchTerm.trim() === '') {
       return text;

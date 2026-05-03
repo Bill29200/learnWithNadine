@@ -335,7 +335,7 @@
               <i class="bi {{selectedFormationDetail?.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}} me-1"></i>
               {{selectedFormationDetail?.statut === 'valide' ? 'Invalider' : 'Valider'}}
             </button>
-            <button class="btn btn-outline-danger" (click)="confirmDeleteFormation(selectedFormationDetail); showFormationModal = false">
+            <button class="btn btn-outline-danger" (click)="confirmDeleteFormation(selectedFormationDetail); showFormationModal = false" *ngIf="selectedFormationDetail">
               <i class="bi bi-trash3 me-1"></i> Supprimer
             </button>
             <button class="btn btn-secondary" (click)="showFormationModal = false">Fermer</button>
