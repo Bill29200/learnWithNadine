@@ -3,13 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { DatabaseService, FormationDetail, Inscription, Etudiant } from '../../services/database.service';
+import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur } from '../../services/database.service';
 import { User } from '../../model/user.model';
 
 @Component({
   selector: 'app-etudiant-dashboard',
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './etudiant-dashboard.html',  // ← CORRIGÉ: était './formateur-dashboard.html'
+  templateUrl: './etudiant-dashboard.html',
   styleUrl: './etudiant-dashboard.css',
   standalone: true
 })
@@ -23,6 +23,10 @@ export class EtudiantDashboard implements OnInit {
   message: string = '';
   messageType: 'success' | 'error' = 'success';
   isLoading: boolean = true;
+
+  // Pour le modal de détails
+  selectedFormation: FormationDetail | null = null;
+  showDetailModal: boolean = false;
 
   constructor(
     private auth: AuthService,
@@ -49,6 +53,10 @@ export class EtudiantDashboard implements OnInit {
       .map(inscription => this.databaseService.getFormationById(inscription.idFormation))
       .filter((formation): formation is FormationDetail => formation !== undefined);
     this.isLoading = false;
+  }
+
+  onSearch() {
+    // Le getter filteredFormations gère automatiquement la recherche
   }
 
   get filteredFormations(): FormationDetail[] {
@@ -124,6 +132,16 @@ export class EtudiantDashboard implements OnInit {
     return this.isInscrit(formationId);
   }
 
+  voirDetails(formation: FormationDetail) {
+    this.selectedFormation = formation;
+    this.showDetailModal = true;
+  }
+
+  closeDetailModal() {
+    this.showDetailModal = false;
+    this.selectedFormation = null;
+  }
+
   sInscrire(formation: FormationDetail) {
     if (this.isInscrit(formation.idFormation)) {
       this.showMessage('Vous êtes déjà inscrit à cette formation !', 'error');
@@ -173,27 +191,31 @@ export class EtudiantDashboard implements OnInit {
     return `card-header-color-${index % 10}`;
   }
 
-  getStudentCardColor(index: number): string {
-    const colors = [
-      'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',
-      'linear-gradient(135deg, #F0FFF4 0%, #E0FFE8 100%)',
-      'linear-gradient(135deg, #EBF8FF 0%, #D0EEFF 100%)',
-      'linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%)',
-      'linear-gradient(135deg, #F3E8FF 0%, #E8D5FF 100%)',
-      'linear-gradient(135deg, #FFE0F0 0%, #FFCCE6 100%)',
-      'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)',
-      'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',
-      'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-      'linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%)',
-    ];
-    return colors[index % colors.length];
+  // Méthodes pour les statistiques
+  getFormateurName(idFormateur: number): string {
+    const formateur = this.databaseService.getFormateurById(idFormateur);
+    return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Non défini';
   }
 
-  getStudentIconColor(index: number): string {
-    const iconColors = [
-      '#e74c3c', '#27ae60', '#2980b9', '#f39c12', '#8e44ad',
-      '#e91e63', '#00bcd4', '#4caf50', '#ff9800', '#3f51b5'
-    ];
-    return iconColors[index % iconColors.length];
+  getFormateurSpecialite(idFormateur: number): string {
+    const formateur = this.databaseService.getFormateurById(idFormateur);
+    return formateur ? formateur.specialite : 'Non définie';
+  }
+
+  getInscriptionsPayeesCount(): number {
+    return this.mesInscriptions.filter(i => i.statut === 'paye').length;
+  }
+
+  getTotalDepense(): number {
+    let total = 0;
+    this.mesInscriptions.forEach(inscription => {
+      if (inscription.statut === 'paye') {
+        const formation = this.databaseService.getFormationById(inscription.idFormation);
+        if (formation) {
+          total += formation.prix;
+        }
+      }
+    });
+    return total;
   }
 }

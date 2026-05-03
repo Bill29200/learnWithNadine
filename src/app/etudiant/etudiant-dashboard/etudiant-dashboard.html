@@ -20,8 +20,8 @@
               </a>
             </li>
             <li>
-              <a class="dropdown-item" href="#">
-                <i class="bi bi-journal-bookmark"></i> Mes formations
+              <a class="dropdown-item" (click)="loadData()" style="cursor: pointer;">
+                <i class="bi bi-arrow-repeat"></i> Rafraîchir
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -59,7 +59,7 @@
     <div class="row">
       <div class="col-12">
         <div class="card shadow-sm mb-4 border-0">
-          <div class="card-body">
+          <div class="card-body bg-gradient-light">
             <h3 class="text-orange mb-2">Bienvenue, {{getFullName()}} !</h3>
             <p class="text-muted mb-0">Tableau de bord étudiant - Gérez vos inscriptions et découvrez de nouvelles formations</p>
             <div class="mt-2" *ngIf="etudiantInfo">
@@ -70,27 +70,78 @@
       </div>
     </div>
 
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-primary h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Mes Formations</h6>
+                <p class="card-text display-6 mb-0">{{mesFormations.length}}</p>
+                <small class="opacity-75">Formations suivies</small>
+              </div>
+              <i class="bi bi-journal-bookmark-fill display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-success h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Paiements</h6>
+                <p class="card-text display-6 mb-0">{{getInscriptionsPayeesCount()}}</p>
+                <small class="opacity-75">Formations payées</small>
+              </div>
+              <i class="bi bi-credit-card display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white bg-info h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Total Dépensé</h6>
+                <p class="card-text display-6 mb-0">{{getTotalDepense()}} €</p>
+                <small class="opacity-75">Montant total payé</small>
+              </div>
+              <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Mes formations (inscrit) -->
     <div class="row mb-4" *ngIf="mesFormations.length > 0">
       <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-header bg-orange text-white">
-            <h5 class="mb-0">📚 Mes Formations ({{mesFormations.length}})</h5>
+        <div class="section-card">
+          <div class="section-header section-header-mesformations">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-journal-check fs-4"></i>
+              <h4 class="mb-0 fw-semibold">Mes formations ({{mesFormations.length}})</h4>
+            </div>
           </div>
-          <div class="card-body">
+          <div class="section-body">
             <div class="row">
-              <div class="col-md-6 mb-3" *ngFor="let formation of mesFormations; let i = index">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h6 [ngClass]="'badge-card card-header-color-' + (i % 10)">{{formation.intitule}}</h6>
-                    <p class="card-text small text-muted">{{formation.description | slice:0:100}}...</p>
-                    <p class="card-text">
-                      <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
-                      <span class="badge bg-success">Prix: {{formation.prix}} €</span>
-                    </p>
-                    <button class="btn btn-sm btn-success w-100" disabled>
-                      ✅ Inscrit
-                    </button>
+              <div class="col-md-6 col-lg-4 mb-3" *ngFor="let formation of mesFormations; let i = index">
+                <div class="inscrit-card" (click)="voirDetails(formation)">
+                  <div class="inscrit-card-header" [ngClass]="'card-header-color-' + (i % 10)">
+                    <h6 class="mb-0 fw-semibold" [innerHTML]="highlightText(formation.intitule)"></h6>
+                  </div>
+                  <div class="inscrit-card-body">
+                    <p class="small text-muted mb-2" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
+                    <div class="d-flex justify-content-between">
+                      <span class="badge text-orange"><i class="bi bi-clock"></i> {{formation.duree}}</span>
+                      <span class="badge bg-success"><i class="bi bi-cash-stack"></i> {{formation.prix}} €</span>
+                    </div>
+                  </div>
+                  <div class="inscrit-card-footer">
+                    <span class="badge bg-success w-100 py-2">✅ Inscrit</span>
                   </div>
                 </div>
               </div>
@@ -101,10 +152,10 @@
     </div>
 
     <!-- Barre de recherche multi-critères -->
-    <div class="row justify-content-center mt-4 mb-4">
+    <div class="row justify-content-center mb-4">
       <div class="col-md-8">
         <div class="search-container">
-          <div class="input-group">
+          <div class="input-group input-group-sm">
             <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-search text-orange"></i>
             </span>
@@ -112,12 +163,13 @@
                    class="form-control border-start-0"
                    placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
                    [(ngModel)]="searchTerm"
+                   (input)="onSearch()"
                    name="search"
                    autocomplete="off">
-            <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''" *ngIf="searchTerm">
+            <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''; onSearch()" *ngIf="searchTerm">
               <i class="bi bi-x-lg"></i> Effacer
             </button>
-            <button class="btn btn-outline-orange" type="button" *ngIf="!searchTerm">
+            <button class="btn btn-outline-orange" type="button" (click)="onSearch()" *ngIf="!searchTerm">
               <i class="bi bi-search"></i> Rechercher
             </button>
           </div>
@@ -147,7 +199,7 @@
             <div class="alert alert-warning py-1 px-3 d-inline-block rounded-pill">
               <i class="bi bi-exclamation-triangle-fill me-1"></i>
               Aucune formation trouvée pour "<strong>{{searchTerm}}</strong>"
-              <a href="javascript:void(0)" (click)="searchTerm = ''" class="text-orange ms-2">
+              <a href="javascript:void(0)" (click)="searchTerm = ''; onSearch()" class="text-orange ms-2">
                 <i class="bi bi-arrow-repeat"></i> Voir toutes
               </a>
             </div>
@@ -156,69 +208,165 @@
       </div>
     </div>
 
-    <!-- Liste des formations disponibles -->
+    <!-- Grille des formations disponibles -->
     <div class="row">
-      <div class="col-12 mb-3" *ngIf="formations.length === 0">
-        <div class="alert alert-warning">
-          <h5>⏳ Chargement des formations...</h5>
-          <p>Les formations sont en cours de chargement.</p>
+      <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+        <div class="formation-mini-card" (click)="voirDetails(formation)">
+          <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
+            <div class="formation-mini-badge">
+              <i class="bi bi-star-fill"></i> Formation certifiante
+            </div>
+            <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
+          </div>
+          <div class="formation-mini-body">
+            <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
+            <div class="formation-mini-info">
+              <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightText(formation.duree)"></span></span>
+              <span><i class="bi bi-cash-stack"></i> <span [innerHTML]="highlightText(formation.prix + ' €')"></span></span>
+              <span><i class="bi bi-person-badge"></i> {{getFormateurName(formation.idFormateur)}}</span>
+            </div>
+          </div>
+          <div class="formation-mini-footer">
+            <ng-container *ngIf="!isInscrit(formation.idFormation); else inscritTemplate">
+              <button class="btn btn-sm btn-orange w-100"
+                      (click)="$event.stopPropagation(); sInscrire(formation)">
+                <i class="bi bi-pencil-square me-1"></i> S'inscrire
+              </button>
+            </ng-container>
+            <ng-template #inscritTemplate>
+              <button class="btn btn-sm btn-success w-100" disabled>
+                <i class="bi bi-check-circle-fill me-1"></i> Déjà inscrit
+              </button>
+            </ng-template>
+          </div>
+          <div class="formation-mini-icon">
+            <i class="bi bi-chevron-right"></i>
+          </div>
         </div>
       </div>
-      <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
-        <div class="card h-100 shadow-sm card-hover">
-          <div class="card-body">
-            <h5 [ngClass]="'card-title card-header-color-' + (i % 10)" [innerHTML]="highlightText(formation.intitule)"></h5>
-            <p class="card-text text-muted small" [innerHTML]="highlightText(formation.description | slice:0:120) + (formation.description.length > 120 ? '...' : '')"></p>
-            <p class="card-text">
-              <span class="badge text-orange me-2">
-                <i class="bi bi-clock"></i>
-                <span [innerHTML]="highlightText(formation.duree)"></span>
-              </span>
-              <span class="badge bg-success">
-                <i class="bi bi-cash-stack"></i>
-                <span [innerHTML]="highlightText(formation.prix + ' €')"></span>
-              </span>
-            </p>
-            <button class="btn btn-outline-orange w-100"
-                    (click)="sInscrire(formation)"
-                    [disabled]="formationDejaInscrit(formation.idFormation)">
-              {{formationDejaInscrit(formation.idFormation) ? '✅ Déjà inscrit' : '📝 S\'inscrire'}}
-            </button>
-          </div>
+      <div *ngIf="filteredFormations.length === 0 && formations.length > 0 && !searchTerm" class="col-12 text-center py-4">
+        <div class="empty-state">
+          <i class="bi bi-inbox display-1 text-muted"></i>
+          <h5 class="mt-3 text-muted">Aucune formation disponible</h5>
+          <p class="text-muted">Revenez plus tard pour découvrir nos formations</p>
         </div>
       </div>
     </div>
 
-    <!-- Message si aucune formation trouvée -->
-    <div class="row" *ngIf="filteredFormations.length === 0 && formations.length > 0 && searchTerm">
-      <div class="col-12 text-center">
-        <div class="alert alert-info">
-          <h5>🔍 Aucune formation trouvée</h5>
-          <p>Essayez avec d'autres mots-clés.</p>
-        </div>
-      </div>
-    </div>
+    <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
 
     <!-- Informations du profil -->
     <div class="row mt-4 mb-4">
       <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-header bg-light">
-            <h5 class="mb-0">ℹ️ Mes Informations</h5>
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="d-flex align-items-center gap-3">
+              <div class="profile-avatar">
+                <i class="bi bi-person-circle fs-1"></i>
+              </div>
+              <div>
+                <h5 class="mb-0 fw-semibold">{{getFullName()}}</h5>
+                <small class="text-muted">{{currentUser?.email}}</small>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
+          <div class="profile-body">
             <div class="row">
               <div class="col-md-6">
-                <p><strong>Nom complet :</strong> {{getFullName()}}</p>
-                <p><strong>Email :</strong> {{currentUser?.email}}</p>
+                <div class="info-row">
+                  <i class="bi bi-envelope text-orange"></i>
+                  <span>{{currentUser?.email}}</span>
+                </div>
+                <div class="info-row">
+                  <i class="bi bi-telephone text-orange"></i>
+                  <span>{{currentUser?.phone}}</span>
+                </div>
               </div>
               <div class="col-md-6">
-                <p><strong>Téléphone :</strong> {{currentUser?.phone}}</p>
-                <p><strong>Niveau d'études :</strong> {{etudiantInfo?.niveau || 'Non renseigné'}}</p>
+                <div class="info-row">
+                  <i class="bi bi-mortarboard text-orange"></i>
+                  <span>Niveau: <strong>{{etudiantInfo?.niveau || 'Non renseigné'}}</strong></span>
+                </div>
+                <div class="info-row">
+                  <i class="bi bi-journal-bookmark text-orange"></i>
+                  <span>Formations suivies: <strong>{{mesFormations.length}}</strong></span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Formation -->
+<div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header" [ngClass]="'card-header-color-' + ((selectedFormation?.idFormation || 0) % 10)">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Détails de la formation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDetailModal()"></button>
+      </div>
+      <div class="modal-body p-4" *ngIf="selectedFormation">
+        <!-- Titre -->
+        <h3 class="text-center mb-4 fw-bold text-orange" [innerHTML]="highlightText(selectedFormation.intitule)"></h3>
+
+        <!-- Description -->
+        <div class="info-card p-3 mb-3 rounded-3">
+          <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-orange me-2"></i>Description</h6>
+          <p class="mb-0" [innerHTML]="highlightText(selectedFormation.description)"></p>
+        </div>
+
+        <!-- Programme -->
+        <div class="info-card p-3 mb-3 rounded-3" *ngIf="selectedFormation.programme.length > 0">
+          <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
+          <ul class="mb-0 ps-3">
+            <li *ngFor="let point of selectedFormation.programme" [innerHTML]="highlightText(point)"></li>
+          </ul>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="info-card p-3 mb-3 rounded-3">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="info-row d-flex align-items-center mb-2">
+                <i class="bi bi-clock text-orange me-3" style="width: 24px;"></i>
+                <span>Durée: <strong [innerHTML]="highlightText(selectedFormation.duree)"></strong></span>
+              </div>
+              <div class="info-row d-flex align-items-center mb-2">
+                <i class="bi bi-cash-stack text-orange me-3" style="width: 24px;"></i>
+                <span>Prix: <strong [innerHTML]="highlightText(selectedFormation.prix + ' €')"></strong></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-row d-flex align-items-center mb-2">
+                <i class="bi bi-person-badge text-orange me-3" style="width: 24px;"></i>
+                <span>Formateur: <strong>{{getFormateurName(selectedFormation.idFormateur)}}</strong></span>
+              </div>
+              <div class="info-row d-flex align-items-center">
+                <i class="bi bi-star text-orange me-3" style="width: 24px;"></i>
+                <span>Spécialité: <strong>{{getFormateurSpecialite(selectedFormation.idFormateur)}}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetailModal()">Fermer</button>
+        <ng-container *ngIf="selectedFormation && !isInscrit(selectedFormation.idFormation); else modalInscritTemplate">
+          <button class="btn btn-orange" (click)="sInscrire(selectedFormation); closeDetailModal()">
+            <i class="bi bi-pencil-square me-1"></i> S'inscrire
+          </button>
+        </ng-container>
+        <ng-template #modalInscritTemplate>
+          <button class="btn btn-success" disabled>
+            <i class="bi bi-check-circle-fill me-1"></i> Déjà inscrit
+          </button>
+        </ng-template>
       </div>
     </div>
   </div>
