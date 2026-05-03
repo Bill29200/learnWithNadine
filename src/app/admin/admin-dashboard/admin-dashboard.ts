@@ -36,6 +36,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
   filteredFormations: FormationDetail[] = [];
   selectedStatut: string = 'all';
 
+  // Formation sélectionnée pour le modal
+  selectedFormationDetail: FormationDetail | null = null;
+  showFormationModal: boolean = false;
+
   // Recherche Inscriptions
   searchInscriptionTerm: string = '';
   filteredInscriptions: Inscription[] = [];
@@ -231,6 +235,12 @@ export class AdminDashboard implements OnInit, OnDestroy {
       return text;
     }
     return this.highlightText(text, this.searchFormationTerm);
+  }
+
+  // ==================== MÉTHODES POUR LES CARTES FORMATIONS ====================
+
+  getInscriptionsByFormationId(idFormation: number): Inscription[] {
+    return this.inscriptions.filter(i => i.idFormation === idFormation);
   }
 
   // ==================== RECHERCHE INSCRIPTIONS ====================
@@ -429,7 +439,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
   }
 
   // ==================== ACTIONS CRUD ====================
-  toggleFormationStatut(formation: FormationDetail) {
+  toggleFormationStatut(formation: FormationDetail | null) {
+    if (!formation) return;
     const nouveauStatut = formation.statut === 'valide' ? 'nonValide' : 'valide';
     this.databaseService.updateFormation(formation.idFormation, { statut: nouveauStatut });
     formation.statut = nouveauStatut;
@@ -448,7 +459,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showMessage(`Inscription de ${etudiant?.prenom} ${etudiant?.nom} à "${formation?.intitule}" marquée comme ${nouveauStatut === 'paye' ? 'payée' : 'non payée'}`, 'success');
   }
 
-  confirmDeleteFormation(formation: FormationDetail) {
+  confirmDeleteFormation(formation: FormationDetail | null) {
+    if (!formation) return;
     const inscriptionsLiees = this.inscriptions.filter(i => i.idFormation === formation.idFormation);
     let message = `Êtes-vous sûr de vouloir supprimer la formation "${formation.intitule}" ?\n\n`;
     if (inscriptionsLiees.length > 0) {
@@ -464,6 +476,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
       this.applyFormationFilters();
       this.applyInscriptionFilters();
       this.updateStats();
+      this.showFormationModal = false;
       this.showMessage(`Formation "${formation.intitule}" supprimée`, 'success');
     }
   }

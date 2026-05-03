@@ -154,111 +154,192 @@
         </a>
       </li>
     </ul>
-
     <!-- ==================== ONGLET FORMATIONS ==================== -->
     <div *ngIf="activeTab === 'formations'">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <div class="row align-items-center">
-            <div class="col-md-4">
-              <h5 class="mb-0">
-                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Gestion des formations
-              </h5>
-            </div>
-            <div class="col-md-8">
-              <div class="row g-2">
-                <div class="col-md-7">
-                  <div class="search-container">
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-orange"></i>
-                      </span>
-                      <input type="text"
-                             class="form-control border-start-0"
-                             placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
-                             [(ngModel)]="searchFormationTerm"
-                             (input)="onSearchFormation()">
-                      <button class="btn btn-outline-orange" type="button" (click)="searchFormationTerm = ''; onSearchFormation()" *ngIf="searchFormationTerm">
-                        <i class="bi bi-x-lg"></i> Effacer
-                      </button>
-                      <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormationTerm">
-                        <i class="bi bi-search"></i> Rechercher
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-5">
-                  <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
-                    <option value="all">📊 Tous les statuts</option>
-                    <option value="valide">✅ Validées</option>
-                    <option value="nonValide">⏳ Non validées</option>
-                  </select>
-                </div>
+      <!-- Barre de recherche et filtres -->
+      <div class="filters-section mb-4">
+        <div class="row g-2">
+          <div class="col-md-7">
+            <div class="search-container">
+              <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-orange"></i>
+            </span>
+                <input type="text"
+                       class="form-control border-start-0"
+                       placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
+                       [(ngModel)]="searchFormationTerm"
+                       (input)="onSearchFormation()">
+                <button class="btn btn-outline-orange" type="button" (click)="searchFormationTerm = ''; onSearchFormation()" *ngIf="searchFormationTerm">
+                  <i class="bi bi-x-lg"></i> Effacer
+                </button>
+                <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormationTerm">
+                  <i class="bi bi-search"></i> Rechercher
+                </button>
               </div>
             </div>
           </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-              <tr>
-                <th style="width: 5%">ID</th>
-                <th style="width: 30%">Intitulé</th>
-                <th style="width: 15%">Formateur</th>
-                <th style="width: 8%">Durée</th>
-                <th style="width: 8%">Prix</th>
-                <th style="width: 10%">Statut</th>
-                <th style="width: 24%">Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let formation of filteredFormations">
-                <td class="align-middle">#{{formation.idFormation}}</td>
-                <td class="align-middle">
-                  <strong [innerHTML]="highlightFormationText(formation.intitule)"></strong><br>
-                  <small class="text-muted" [innerHTML]="highlightFormationText(formation.description | slice:0:60) + (formation.description.length > 60 ? '...' : '')"></small>
-                </td>
-                <td class="align-middle">
-                    <span class="badge bg-secondary">
-                      {{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}
-                    </span>
-                </td>
-                <td class="align-middle" [innerHTML]="highlightFormationText(formation.duree)"></td>
-                <td class="align-middle" [innerHTML]="highlightFormationText(formation.prix + ' €')"></td>
-                <td class="align-middle">
-                    <span [class]="getFormationStatutBadgeClass(formation.statut)">
-                      {{formation.statut === 'valide' ? '✅ Validée' : '⏳ Non validée'}}
-                    </span>
-                </td>
-                <td class="align-middle">
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-success"
-                            (click)="toggleFormationStatut(formation)"
-                            [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
-                      <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
-                      {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger"
-                            (click)="confirmDeleteFormation(formation)"
-                            title="Supprimer la formation">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="filteredFormations.length === 0">
-                <td colspan="7" class="text-center py-4 text-muted">
-                  <i class="bi bi-inbox display-6 d-block mb-2"></i>
-                  Aucune formation trouvée
-                </td>
-              </tr>
-              </tbody>
-            </table>
+          <div class="col-md-5">
+            <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+              <option value="all">📊 Tous les statuts</option>
+              <option value="valide">✅ Validées</option>
+              <option value="nonValide">⏳ Non validées</option>
+            </select>
           </div>
         </div>
-        <div class="card-footer bg-light">
-          <small class="text-muted">Total: {{filteredFormations.length}} formation(s)</small>
+      </div>
+
+      <!-- Grille des cartes formations -->
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+          <!-- Mini carte formation -->
+          <div class="formation-mini-card" (click)="selectedFormationDetail = formation; showFormationModal = true">
+            <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
+              <div class="formation-mini-badge">
+                {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+              </div>
+              <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightFormationText(formation.intitule)"></h6>
+            </div>
+            <div class="formation-mini-body">
+              <p class="formation-mini-description" [innerHTML]="highlightFormationText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
+              <div class="formation-mini-info">
+                <span><i class="bi bi-person-badge"></i> {{getFormateurById(formation.idFormateur)?.prenom}} {{getFormateurById(formation.idFormateur)?.nom}}</span>
+                <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightFormationText(formation.duree)"></span></span>
+                <span><i class="bi bi-tag"></i> <span [innerHTML]="highlightFormationText(formation.prix + ' €')"></span></span>
+              </div>
+            </div>
+            <div class="formation-mini-footer">
+              <button class="btn btn-sm btn-outline-success"
+                      (click)="$event.stopPropagation(); toggleFormationStatut(formation)"
+                      [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
+                <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
+                {{formation.statut === 'valide' ? 'Invalider' : 'Valider'}}
+              </button>
+              <button class="btn btn-sm btn-outline-danger"
+                      (click)="$event.stopPropagation(); confirmDeleteFormation(formation)"
+                      title="Supprimer la formation">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+            <div class="formation-mini-icon">
+              <i class="bi bi-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredFormations.length === 0" class="col-12 text-center py-4">
+          <div class="empty-state">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">Aucune formation trouvée</h5>
+            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
+    </div>
+
+    <!-- Modal Détails Formation -->
+    <div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormationModal" [style.display]="showFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 overflow-hidden">
+          <div class="modal-header" [ngClass]="selectedFormationDetail?.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
+            <h5 class="modal-title text-white">
+              <i class="bi bi-book me-2"></i>
+              Détails de la formation
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="showFormationModal = false"></button>
+          </div>
+          <div class="modal-body p-4" *ngIf="selectedFormationDetail">
+            <!-- Titre et statut -->
+            <div class="text-center mb-4">
+              <div class="modal-formation-icon mx-auto">
+                <i class="bi bi-journal-bookmark-fill fs-1"></i>
+              </div>
+              <h3 class="mt-3 mb-2 fw-bold" [innerHTML]="highlightFormationText(selectedFormationDetail.intitule)"></h3>
+              <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
+            {{selectedFormationDetail.statut === 'valide' ? '✅ Formation validée' : '⏳ En attente de validation'}}
+          </span>
+            </div>
+
+            <!-- Description -->
+            <div class="info-card p-3 mb-3 rounded-3">
+              <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-orange me-2"></i>Description</h6>
+              <p class="mb-0" [innerHTML]="highlightFormationText(selectedFormationDetail.description)"></p>
+            </div>
+
+            <!-- Programme -->
+            <div class="info-card p-3 mb-3 rounded-3" *ngIf="selectedFormationDetail.programme.length > 0">
+              <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
+              <ul class="mb-0 ps-3">
+                <li *ngFor="let point of selectedFormationDetail.programme" [innerHTML]="highlightFormationText(point)"></li>
+              </ul>
+              <div *ngIf="selectedFormationDetail.programme.length === 0" class="text-muted">
+                <i class="bi bi-info-circle"></i> Aucun programme renseigné
+              </div>
+            </div>
+
+            <!-- Informations générales -->
+            <div class="info-card p-3 mb-3 rounded-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="info-row d-flex align-items-center mb-2">
+                    <i class="bi bi-clock text-orange me-3" style="width: 24px;"></i>
+                    <span>Durée: <strong [innerHTML]="highlightFormationText(selectedFormationDetail.duree)"></strong></span>
+                  </div>
+                  <div class="info-row d-flex align-items-center mb-2">
+                    <i class="bi bi-tag text-orange me-3" style="width: 24px;"></i>
+                    <span>Prix: <strong [innerHTML]="highlightFormationText(selectedFormationDetail.prix + ' €')"></strong></span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="info-row d-flex align-items-center mb-2">
+                    <i class="bi bi-person-badge text-orange me-3" style="width: 24px;"></i>
+                    <span>Formateur: <strong>{{getFormateurById(selectedFormationDetail.idFormateur)?.prenom}} {{getFormateurById(selectedFormationDetail.idFormateur)?.nom}}</strong></span>
+                  </div>
+                  <div class="info-row d-flex align-items-center mb-2">
+                    <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
+                    <span>ID: #{{selectedFormationDetail.idFormation}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inscriptions à cette formation -->
+            <div class="mt-3" *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length > 0">
+              <h6 class="fw-bold mb-2">
+                <i class="bi bi-people me-2 text-orange"></i>
+                Étudiants inscrits ({{getInscriptionsByFormationId(selectedFormationDetail.idFormation).length}})
+              </h6>
+              <div class="inscriptions-list">
+                <div *ngFor="let inscription of getInscriptionsByFormationId(selectedFormationDetail.idFormation)" class="inscription-item d-flex justify-content-between align-items-center p-2 mb-1 rounded-2">
+                  <div>
+                    <span class="small fw-semibold">{{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}</span>
+                    <small class="text-muted d-block">{{getEtudiantById(inscription.idEtudiant)?.mail}}</small>
+                  </div>
+                  <div class="text-end">
+                <span class="badge" [ngClass]="inscription.statut === 'paye' ? 'bg-success' : 'bg-warning'">
+                  {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                </span>
+                    <small class="text-muted d-block">{{inscription.dateInscription}}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 text-center text-muted" *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length === 0">
+              <i class="bi bi-inbox"></i>
+              <p class="mb-0">Aucun étudiant inscrit à cette formation</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-success" (click)="toggleFormationStatut(selectedFormationDetail); showFormationModal = false">
+              <i class="bi {{selectedFormationDetail?.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}} me-1"></i>
+              {{selectedFormationDetail?.statut === 'valide' ? 'Invalider' : 'Valider'}}
+            </button>
+            <button class="btn btn-outline-danger" (click)="confirmDeleteFormation(selectedFormationDetail); showFormationModal = false">
+              <i class="bi bi-trash3 me-1"></i> Supprimer
+            </button>
+            <button class="btn btn-secondary" (click)="showFormationModal = false">Fermer</button>
+          </div>
         </div>
       </div>
     </div>
