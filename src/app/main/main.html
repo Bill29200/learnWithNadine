@@ -99,14 +99,11 @@
       </div>
     </div>
 
-    <!-- Cartes style dashboard -->
+    <!-- Cartes style dashboard - sans badge "Formation certifiante" -->
     <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
       <div class="formation-mini-card" (click)="voirDetails(formation)">
         <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
-          <div class="formation-mini-badge">
-            <i class="bi bi-star-fill"></i> Formation certifiante
-          </div>
-          <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
+          <h6 class="formation-mini-title mt-0 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
         </div>
         <div class="formation-mini-body">
           <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
@@ -162,6 +159,7 @@
 <div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <!-- En-tête avec la même couleur que la carte -->
       <div class="modal-header" [ngClass]="'card-header-color-' + ((selectedFormation?.idFormation || 0) % 10)">
         <h5 class="modal-title text-white">
           <i class="bi bi-info-circle-fill me-2"></i>
@@ -172,6 +170,7 @@
 
       <div class="modal-body p-0">
         <div *ngIf="selectedFormation">
+          <!-- Bannière décorative -->
           <div class="formation-banner text-center text-white p-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
             <div class="banner-icon mb-3">
               <i class="bi bi-mortarboard fs-1"></i>
@@ -191,6 +190,7 @@
           </div>
 
           <div class="p-4">
+            <!-- Description -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-file-text me-2 text-orange"></i>
@@ -201,6 +201,7 @@
               </div>
             </div>
 
+            <!-- Programme -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-list-check me-2 text-orange"></i>
@@ -219,6 +220,7 @@
               </div>
             </div>
 
+            <!-- Informations du formateur -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-person-badge me-2 text-orange"></i>
@@ -265,6 +267,7 @@
               </div>
             </div>
 
+            <!-- Liste des étudiants inscrits -->
             <div class="info-section" *ngIf="etudiantsInscrits.length > 0">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-people me-2 text-orange"></i>
