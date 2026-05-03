@@ -99,10 +99,10 @@
       </div>
     </div>
 
-    <!-- Cartes style dashboard - sans badge "Formation certifiante" -->
-    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+    <!-- Cartes style dashboard -->
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations">
       <div class="formation-mini-card" (click)="voirDetails(formation)">
-        <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
+        <div class="formation-mini-header" [ngClass]="'card-header-color-' + (formation.idFormation % 10)">
           <h6 class="formation-mini-title mt-0 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
         </div>
         <div class="formation-mini-body">
@@ -291,6 +291,7 @@
               </div>
             </div>
 
+            <!-- Message si aucun étudiant inscrit -->
             <div class="alert alert-info text-center rounded-3" *ngIf="etudiantsInscrits.length === 0" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); border: none;">
               <i class="bi bi-info-circle-fill me-2"></i>
               Aucun apprenant n'est encore inscrit à cette formation. Soyez le premier !
