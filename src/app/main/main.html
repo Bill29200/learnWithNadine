@@ -7,14 +7,11 @@
           <span class="text-orange">🎓 Learn With Nadine</span>
         </h5>
       </div>
-
-
-
       <div class="col-md-6 text-end">
         <a routerLink="/register" class="btn btn-outline-orange btn-sm me-2">
           ✨ Créer un compte
         </a>
-        <a routerLink="/login" class="btn btn-sm text-dark btn-outline-orange">
+        <a routerLink="/login" class="btn btn-sm btn-outline-orange">
           🔑 Se connecter
         </a>
       </div>
@@ -26,14 +23,15 @@
   <div class="row">
     <div class="col-12 text-center mb-5">
       <p class="lead">Découvrez nos formations et développez vos compétences</p>
+
       <!-- Barre de recherche multi-critères -->
       <div class="row justify-content-center mt-4">
         <div class="col-md-8">
           <div class="search-container">
             <div class="input-group input-group-lg shadow-sm">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-orange fs-5"></i>
-        </span>
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange fs-5"></i>
+              </span>
               <input type="text"
                      class="form-control border-start-0"
                      placeholder="🔍 Rechercher par titre, programme, durée, prix ou formateur..."
@@ -101,22 +99,30 @@
       </div>
     </div>
 
-    <div class="col-md-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
-      <div class="card h-100 shadow-sm card-orange-shadow">
-        <div class="card-body">
-          <h5 [ngClass]="'card-title card-header-color-' + (i % 10)">{{formation.intitule}}</h5>
-          <p class="card-text text-muted">{{formation.description | slice:0:100}}...</p>
-          <p class="card-text">
-            <span>⏰</span>
-            <span class="badge text-orange me-2">Durée: {{formation.duree}}</span>
-            <span>💰</span>
-            <span class="badge bg-success">Prix: {{formation.prix}} €</span>
-          </p>
-          <div class="d-grid gap-2">
-            <button class="btn btn-outline-orange" (click)="voirDetails(formation)">
-              <i class="bi bi-eye"></i> Voir détails
-            </button>
+    <!-- Cartes style dashboard -->
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+      <div class="formation-mini-card" (click)="voirDetails(formation)">
+        <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
+          <div class="formation-mini-badge">
+            <i class="bi bi-star-fill"></i> Formation certifiante
           </div>
+          <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
+        </div>
+        <div class="formation-mini-body">
+          <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
+          <div class="formation-mini-info">
+            <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightText(formation.duree)"></span></span>
+            <span><i class="bi bi-cash-stack"></i> <span [innerHTML]="highlightText(formation.prix + ' €')"></span></span>
+            <span><i class="bi bi-person-badge"></i> {{getFormateurName(formation.idFormateur)}}</span>
+          </div>
+        </div>
+        <div class="formation-mini-footer">
+          <button class="btn btn-outline-orange w-100" (click)="$event.stopPropagation(); voirDetails(formation)">
+            <i class="bi bi-eye me-1"></i> Voir détails
+          </button>
+        </div>
+        <div class="formation-mini-icon">
+          <i class="bi bi-chevron-right"></i>
         </div>
       </div>
     </div>
@@ -144,7 +150,7 @@
         <a routerLink="/register" class="btn btn-outline-orange btn-sm me-3">
           ✨ Créer un compte gratuitement
         </a>
-        <a routerLink="/login" class="btn btn-sm text-dark btn-outline-orange">
+        <a routerLink="/login" class="btn btn-sm btn-outline-orange">
           🔑 Se connecter
         </a>
       </div>
@@ -152,14 +158,13 @@
   </div>
 </div>
 
-<!-- ==================== MODAL DÉTAILS FORMATION - VERSION PROFESSIONNELLE ==================== -->
+<!-- ==================== MODAL DÉTAILS FORMATION ==================== -->
 <div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <!-- En-tête avec dégradé -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%); border: none;">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header" [ngClass]="'card-header-color-' + ((selectedFormation?.idFormation || 0) % 10)">
         <h5 class="modal-title text-white">
-          <i class="bi bi-star-fill me-2"></i>
+          <i class="bi bi-info-circle-fill me-2"></i>
           Détails de la formation
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeDetailModal()"></button>
@@ -167,39 +172,35 @@
 
       <div class="modal-body p-0">
         <div *ngIf="selectedFormation">
-          <!-- Bannière décorative -->
           <div class="formation-banner text-center text-white p-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
             <div class="banner-icon mb-3">
               <i class="bi bi-mortarboard fs-1"></i>
             </div>
-            <h1 class="display-5 fw-bold mb-3">{{selectedFormation.intitule}}</h1>
+            <h1 class="display-5 fw-bold mb-3" [innerHTML]="highlightText(selectedFormation.intitule)"></h1>
             <div class="d-flex justify-content-center gap-3 flex-wrap">
-              <span class="badge badge-custom bg-white text-dark px-3 py-2">
-                <i class="bi bi-clock me-1 text-orange"></i> {{selectedFormation.duree}}
+              <span class="badge badge-custom bg-white text-dark px-3 py-2 rounded-pill">
+                <i class="bi bi-clock me-1 text-orange"></i> <span [innerHTML]="highlightText(selectedFormation.duree)"></span>
               </span>
-              <span class="badge badge-custom bg-white text-dark px-3 py-2">
-                <i class="bi bi-tag me-1 text-orange"></i> {{selectedFormation.prix}} €
+              <span class="badge badge-custom bg-white text-dark px-3 py-2 rounded-pill">
+                <i class="bi bi-tag me-1 text-orange"></i> <span [innerHTML]="highlightText(selectedFormation.prix + ' €')"></span>
               </span>
-              <span class="badge badge-custom bg-white text-dark px-3 py-2">
+              <span class="badge badge-custom bg-white text-dark px-3 py-2 rounded-pill">
                 <i class="bi bi-people me-1 text-orange"></i> {{etudiantsInscrits.length}} inscrits
               </span>
             </div>
           </div>
 
-          <!-- Contenu principal -->
           <div class="p-4">
-            <!-- Description - sans cercle -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-file-text me-2 text-orange"></i>
                 Description
               </h4>
               <div class="section-content p-3 bg-light rounded-3">
-                <p class="mb-0 text-muted">{{selectedFormation.description}}</p>
+                <p class="mb-0 text-muted" [innerHTML]="highlightText(selectedFormation.description)"></p>
               </div>
             </div>
 
-            <!-- Programme - sans cercle -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-list-check me-2 text-orange"></i>
@@ -209,7 +210,7 @@
                 <ul class="programme-list mb-0">
                   <li *ngFor="let point of selectedFormation.programme; let i = index" class="programme-item">
                     <span class="programme-number">{{i + 1}}</span>
-                    <span class="programme-text">{{point}}</span>
+                    <span class="programme-text" [innerHTML]="highlightText(point)"></span>
                   </li>
                   <li *ngIf="selectedFormation.programme.length === 0" class="text-muted">
                     <i class="bi bi-info-circle me-2"></i> Programme non renseigné
@@ -218,7 +219,6 @@
               </div>
             </div>
 
-            <!-- Informations du formateur - sans cercle -->
             <div class="info-section mb-4">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-person-badge me-2 text-orange"></i>
@@ -265,31 +265,29 @@
               </div>
             </div>
 
-            <!-- Liste des étudiants inscrits avec couleurs différentes -->
             <div class="info-section" *ngIf="etudiantsInscrits.length > 0">
               <h4 class="mb-3 fw-semibold text-dark">
                 <i class="bi bi-people me-2 text-orange"></i>
                 Apprenants inscrits ({{etudiantsInscrits.length}})
               </h4>
-<!--              <div class="students-grid">-->
-<!--                <div class="row g-3">-->
-<!--                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">-->
-<!--                    <div class="student-card p-3 rounded-3 border text-center" [ngStyle]="{'background': getStudentCardColor(i)}">-->
-<!--                      <div class="student-avatar mx-auto mb-2">-->
-<!--                        <i class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>-->
-<!--                      </div>-->
-<!--                      <h6 class="mb-1 fw-bold text-dark">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>-->
-<!--                      <p class="small text-secondary mb-1">{{item.etudiant.mail}}</p>-->
-<!--                      <p class="small text-secondary mb-0">-->
-<!--                        <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}-->
-<!--                      </p>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
+              <div class="students-grid">
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">
+                    <div class="student-card p-3 rounded-3 border text-center" [ngStyle]="{'background': getStudentCardColor(i)}">
+                      <div class="student-avatar mx-auto mb-2">
+                        <i class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>
+                      </div>
+                      <h6 class="mb-1 fw-bold text-dark">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>
+                      <p class="small text-secondary mb-1">{{item.etudiant.mail}}</p>
+                      <p class="small text-secondary mb-0">
+                        <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- Message si aucun étudiant inscrit -->
             <div class="alert alert-info text-center rounded-3" *ngIf="etudiantsInscrits.length === 0" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); border: none;">
               <i class="bi bi-info-circle-fill me-2"></i>
               Aucun apprenant n'est encore inscrit à cette formation. Soyez le premier !
@@ -298,12 +296,11 @@
         </div>
       </div>
 
-      <!-- Footer avec bouton d'inscription stylisé -->
       <div class="modal-footer border-0 bg-light py-3">
-        <button type="button" class="btn btn-outline-secondary px-4" (click)="closeDetailModal()">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" (click)="closeDetailModal()">
           <i class="bi bi-x-circle me-2"></i>Fermer
         </button>
-        <a routerLink="/login" class="btn btn-orange px-4">
+        <a routerLink="/login" class="btn btn-orange rounded-pill px-4">
           <i class="bi bi-pencil-square me-2"></i>S'inscrire maintenant
         </a>
       </div>

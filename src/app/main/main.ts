@@ -62,41 +62,23 @@ export class MainComponent implements OnInit {
     }
 
     const searchTermLower = this.searchTerm.toLowerCase().trim();
-    const searchWords = searchTermLower.split(/\s+/); // Découpe en mots pour recherche plus précise
+    const searchWords = searchTermLower.split(/\s+/);
 
     this.filteredFormations = this.formations.filter(formation => {
-      // 1. Recherche dans l'intitulé (nom)
       const intituleMatch = formation.intitule.toLowerCase().includes(searchTermLower);
-
-      // 2. Recherche dans la description
       const descriptionMatch = formation.description.toLowerCase().includes(searchTermLower);
-
-      // 3. Recherche dans le programme (chaque point du programme)
-      const programmeMatch = formation.programme.some(point =>
-        point.toLowerCase().includes(searchTermLower)
-      );
-
-      // 4. Recherche dans la durée (supporte: "35h", "35 heures", "35")
+      const programmeMatch = formation.programme.some(point => point.toLowerCase().includes(searchTermLower));
       const dureeMatch = formation.duree.toLowerCase().includes(searchTermLower);
 
-      // 5. Recherche avancée dans le prix (supporte: "299", "299€", "299 euros", "299.00")
       const prixString = formation.prix.toString();
       const prixAvecEuro = `${formation.prix} €`;
-      const prixAvecEuros = `${formation.prix} euros`;
-      const prixAvecPoint = `${formation.prix}.00 €`;
+      let prixMatch = prixString.includes(searchTermLower) || prixAvecEuro.toLowerCase().includes(searchTermLower);
 
-      let prixMatch = prixString.includes(searchTermLower) ||
-        prixAvecEuro.toLowerCase().includes(searchTermLower) ||
-        prixAvecEuros.toLowerCase().includes(searchTermLower) ||
-        prixAvecPoint.toLowerCase().includes(searchTermLower);
-
-      // Support des recherches comme "299€" sans espace
       if (!prixMatch && searchTermLower.includes('€')) {
         const prixSansEuro = searchTermLower.replace('€', '').trim();
         prixMatch = prixString.includes(prixSansEuro);
       }
 
-      // 6. Recherche dans le formateur (nom, prénom, spécialité)
       const formateur = this.databaseService.getFormateurById(formation.idFormateur);
       let formateurMatch = false;
       if (formateur) {
@@ -106,19 +88,16 @@ export class MainComponent implements OnInit {
           `${formateur.prenom} ${formateur.nom}`.toLowerCase().includes(searchTermLower);
       }
 
-      // 7. Recherche par mots-clés multiples
       let multiWordMatch = false;
       if (searchWords.length > 1) {
         multiWordMatch = searchWords.every(word =>
           formation.intitule.toLowerCase().includes(word) ||
           formation.description.toLowerCase().includes(word) ||
           formation.programme.some(p => p.toLowerCase().includes(word)) ||
-          (formateur && (formateur.prenom.toLowerCase().includes(word) ||
-            formateur.nom.toLowerCase().includes(word)))
+          (formateur && (formateur.prenom.toLowerCase().includes(word) || formateur.nom.toLowerCase().includes(word)))
         );
       }
 
-      // Retourne vrai si au moins un champ correspond
       return intituleMatch || descriptionMatch || programmeMatch ||
         dureeMatch || prixMatch || formateurMatch || multiWordMatch;
     });
@@ -129,6 +108,12 @@ export class MainComponent implements OnInit {
     return `card-header-color-${index % 10}`;
   }
 
+  // Récupérer le nom du formateur
+  getFormateurName(idFormateur: number): string {
+    const formateur = this.databaseService.getFormateurById(idFormateur);
+    return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Non défini';
+  }
+
   // Méthode pour mettre en évidence les termes recherchés
   highlightText(text: string): string {
     if (!this.searchTerm || this.searchTerm.trim() === '') {
@@ -137,13 +122,9 @@ export class MainComponent implements OnInit {
 
     const searchTermLower = this.searchTerm.toLowerCase().trim();
     const searchWords = searchTermLower.split(/\s+/);
-
     let result = text;
 
-    // Échapper les caractères spéciaux pour la regex
     const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // Trier les mots par longueur décroissante pour éviter les chevauchements
     const sortedWords = [...searchWords].sort((a, b) => b.length - a.length);
 
     for (const word of sortedWords) {
