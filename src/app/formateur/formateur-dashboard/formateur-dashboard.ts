@@ -42,12 +42,26 @@ export class FormateurDashboard implements OnInit {
   };
   programmeInput: string = '';
 
+  // Formulaire de modification du profil
+  showProfileModal: boolean = false;
+  profileForm: ProfileForm = {
+    nom: '',
+    prenom: '',
+    mail: '',
+    tel: '',
+    specialite: '',
+    niveau: ''
+  };
+
   // Message
   message: string = '';
   messageType: 'success' | 'error' = 'success';
 
   // État de chargement
   isLoading: boolean = true;
+
+  // Niveaux disponibles
+  niveauxDisponibles: string[] = ['autre', 'licence', 'master', 'ingenieur', 'magister', 'doctorat'];
 
   constructor(
     private auth: AuthService,
@@ -60,6 +74,7 @@ export class FormateurDashboard implements OnInit {
     if (this.currentUser) {
       this.formateurInfo = this.databaseService.getFormateurById(this.currentUser.id) || null;
       this.loadMesFormations();
+      this.loadProfileData();
     }
 
     this.databaseService.getDatabase$().subscribe(() => {
@@ -72,6 +87,74 @@ export class FormateurDashboard implements OnInit {
     this.mesFormations = allFormations.filter(f => f.idFormateur === this.currentUser?.id);
     this.applyFormationFilters();
     this.isLoading = false;
+  }
+
+  // Charger les données du profil pour le formulaire
+  loadProfileData() {
+    if (this.formateurInfo) {
+      this.profileForm = {
+        nom: this.formateurInfo.nom,
+        prenom: this.formateurInfo.prenom,
+        mail: this.formateurInfo.mail,
+        tel: this.formateurInfo.tel,
+        specialite: this.formateurInfo.specialite,
+        niveau: this.formateurInfo.niveau
+      };
+    }
+  }
+
+  // Ouvrir le modal de modification du profil
+  openProfileModal() {
+    this.loadProfileData();
+    this.showProfileModal = true;
+  }
+
+  // Fermer le modal de modification du profil
+  closeProfileModal() {
+    this.showProfileModal = false;
+  }
+
+  // Sauvegarder les modifications du profil
+  saveProfile() {
+    if (!this.formateurInfo) return;
+
+    // Mettre à jour dans la base de données
+    this.databaseService.updateFormateur(this.formateurInfo.idFormateur, {
+      nom: this.profileForm.nom,
+      prenom: this.profileForm.prenom,
+      mail: this.profileForm.mail,
+      tel: this.profileForm.tel,
+      specialite: this.profileForm.specialite,
+      niveau: this.profileForm.niveau
+    });
+
+    // Mettre à jour l'objet local
+    this.formateurInfo = {
+      ...this.formateurInfo,
+      nom: this.profileForm.nom,
+      prenom: this.profileForm.prenom,
+      mail: this.profileForm.mail,
+      tel: this.profileForm.tel,
+      specialite: this.profileForm.specialite,
+      niveau: this.profileForm.niveau
+    };
+
+    // Mettre à jour currentUser si nécessaire
+    if (this.currentUser) {
+      this.currentUser.firstName = this.profileForm.prenom;
+      this.currentUser.lastName = this.profileForm.nom;
+      this.currentUser.email = this.profileForm.mail;
+      this.currentUser.phone = this.profileForm.tel;
+      this.currentUser.specialty = this.profileForm.specialite;
+      // Convertir le niveau en type TrainerLevel | StudentLevel
+      this.currentUser.level = this.profileForm.niveau as any;
+
+      // Sauvegarder dans le storage
+      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    }
+
+    this.showMessage('Profil mis à jour avec succès', 'success');
+    this.closeProfileModal();
   }
 
   // Méthode de recherche multi-critères
@@ -377,6 +460,11 @@ export class FormateurDashboard implements OnInit {
     return total.toFixed(2);
   }
 
+  // Vérifier si une formation peut être supprimée (seulement si non validée)
+  canDeleteFormation(formation: FormationDetail): boolean {
+    return formation.statut !== 'valide';
+  }
+
   getStudentCardColor(index: number): string {
     const colors = [
       'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',
@@ -442,4 +530,13 @@ interface FormationForm {
   description: string;
   programme: string[];
   statut: 'valide' | 'nonValide';
+}
+
+interface ProfileForm {
+  nom: string;
+  prenom: string;
+  mail: string;
+  tel: string;
+  specialite: string;
+  niveau: string;
 }

@@ -15,7 +15,7 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#">
+              <a class="dropdown-item" (click)="openProfileModal()" style="cursor: pointer;">
                 <i class="bi bi-person"></i> Mon profil
               </a>
             </li>
@@ -234,21 +234,13 @@
               <i class="bi bi-pencil"></i> Modifier
             </button>
 
-            <!-- Bouton Supprimer - conditionnel -->
-            <ng-container *ngIf="formation.statut !== 'valide'; else deleteDisabled">
-              <button class="btn btn-sm btn-outline-danger"
-                      (click)="$event.stopPropagation(); confirmDeleteFormation(formation)"
-                      title="Supprimer la formation">
-                <i class="bi bi-trash3"></i> Supprimer
-              </button>
-            </ng-container>
-            <ng-template #deleteDisabled>
-              <button class="btn btn-sm btn-secondary"
-                      disabled
-                      title="Impossible de supprimer une formation déjà validée par l'administrateur">
-                <i class="bi bi-trash3"></i> Supprimer
-              </button>
-            </ng-template>
+            <!-- Bouton Supprimer - visible seulement si la formation n'est pas validée -->
+            <button *ngIf="canDeleteFormation(formation)"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="$event.stopPropagation(); confirmDeleteFormation(formation)"
+                    title="Supprimer la formation">
+              <i class="bi bi-trash3"></i> Supprimer
+            </button>
           </div>
           <div class="formation-mini-icon">
             <i class="bi bi-chevron-right"></i>
@@ -410,6 +402,65 @@
         <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
         <button type="button" class="btn btn-orange" (click)="saveFormation()">
           {{isEditing ? 'Mettre à jour' : 'Créer la formation'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Modification du Profil -->
+<div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-circle me-2"></i>
+          Modifier mon profil
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeProfileModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Nom</label>
+              <input type="text" class="form-control" [(ngModel)]="profileForm.nom" name="profileNom" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prénom</label>
+              <input type="text" class="form-control" [(ngModel)]="profileForm.prenom" name="profilePrenom" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="profileForm.mail" name="profileMail" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Téléphone</label>
+            <input type="tel" class="form-control" [(ngModel)]="profileForm.tel" name="profileTel" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Spécialité</label>
+            <input type="text" class="form-control" [(ngModel)]="profileForm.specialite" name="profileSpecialite" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Niveau d'études</label>
+            <select class="form-select" [(ngModel)]="profileForm.niveau" name="profileNiveau">
+              <option *ngFor="let niveau of niveauxDisponibles" [value]="niveau">
+                {{niveau === 'autre' ? 'Autre' : niveau.charAt(0).toUpperCase() + niveau.slice(1)}}
+              </option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProfileModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="saveProfile()">
+          <i class="bi bi-save me-1"></i> Enregistrer
         </button>
       </div>
     </div>
