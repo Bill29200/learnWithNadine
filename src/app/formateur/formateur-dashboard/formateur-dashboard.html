@@ -60,11 +60,18 @@
       <div class="col-12">
         <div class="card shadow-sm mb-4 border-0">
           <div class="card-body bg-gradient-light">
-            <h3 class="text-orange mb-2">Bienvenue, {{getFullName()}} !</h3>
-            <p class="text-muted mb-0">Gérez vos formations et suivez vos étudiants inscrits</p>
-            <div class="mt-2" *ngIf="formateurInfo">
-              <span class="badge bg-primary me-2">Spécialité: {{formateurInfo.specialite}}</span>
-              <span class="badge bg-info">Niveau: {{formateurInfo.niveau}}</span>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h3 class="text-orange mb-2">Bienvenue, {{getFullName()}} !</h3>
+                <p class="text-muted mb-0">Gérez vos formations et suivez vos étudiants inscrits</p>
+                <div class="mt-2" *ngIf="formateurInfo">
+                  <span class="badge bg-primary me-2">Spécialité: {{formateurInfo.specialite}}</span>
+                  <span class="badge bg-info">Niveau: {{formateurInfo.niveau}}</span>
+                </div>
+              </div>
+              <button class="btn btn-orange" (click)="openAddFormation()">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter une formation
+              </button>
             </div>
           </div>
         </div>
@@ -102,24 +109,6 @@
         </div>
       </div>
       <div class="col-md-4 mb-3">
-        <div class="card text-white bg-info h-100 shadow-sm stat-card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="card-title mb-0 opacity-75">Chiffre d'affaires</h6>
-                <p class="card-text display-6 mb-0">{{getRevenusBruts()}} €</p>
-                <small class="opacity-75">Basé sur les inscriptions payées</small>
-              </div>
-              <i class="bi bi-currency-euro display-4 opacity-50"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Carte Bénéfice Net - Style Admin -->
-    <div class="row mb-4">
-      <div class="col-md-12">
         <div class="card text-white bg-warning h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -227,6 +216,15 @@
               <span><i class="bi bi-tag"></i> <span [innerHTML]="highlightText(formation.prix + ' €')"></span></span>
               <span><i class="bi bi-people"></i> {{getNombreInscrits(formation.idFormation)}} inscrits</span>
             </div>
+            <!-- Bénéfice net par formation -->
+            <div class="formation-benefice mt-2 pt-1 border-top">
+              <small class="text-success fw-bold">
+                <i class="bi bi-wallet2"></i> Mon bénéfice: {{getBeneficeFormation(formation.idFormation)}} €
+              </small>
+              <small class="text-muted d-block" style="font-size: 0.6rem;">
+                ({{getPourcentageFormateur()}}% du CA)
+              </small>
+            </div>
           </div>
           <div class="formation-mini-footer">
             <!-- Bouton Modifier - toujours actif -->
@@ -284,8 +282,23 @@
         <button type="button" class="btn-close btn-close-white" (click)="closeFormationModal()"></button>
       </div>
       <div class="modal-body p-3">
+        <!-- Bénéfice de la formation dans le modal -->
+        <div class="alert alert-success mb-3" *ngIf="selectedFormation">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-wallet2 fs-4 me-2"></i>
+              <strong>Mon bénéfice net pour cette formation:</strong>
+            </div>
+            <div>
+              <span class="fs-4 fw-bold">{{getBeneficeFormation(selectedFormation.idFormation)}} €</span>
+              <small class="text-muted d-block">({{getPourcentageFormateur()}}% du CA)</small>
+            </div>
+          </div>
+        </div>
+
         <!-- Grille des cartes étudiants -->
         <div *ngIf="etudiantsInscrits.length > 0">
+          <h6 class="mb-3"><i class="bi bi-people me-2"></i>Liste des étudiants inscrits ({{etudiantsInscrits.length}})</h6>
           <div class="row g-3">
             <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">
               <div class="student-card p-3 rounded-3" [ngStyle]="{'background': getStudentCardColor(i)}">

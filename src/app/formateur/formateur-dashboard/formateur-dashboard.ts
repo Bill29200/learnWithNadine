@@ -323,6 +323,46 @@ export class FormateurDashboard implements OnInit {
     return total;
   }
 
+  // ==================== CALCUL DES REVENUS ET BÉNÉFICES ====================
+
+  // Récupérer le pourcentage de commission de l'admin (depuis localStorage)
+  getPourcentageCommission(): number {
+    const pourcentage = localStorage.getItem('pourcentageBenefice');
+    return pourcentage ? parseFloat(pourcentage) : 50; // 50% par défaut
+  }
+
+  // Pourcentage que garde le formateur (affichage)
+  getPourcentageFormateur(): number {
+    return 100 - this.getPourcentageCommission();
+  }
+
+  // Calcul du bénéfice NET total du formateur (après commission de l'admin)
+  getBeneficeFormateur(): number {
+    let totalRevenus = 0;
+    this.mesFormations.forEach(formation => {
+      if (formation.statut === 'valide') {
+        const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
+        const inscriptionsPayees = inscriptions.filter(i => i.statut === 'paye');
+        totalRevenus += inscriptionsPayees.length * formation.prix;
+      }
+    });
+    const pourcentageFormateur = this.getPourcentageFormateur() / 100;
+    return totalRevenus * pourcentageFormateur;
+  }
+
+  // Calcul du bénéfice net pour UNE formation spécifique
+  getBeneficeFormation(formationId: number): number {
+    const formation = this.mesFormations.find(f => f.idFormation === formationId);
+    if (!formation || formation.statut !== 'valide') return 0;
+
+    const inscriptions = this.databaseService.getInscriptionsByFormation(formationId);
+    const inscriptionsPayees = inscriptions.filter(i => i.statut === 'paye');
+    const revenusFormation = inscriptionsPayees.length * formation.prix;
+    const pourcentageFormateur = this.getPourcentageFormateur() / 100;
+    return revenusFormation * pourcentageFormateur;
+  }
+
+  // Ancienne méthode conservée pour compatibilité (retourne le CA brut)
   getRevenusTotaux(): number {
     let total = 0;
     this.mesFormations.forEach(formation => {
@@ -334,6 +374,7 @@ export class FormateurDashboard implements OnInit {
     });
     return total;
   }
+
   getStudentCardColor(index: number): string {
     const colors = [
       'linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%)',
@@ -357,6 +398,7 @@ export class FormateurDashboard implements OnInit {
     ];
     return iconColors[index % iconColors.length];
   }
+
   showMessage(msg: string, type: 'success' | 'error') {
     this.message = msg;
     this.messageType = type;
@@ -387,41 +429,6 @@ export class FormateurDashboard implements OnInit {
   getCardHeaderClass(index: number): string {
     // Cycle à travers 16 couleurs différentes
     return `card-header-color-${index % 16}`;
-  }
-  // ==================== CALCUL DES REVENUS ET BÉNÉFICES ====================
-
-// Récupérer le pourcentage de commission de l'admin (depuis localStorage)
-  getPourcentageCommission(): number {
-    const pourcentage = localStorage.getItem('pourcentageBenefice');
-    return pourcentage ? parseFloat(pourcentage) : 50; // 50% par défaut
-  }
-
-// Calcul du chiffre d'affaires BRUT (total des inscriptions payées)
-  getRevenusBruts(): number {
-    let total = 0;
-    this.mesFormations.forEach(formation => {
-      if (formation.statut === 'valide') {
-        const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
-        const inscriptionsPayees = inscriptions.filter(i => i.statut === 'paye');
-        total += inscriptionsPayees.length * formation.prix;
-      }
-    });
-    return total;
-  }
-
-// Calcul du bénéfice NET du formateur (après commission de l'admin)
-// Formule: bénéfice = revenusBruts * ((100 - pourcentageCommission) / 100)
-  getBeneficeFormateur(): number {
-    const revenusBruts = this.getRevenusBruts();
-    const pourcentageCommission = this.getPourcentageCommission();
-    // Si commission = 50% → bénéfice = revenusBruts * 0.5
-    const pourcentageFormateur = (100 - pourcentageCommission) / 100;
-    return revenusBruts * pourcentageFormateur;
-  }
-
-// Pourcentage que garde le formateur (affichage)
-  getPourcentageFormateur(): number {
-    return 100 - this.getPourcentageCommission();
   }
 }
 
