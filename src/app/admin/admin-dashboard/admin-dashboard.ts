@@ -639,6 +639,26 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return inscriptions.filter(i => i.statut === 'non paye').length;
   }
 
+  // ==================== MÉTHODES POUR LES REVENUS ET BÉNÉFICES ====================
+
+  getFormationRevenus(inscriptions: Inscription[]): number {
+    let total = 0;
+    inscriptions.forEach(inscription => {
+      if (inscription.statut === 'paye') {
+        const formation = this.getFormationById(inscription.idFormation);
+        if (formation) {
+          total += formation.prix;
+        }
+      }
+    });
+    return total;
+  }
+
+  getFormationBenefice(inscriptions: Inscription[]): number {
+    const revenus = this.getFormationRevenus(inscriptions);
+    return revenus * this.pourcentageBenefice / 100;
+  }
+
   // ==================== HELPER METHODS ====================
   getFormationById(id: number): FormationDetail | undefined {
     return this.formations.find(f => f.idFormation === id);

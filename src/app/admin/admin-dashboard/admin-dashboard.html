@@ -344,7 +344,6 @@
         </div>
       </div>
     </div>
-
     <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <div *ngIf="activeTab === 'inscriptions'">
       <div class="card shadow-sm mb-4">
@@ -360,9 +359,9 @@
                 <div class="col-md-7">
                   <div class="search-container">
                     <div class="input-group input-group-sm">
-                      <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-orange"></i>
-                      </span>
+                  <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-orange"></i>
+                  </span>
                       <input type="text"
                              class="form-control border-start-0"
                              placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
@@ -388,105 +387,121 @@
             </div>
           </div>
         </div>
-        <div class="card-body p-3">
-          <div *ngFor="let formationGroup of getInscriptionsByFormation()" class="mb-4">
-            <div class="formation-group-header d-flex justify-content-between align-items-center p-3 mb-3 rounded-3"
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-journal-bookmark-fill fs-4 text-white"></i>
-                <div>
-                  <h5 class="mb-0 text-white fw-semibold">{{formationGroup.formationName}}</h5>
-                  <small class="text-white-50">ID: #{{formationGroup.formationId}} | {{formationGroup.inscriptions.length}} inscription(s)</small>
+        <div class="card-body p-0">
+          <div *ngFor="let formationGroup of getInscriptionsByFormation()" class="formation-section mb-0">
+            <!-- En-tête de formation -->
+            <div class="formation-header p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <div class="row align-items-center">
+                <div class="col-md-5">
+                  <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-journal-bookmark-fill fs-3 text-white"></i>
+                    <div>
+                      <h5 class="mb-0 text-white fw-semibold">{{formationGroup.formationName}}</h5>
+                      <small class="text-white-50">ID: #{{formationGroup.formationId}} | {{formationGroup.inscriptions.length}} inscription(s)</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <div class="d-flex justify-content-end align-items-center gap-4">
+                    <!-- Revenus -->
+                    <div class="text-center">
+                      <div class="small text-white-50">Revenus</div>
+                      <div class="fw-bold text-white">{{getFormationRevenus(formationGroup.inscriptions)}} {{selectedDevise}}</div>
+                    </div>
+                    <!-- Bénéfices -->
+                    <div class="text-center">
+                      <div class="small text-white-50">Bénéfices ({{pourcentageBenefice}}%)</div>
+                      <div class="fw-bold text-white">{{getFormationBenefice(formationGroup.inscriptions)}} {{selectedDevise}}</div>
+                    </div>
+                    <!-- Compteurs -->
+                    <div class="d-flex gap-2">
+                  <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                    {{getFormationPayeCount(formationGroup.inscriptions)}}
+                  </span>
+                      <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="bi bi-clock-fill text-warning me-1"></i>
+                        {{getFormationNonPayeCount(formationGroup.inscriptions)}}
+                  </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="d-flex gap-2">
-                <span class="badge bg-light text-dark">
-                  <i class="bi bi-check-circle-fill text-success me-1"></i>
-                  Payées: {{getFormationPayeCount(formationGroup.inscriptions)}}
-                </span>
-                <span class="badge bg-light text-dark">
-                  <i class="bi bi-clock-fill text-warning me-1"></i>
-                  Non payées: {{getFormationNonPayeCount(formationGroup.inscriptions)}}
-                </span>
-              </div>
             </div>
-            <div class="table-responsive">
-              <table class="table table-hover table-bordered mb-0 inscription-table">
-                <thead class="table-light">
-                <tr>
-                  <th style="width: 5%">ID</th>
-                  <th style="width: 27%">Étudiant</th>
-                  <th style="width: 25%">Email</th>
-                  <th style="width: 12%">Date d'inscription</th>
-                  <th style="width: 11%">Statut</th>
-                  <th style="width: 20%">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let inscription of formationGroup.inscriptions">
-                  <td class="align-middle text-center">
-                    <span class="badge bg-secondary-subtle text-dark px-2 py-1 rounded-pill" style="font-size: 0.7rem;">#{{inscription.idInscription}}</span>
-                  </td>
-                  <td class="align-middle">
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="student-avatar-sm">
-                        <i class="bi bi-person-circle fs-4 text-secondary"></i>
+
+            <!-- Liste des inscriptions - Version carte -->
+            <div class="p-3 bg-light">
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4" *ngFor="let inscription of formationGroup.inscriptions">
+                  <div class="inscription-student-card">
+                    <div class="inscription-student-header">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="student-avatar">
+                          <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0 fw-semibold" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.prenom + ' ' + getEtudiantById(inscription.idEtudiant)?.nom)"></h6>
+                          <small class="text-muted">#{{inscription.idInscription}}</small>
+                        </div>
                       </div>
-                      <div>
-                        <div class="fw-semibold" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.prenom + ' ' + getEtudiantById(inscription.idEtudiant)?.nom)"></div>
+                      <span class="status-badge" [class.status-paid]="inscription.statut === 'paye'" [class.status-unpaid]="inscription.statut !== 'paye'">
+                    <i class="bi" [class.bi-check-circle-fill]="inscription.statut === 'paye'" [class.bi-clock-fill]="inscription.statut !== 'paye'"></i>
+                        {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                  </span>
+                    </div>
+                    <div class="inscription-student-body">
+                      <div class="student-info-row">
+                        <i class="bi bi-envelope"></i>
+                        <span [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.mail || '')"></span>
+                      </div>
+                      <div class="student-info-row">
+                        <i class="bi bi-telephone"></i>
+                        <span>{{getEtudiantById(inscription.idEtudiant)?.tel || 'Non renseigné'}}</span>
+                      </div>
+                      <div class="student-info-row">
+                        <i class="bi bi-calendar3"></i>
+                        <span>Inscrit le {{inscription.dateInscription}}</span>
+                      </div>
+                      <div class="student-info-row">
+                        <i class="bi bi-mortarboard"></i>
+                        <span>Niveau: {{getEtudiantById(inscription.idEtudiant)?.niveau || 'Non renseigné'}}</span>
                       </div>
                     </div>
-                  </td>
-                  <td class="align-middle">
-                    <small [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.mail || '')"></small>
-                  </td>
-                  <td class="align-middle">
-                      <span class="badge bg-light text-dark">
-                        <i class="bi bi-calendar3 me-1"></i>
-                        {{inscription.dateInscription}}
-                      </span>
-                  </td>
-                  <td class="align-middle">
-                      <span [class]="getInscriptionStatutBadgeClass(inscription.statut)" class="px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
-                        <i class="bi {{inscription.statut === 'paye' ? 'bi-check-circle-fill' : 'bi-clock-fill'}}"></i>
-                        {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                      </span>
-                  </td>
-                  <td class="align-middle">
-                    <div class="d-flex gap-3 flex-wrap">
-                      <button class="btn btn-sm"
-                              [class.btn-success]="inscription.statut !== 'paye'"
-                              [class.btn-warning]="inscription.statut === 'paye'"
+                    <div class="inscription-student-footer">
+                      <button class="btn btn-sm action-btn"
+                              [class.btn-paid]="inscription.statut === 'paye'"
+                              [class.btn-unpaid]="inscription.statut !== 'paye'"
                               (click)="toggleInscriptionStatut(inscription)"
-                              [title]="inscription.statut === 'paye' ? 'Marquer comme non payée' : 'Marquer comme payée'">
-                        <i class="bi {{inscription.statut === 'paye' ? 'bi-cash-stack' : 'bi-credit-card-2-front'}} me-1"></i>
+                              [title]="inscription.statut === 'paye' ? 'Marquer non payée' : 'Marquer payée'">
+                        <i class="bi" [class.bi-cash-stack]="inscription.statut === 'paye'" [class.bi-credit-card-2-front]="inscription.statut !== 'paye'"></i>
                         {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
                       </button>
-                      <button class="btn btn-sm btn-outline-danger"
+                      <button class="btn btn-sm btn-outline-danger action-btn"
                               (click)="confirmDeleteInscription(inscription)"
                               title="Supprimer l'inscription">
                         <i class="bi bi-trash3"></i>
                       </button>
                     </div>
-                  </td>
-                </tr>
-                <tr *ngIf="formationGroup.inscriptions.length === 0">
-                  <td colspan="6" class="text-center py-3 text-muted">
-                    <i class="bi bi-inbox me-1"></i>
+                  </div>
+                </div>
+                <div *ngIf="formationGroup.inscriptions.length === 0" class="col-12">
+                  <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                     Aucune inscription pour cette formation
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div *ngIf="(getInscriptionsByFormation() | json) === '[]'" class="text-center py-5">
+
+          <!-- Message si aucune inscription -->
+          <div *ngIf="filteredInscriptions.length === 0" class="text-center py-5">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune inscription trouvée</h5>
             <p class="text-muted">Essayez de modifier vos critères de recherche</p>
           </div>
         </div>
-        <div class="card-footer bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="card-footer bg-light py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div class="d-flex gap-3">
             <small class="text-muted">
               <i class="bi bi-info-circle me-1"></i>

@@ -609,3 +609,241 @@
     margin: 0.5rem;
   }
 }
+/* ==================== VOLEUR INSCRIPTIONS STYLES ==================== */
+
+/* Carte formation */
+.formation-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* En-tête formation */
+.formation-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.formation-icon {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badges de statistiques */
+.stat-badge {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Compteurs blancs */
+.counter-badge {
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.counter-badge.bg-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.counter-badge.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #000;
+}
+
+/* Tableau */
+.inscription-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.inscription-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.inscription-table tbody td {
+  padding: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.inscription-table tbody tr:hover {
+  background-color: rgba(255, 89, 40, 0.05);
+}
+
+/* Badge statut */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-paid {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.status-unpaid {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+/* Boutons d'action */
+.action-btn {
+  padding: 6px 14px;
+  font-size: 0.7rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-paid {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  border: none;
+  color: #000;
+}
+
+.btn-unpaid {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  color: white;
+}
+
+.btn-outline-danger {
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+/* Avatar étudiant */
+.student-avatar-sm {
+  width: 36px;
+  height: 36px;
+  background: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-avatar-sm i {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .stat-value {
+    font-size: 0.9rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .counter-badge {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .formation-header .row {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .formation-header .col-md-5,
+  .formation-header .col-md-7 {
+    width: 100%;
+  }
+
+  .stat-badge {
+    padding: 5px 8px;
+  }
+
+  .stat-value {
+    font-size: 0.8rem;
+  }
+
+  .action-btn {
+    padding: 4px 10px;
+    font-size: 0.65rem;
+  }
+
+  .inscription-table td,
+  .inscription-table th {
+    padding: 8px;
+    font-size: 0.7rem;
+  }
+
+  .student-avatar-sm {
+    width: 28px;
+    height: 28px;
+  }
+
+  .student-avatar-sm i {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .counter-badge {
+    padding: 4px 8px;
+    font-size: 0.6rem;
+  }
+
+  .action-btn {
+    padding: 3px 8px;
+    font-size: 0.6rem;
+  }
+}
