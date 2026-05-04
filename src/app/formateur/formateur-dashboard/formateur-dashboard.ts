@@ -336,8 +336,8 @@ export class FormateurDashboard implements OnInit {
     return 100 - this.getPourcentageCommission();
   }
 
-  // Calcul du bénéfice NET total du formateur (après commission de l'admin)
-  getBeneficeFormateur(): number {
+  // Calcul du bénéfice NET total du formateur (après commission de l'admin) - avec 2 décimales
+  getBeneficeFormateur(): string {
     let totalRevenus = 0;
     this.mesFormations.forEach(formation => {
       if (formation.statut === 'valide') {
@@ -347,23 +347,25 @@ export class FormateurDashboard implements OnInit {
       }
     });
     const pourcentageFormateur = this.getPourcentageFormateur() / 100;
-    return totalRevenus * pourcentageFormateur;
+    const benefice = totalRevenus * pourcentageFormateur;
+    return benefice.toFixed(2);
   }
 
-  // Calcul du bénéfice net pour UNE formation spécifique
-  getBeneficeFormation(formationId: number): number {
+  // Calcul du bénéfice net pour UNE formation spécifique - avec 2 décimales
+  getBeneficeFormation(formationId: number): string {
     const formation = this.mesFormations.find(f => f.idFormation === formationId);
-    if (!formation || formation.statut !== 'valide') return 0;
+    if (!formation || formation.statut !== 'valide') return '0.00';
 
     const inscriptions = this.databaseService.getInscriptionsByFormation(formationId);
     const inscriptionsPayees = inscriptions.filter(i => i.statut === 'paye');
     const revenusFormation = inscriptionsPayees.length * formation.prix;
     const pourcentageFormateur = this.getPourcentageFormateur() / 100;
-    return revenusFormation * pourcentageFormateur;
+    const benefice = revenusFormation * pourcentageFormateur;
+    return benefice.toFixed(2);
   }
 
-  // Ancienne méthode conservée pour compatibilité (retourne le CA brut)
-  getRevenusTotaux(): number {
+  // Ancienne méthode conservée pour compatibilité (retourne le CA brut) - avec 2 décimales
+  getRevenusTotaux(): string {
     let total = 0;
     this.mesFormations.forEach(formation => {
       if (formation.statut === 'valide') {
@@ -372,7 +374,7 @@ export class FormateurDashboard implements OnInit {
         total += inscriptionsPayees.length * formation.prix;
       }
     });
-    return total;
+    return total.toFixed(2);
   }
 
   getStudentCardColor(index: number): string {
