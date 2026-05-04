@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <!-- Cartes de statistiques -->
+    <!-- Cartes de statistiques - Style Admin Dashboard -->
     <div class="row mb-4">
       <div class="col-md-4 mb-3">
         <div class="card text-white bg-primary h-100 shadow-sm stat-card">
@@ -106,11 +106,35 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <h6 class="card-title mb-0 opacity-75">Revenus Estimés</h6>
-                <p class="card-text display-6 mb-0">{{getRevenusTotaux()}} €</p>
+                <h6 class="card-title mb-0 opacity-75">Chiffre d'affaires</h6>
+                <p class="card-text display-6 mb-0">{{getRevenusBruts()}} €</p>
                 <small class="opacity-75">Basé sur les inscriptions payées</small>
               </div>
               <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte Bénéfice Net - Style Admin -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card text-white bg-warning h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">
+                  <i class="bi bi-pie-chart me-1"></i>
+                  Mon Bénéfice Net
+                </h6>
+                <p class="card-text display-6 mb-0">{{getBeneficeFormateur()}} €</p>
+                <small class="opacity-75">
+                  Vous recevez <strong>{{getPourcentageFormateur()}}%</strong> du chiffre d'affaires
+                  (commission plateforme: <strong>{{getPourcentageCommission()}}%</strong>)
+                </small>
+              </div>
+              <i class="bi bi-wallet2 display-4 opacity-50"></i>
             </div>
           </div>
         </div>
@@ -248,7 +272,6 @@
   </div>
 </div>
 
-<!-- Modal Détails Formation (Étudiants inscrits) -->
 <!-- Modal Détails Formation (Étudiants inscrits en cartes) -->
 <div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormationModal" [style.display]="showFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -311,6 +334,7 @@
     </div>
   </div>
 </div>
+
 <!-- Modal Formulaire Formation (Ajouter/Modifier) -->
 <div class="modal fade" id="formationFormModal" tabindex="-1" [class.show]="showFormModal" [style.display]="showFormModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
   <div class="modal-dialog modal-lg">
