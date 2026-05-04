@@ -44,13 +44,18 @@ export class FormateurDashboard implements OnInit {
 
   // Formulaire de modification du profil
   showProfileModal: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+  passwordError: string = '';
   profileForm: ProfileForm = {
     nom: '',
     prenom: '',
     mail: '',
     tel: '',
     specialite: '',
-    niveau: ''
+    niveau: '',
+    password: '',
+    confirmPassword: ''
   };
 
   // Message
@@ -98,9 +103,14 @@ export class FormateurDashboard implements OnInit {
         mail: this.formateurInfo.mail,
         tel: this.formateurInfo.tel,
         specialite: this.formateurInfo.specialite,
-        niveau: this.formateurInfo.niveau
+        niveau: this.formateurInfo.niveau,
+        password: '',
+        confirmPassword: ''
       };
     }
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
   }
 
   // Ouvrir le modal de modification du profil
@@ -112,21 +122,56 @@ export class FormateurDashboard implements OnInit {
   // Fermer le modal de modification du profil
   closeProfileModal() {
     this.showProfileModal = false;
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
+  // Basculer la visibilité du mot de passe
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Basculer la visibilité de la confirmation du mot de passe
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   // Sauvegarder les modifications du profil
   saveProfile() {
     if (!this.formateurInfo) return;
 
-    // Mettre à jour dans la base de données
-    this.databaseService.updateFormateur(this.formateurInfo.idFormateur, {
+    // Vérifier les mots de passe si un nouveau mot de passe est saisi
+    if (this.profileForm.password) {
+      if (this.profileForm.password.length < 6) {
+        this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
+        return;
+      }
+      if (this.profileForm.password !== this.profileForm.confirmPassword) {
+        this.passwordError = 'Les mots de passe ne correspondent pas';
+        return;
+      }
+    }
+
+    this.passwordError = '';
+
+    // Préparer les données de mise à jour
+    const updateData: any = {
       nom: this.profileForm.nom,
       prenom: this.profileForm.prenom,
       mail: this.profileForm.mail,
       tel: this.profileForm.tel,
       specialite: this.profileForm.specialite,
       niveau: this.profileForm.niveau
-    });
+    };
+
+    // Ajouter le mot de passe seulement s'il a été modifié
+    if (this.profileForm.password) {
+      updateData.motpass = this.profileForm.password;
+    }
+
+    // Mettre à jour dans la base de données
+    this.databaseService.updateFormateur(this.formateurInfo.idFormateur, updateData);
 
     // Mettre à jour l'objet local
     this.formateurInfo = {
@@ -139,6 +184,11 @@ export class FormateurDashboard implements OnInit {
       niveau: this.profileForm.niveau
     };
 
+    // Mettre à jour le mot de passe local si modifié
+    if (this.profileForm.password) {
+      this.formateurInfo.motpass = this.profileForm.password;
+    }
+
     // Mettre à jour currentUser si nécessaire
     if (this.currentUser) {
       this.currentUser.firstName = this.profileForm.prenom;
@@ -146,8 +196,10 @@ export class FormateurDashboard implements OnInit {
       this.currentUser.email = this.profileForm.mail;
       this.currentUser.phone = this.profileForm.tel;
       this.currentUser.specialty = this.profileForm.specialite;
-      // Convertir le niveau en type TrainerLevel | StudentLevel
       this.currentUser.level = this.profileForm.niveau as any;
+      if (this.profileForm.password) {
+        this.currentUser.password = this.profileForm.password;
+      }
 
       // Sauvegarder dans le storage
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
@@ -539,4 +591,6 @@ interface ProfileForm {
   tel: string;
   specialite: string;
   niveau: string;
+  password: string;
+  confirmPassword: string;
 }

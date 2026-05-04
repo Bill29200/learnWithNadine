@@ -408,7 +408,7 @@
   </div>
 </div>
 
-<!-- Modal Modification du Profil -->
+<!-- Modal Modification du Profil avec Mot de Passe -->
 <div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded-4 overflow-hidden">
@@ -454,6 +454,43 @@
                 {{niveau === 'autre' ? 'Autre' : niveau.charAt(0).toUpperCase() + niveau.slice(1)}}
               </option>
             </select>
+          </div>
+
+          <!-- Mot de passe avec icône œil -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.password"
+                     name="profilePassword"
+                     placeholder="Laissez vide pour ne pas changer">
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+            <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
+          </div>
+
+          <!-- Confirmation du nouveau mot de passe -->
+          <div class="mb-3" *ngIf="profileForm.password">
+            <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showConfirmPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.confirmPassword"
+                     name="profileConfirmPassword"
+                     placeholder="Confirmez votre nouveau mot de passe">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleConfirmPasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Message d'erreur mot de passe -->
+          <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            {{passwordError}}
           </div>
         </form>
       </div>
