@@ -70,6 +70,18 @@ export class AdminDashboard implements OnInit, OnDestroy {
   pourcentageBenefice: number = 50;
   showParamModal: boolean = false;
 
+  // Formulaire de modification du profil
+  showProfileModal: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+  passwordError: string = '';
+  profileForm: ProfileForm = {
+    nom: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  };
+
   // Statistiques
   stats = {
     totalFormations: 0,
@@ -106,6 +118,11 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.loadParametres();
     this.currentUser = this.auth.getCurrentUser();
 
+    if (this.currentUser) {
+      this.adminInfo = this.databaseService.getAdminById(this.currentUser.id) || null;
+      this.loadProfileData();
+    }
+
     this.dbSubscription = this.databaseService.getDatabase$().subscribe({
       next: (database: Database | null) => {
         if (database) {
@@ -124,10 +141,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
         this.showMessage('Erreur lors du chargement des données', 'error');
       }
     });
-
-    if (this.currentUser) {
-      this.adminInfo = this.databaseService.getAdminById(this.currentUser.id) || null;
-    }
   }
 
   ngOnDestroy() {
@@ -188,6 +201,117 @@ export class AdminDashboard implements OnInit, OnDestroy {
         this.showMessage('Erreur lors de l\'actualisation des données', 'error');
       }
     });
+  }
+
+  // ==================== GESTION DU PROFIL ADMIN ====================
+
+  // Charger les données du profil pour le formulaire
+  loadProfileData() {
+    if (this.adminInfo) {
+      this.profileForm = {
+        nom: this.adminInfo.nom,
+        email: this.adminInfo.email,
+        password: '',
+        confirmPassword: ''
+      };
+    } else if (this.currentUser) {
+      this.profileForm = {
+        nom: `${this.currentUser.firstName} ${this.currentUser.lastName}`,
+        email: this.currentUser.email,
+        password: '',
+        confirmPassword: ''
+      };
+    }
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
+  // Ouvrir le modal de modification du profil
+  openProfileModal() {
+    this.loadProfileData();
+    this.showProfileModal = true;
+  }
+
+  // Fermer le modal de modification du profil
+  closeProfileModal() {
+    this.showProfileModal = false;
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
+  // Basculer la visibilité du mot de passe
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Basculer la visibilité de la confirmation du mot de passe
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  // Sauvegarder les modifications du profil
+  saveProfile() {
+    if (!this.adminInfo && !this.currentUser) return;
+
+    // Vérifier les mots de passe si un nouveau mot de passe est saisi
+    if (this.profileForm.password) {
+      if (this.profileForm.password.length < 6) {
+        this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
+        return;
+      }
+      if (this.profileForm.password !== this.profileForm.confirmPassword) {
+        this.passwordError = 'Les mots de passe ne correspondent pas';
+        return;
+      }
+    }
+
+    this.passwordError = '';
+
+    // Préparer les données de mise à jour
+    const updateData: any = {
+      nom: this.profileForm.nom,
+      email: this.profileForm.email
+    };
+
+    // Ajouter le mot de passe seulement s'il a été modifié
+    if (this.profileForm.password) {
+      updateData.motpass = this.profileForm.password;
+    }
+
+    // Mettre à jour dans la base de données
+    if (this.adminInfo) {
+      this.databaseService.updateAdmin(this.adminInfo.id, updateData);
+
+      // Mettre à jour l'objet local
+      this.adminInfo = {
+        ...this.adminInfo,
+        nom: this.profileForm.nom,
+        email: this.profileForm.email
+      };
+
+      if (this.profileForm.password) {
+        this.adminInfo.motpass = this.profileForm.password;
+      }
+    }
+
+    // Mettre à jour currentUser
+    if (this.currentUser) {
+      const nameParts = this.profileForm.nom.split(' ');
+      this.currentUser.firstName = nameParts[0] || '';
+      this.currentUser.lastName = nameParts.slice(1).join(' ') || '';
+      this.currentUser.email = this.profileForm.email;
+      if (this.profileForm.password) {
+        this.currentUser.password = this.profileForm.password;
+      }
+
+      // Sauvegarder dans le storage
+      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    }
+
+    this.showMessage('Profil mis à jour avec succès', 'success');
+    this.closeProfileModal();
   }
 
   // ==================== PARAMÈTRES ====================
@@ -718,4 +842,11 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
+}
+
+interface ProfileForm {
+  nom: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }

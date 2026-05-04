@@ -15,7 +15,7 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#">
+              <a class="dropdown-item" (click)="openProfileModal()" style="cursor: pointer;">
                 <i class="bi bi-person"></i> Mon profil
               </a>
             </li>
@@ -344,6 +344,7 @@
         </div>
       </div>
     </div>
+
     <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <div *ngIf="activeTab === 'inscriptions'">
       <div class="card shadow-sm mb-4">
@@ -359,9 +360,9 @@
                 <div class="col-md-7">
                   <div class="search-container">
                     <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search text-orange"></i>
-                  </span>
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-orange"></i>
+                      </span>
                       <input type="text"
                              class="form-control border-start-0"
                              placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
@@ -415,14 +416,14 @@
                     </div>
                     <!-- Compteurs -->
                     <div class="d-flex gap-2">
-                  <span class="badge bg-light text-dark px-3 py-2">
-                    <i class="bi bi-check-circle-fill text-success me-1"></i>
-                    {{getFormationPayeCount(formationGroup.inscriptions)}}
-                  </span>
                       <span class="badge bg-light text-dark px-3 py-2">
-                    <i class="bi bi-clock-fill text-warning me-1"></i>
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                        {{getFormationPayeCount(formationGroup.inscriptions)}}
+                      </span>
+                      <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-clock-fill text-warning me-1"></i>
                         {{getFormationNonPayeCount(formationGroup.inscriptions)}}
-                  </span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -445,9 +446,9 @@
                         </div>
                       </div>
                       <span class="status-badge" [class.status-paid]="inscription.statut === 'paye'" [class.status-unpaid]="inscription.statut !== 'paye'">
-                    <i class="bi" [class.bi-check-circle-fill]="inscription.statut === 'paye'" [class.bi-clock-fill]="inscription.statut !== 'paye'"></i>
+                        <i class="bi" [class.bi-check-circle-fill]="inscription.statut === 'paye'" [class.bi-clock-fill]="inscription.statut !== 'paye'"></i>
                         {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                  </span>
+                      </span>
                     </div>
                     <div class="inscription-student-body">
                       <div class="student-info-row">
@@ -851,6 +852,77 @@
         <button type="button" class="btn btn-secondary" (click)="closeParamModal()">Annuler</button>
         <button type="button" class="btn btn-orange" (click)="saveParametres()">
           <i class="bi bi-save me-1"></i> Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Modification du Profil Admin -->
+<div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-circle me-2"></i>
+          Modifier mon profil
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeProfileModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nom complet</label>
+            <input type="text" class="form-control" [(ngModel)]="profileForm.nom" name="profileNom" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="profileForm.email" name="profileEmail" required>
+          </div>
+
+          <!-- Mot de passe avec icône œil -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.password"
+                     name="profilePassword"
+                     placeholder="Laissez vide pour ne pas changer">
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+            <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
+          </div>
+
+          <!-- Confirmation du nouveau mot de passe -->
+          <div class="mb-3" *ngIf="profileForm.password">
+            <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showConfirmPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.confirmPassword"
+                     name="profileConfirmPassword"
+                     placeholder="Confirmez votre nouveau mot de passe">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleConfirmPasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Message d'erreur mot de passe -->
+          <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            {{passwordError}}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProfileModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="saveProfile()">
+          <i class="bi bi-save me-1"></i> Enregistrer
         </button>
       </div>
     </div>
