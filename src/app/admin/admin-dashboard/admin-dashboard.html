@@ -60,13 +60,31 @@
 
   <!-- Contenu principal -->
   <div *ngIf="!isLoading">
-    <!-- Bienvenue -->
+    <!-- Bienvenue avec boutons d'action -->
     <div class="row">
       <div class="col-12">
         <div class="card shadow-sm mb-4 border-0">
           <div class="card-body bg-gradient-light">
-            <h3 class="text-orange mb-2">Bonjour, {{getFullName()}} !</h3>
-            <p class="text-muted mb-0">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <h3 class="text-orange mb-2">Bonjour, {{getFullName()}} !</h3>
+                <p class="text-muted mb-0">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" (click)="openAddEtudiantModal()">
+                  <i class="bi bi-person-plus me-1"></i> Étudiant
+                </button>
+                <button class="btn btn-outline-success btn-sm" (click)="openAddFormateurModal()">
+                  <i class="bi bi-person-badge-plus me-1"></i> Formateur
+                </button>
+                <button class="btn btn-outline-info btn-sm" (click)="openAddFormationModal()">
+                  <i class="bi bi-book-plus me-1"></i> Formation
+                </button>
+                <button class="btn btn-outline-warning btn-sm" (click)="openAddInscriptionModal()">
+                  <i class="bi bi-journal-plus me-1"></i> Inscription
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -240,7 +258,9 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune formation trouvée</h5>
-            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+            <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormationModal()">
+              <i class="bi bi-plus-circle"></i> Créer une formation
+            </button>
           </div>
         </div>
       </div>
@@ -305,31 +325,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="mt-3" *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length > 0">
-              <h6 class="fw-bold mb-2">
-                <i class="bi bi-people me-2 text-orange"></i>
-                Étudiants inscrits ({{getInscriptionsByFormationId(selectedFormationDetail.idFormation).length}})
-              </h6>
-              <div class="inscriptions-list">
-                <div *ngFor="let inscription of getInscriptionsByFormationId(selectedFormationDetail.idFormation)" class="inscription-item d-flex justify-content-between align-items-center p-2 mb-1 rounded-2">
-                  <div>
-                    <span class="small fw-semibold">{{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}</span>
-                    <small class="text-muted d-block">{{getEtudiantById(inscription.idEtudiant)?.mail}}</small>
-                  </div>
-                  <div class="text-end">
-                    <span class="badge" [ngClass]="inscription.statut === 'paye' ? 'bg-success' : 'bg-warning'">
-                      {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                    </span>
-                    <small class="text-muted d-block">{{inscription.dateInscription}}</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mt-3 text-center text-muted" *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length === 0">
-              <i class="bi bi-inbox"></i>
-              <p class="mb-0">Aucun étudiant inscrit à cette formation</p>
-            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-outline-success" (click)="toggleFormationStatut(selectedFormationDetail); showFormationModal = false">
@@ -390,7 +385,6 @@
         </div>
         <div class="card-body p-0">
           <div *ngFor="let formationGroup of getInscriptionsByFormation()" class="formation-section mb-0">
-            <!-- En-tête de formation -->
             <div class="formation-header p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
               <div class="row align-items-center">
                 <div class="col-md-5">
@@ -404,17 +398,14 @@
                 </div>
                 <div class="col-md-7">
                   <div class="d-flex justify-content-end align-items-center gap-4">
-                    <!-- Revenus -->
                     <div class="text-center">
                       <div class="small text-white-50">Revenus</div>
                       <div class="fw-bold text-white">{{getFormationRevenus(formationGroup.inscriptions)}} {{selectedDevise}}</div>
                     </div>
-                    <!-- Bénéfices -->
                     <div class="text-center">
                       <div class="small text-white-50">Bénéfices ({{pourcentageBenefice}}%)</div>
                       <div class="fw-bold text-white">{{getFormationBenefice(formationGroup.inscriptions)}} {{selectedDevise}}</div>
                     </div>
-                    <!-- Compteurs -->
                     <div class="d-flex gap-2">
                       <span class="badge bg-light text-dark px-3 py-2">
                         <i class="bi bi-check-circle-fill text-success me-1"></i>
@@ -429,8 +420,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- Liste des inscriptions - Version carte -->
             <div class="p-3 bg-light">
               <div class="row g-3">
                 <div class="col-md-6 col-lg-4" *ngFor="let inscription of formationGroup.inscriptions">
@@ -472,56 +461,26 @@
                       <button class="btn btn-sm action-btn"
                               [class.btn-paid]="inscription.statut === 'paye'"
                               [class.btn-unpaid]="inscription.statut !== 'paye'"
-                              (click)="toggleInscriptionStatut(inscription)"
-                              [title]="inscription.statut === 'paye' ? 'Marquer non payée' : 'Marquer payée'">
+                              (click)="toggleInscriptionStatut(inscription)">
                         <i class="bi" [class.bi-cash-stack]="inscription.statut === 'paye'" [class.bi-credit-card-2-front]="inscription.statut !== 'paye'"></i>
                         {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
                       </button>
                       <button class="btn btn-sm btn-outline-danger action-btn"
-                              (click)="confirmDeleteInscription(inscription)"
-                              title="Supprimer l'inscription">
+                              (click)="confirmDeleteInscription(inscription)">
                         <i class="bi bi-trash3"></i>
                       </button>
                     </div>
                   </div>
                 </div>
-                <div *ngIf="formationGroup.inscriptions.length === 0" class="col-12">
-                  <div class="text-center py-4 text-muted">
-                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                    Aucune inscription pour cette formation
-                  </div>
-                </div>
               </div>
             </div>
           </div>
-
-          <!-- Message si aucune inscription -->
           <div *ngIf="filteredInscriptions.length === 0" class="text-center py-5">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune inscription trouvée</h5>
-            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
-          </div>
-        </div>
-        <div class="card-footer bg-light py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div class="d-flex gap-3">
-            <small class="text-muted">
-              <i class="bi bi-info-circle me-1"></i>
-              Total: <strong>{{filteredInscriptions.length}}</strong> inscription(s)
-            </small>
-            <small class="text-muted">
-              <i class="bi bi-journal-bookmark me-1"></i>
-              Formations: <strong>{{getUniqueFormationsCount()}}</strong>
-            </small>
-          </div>
-          <div class="d-flex gap-3">
-            <small class="text-success">
-              <i class="bi bi-check-circle-fill me-1"></i>
-              Payées: <strong>{{getPayeCount()}}</strong>
-            </small>
-            <small class="text-warning">
-              <i class="bi bi-clock-fill me-1"></i>
-              Non payées: <strong>{{getNonPayeCount()}}</strong>
-            </small>
+            <button class="btn btn-orange btn-sm mt-2" (click)="openAddInscriptionModal()">
+              <i class="bi bi-plus-circle"></i> Ajouter une inscription
+            </button>
           </div>
         </div>
       </div>
@@ -583,78 +542,9 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucun étudiant trouvé</h5>
-            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
-          </div>
-        </div>
-      </div>
-      <div class="mt-3 text-muted small">Total: {{filteredEtudiants.length}} étudiant(s)</div>
-    </div>
-
-    <!-- Modal Détails Étudiant -->
-    <div class="modal fade" id="etudiantModal" tabindex="-1" [class.show]="showEtudiantModal" [style.display]="showEtudiantModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 overflow-hidden">
-          <div class="modal-header" [ngClass]="selectedEtudiant?.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-            <h5 class="modal-title text-white">
-              <i class="bi bi-person-circle me-2"></i>
-              Détails de l'étudiant
-            </h5>
-            <button type="button" class="btn-close btn-close-white" (click)="showEtudiantModal = false"></button>
-          </div>
-          <div class="modal-body p-4" *ngIf="selectedEtudiant">
-            <div class="text-center mb-4">
-              <div class="modal-avatar mx-auto">
-                <i class="bi bi-person-circle fs-1"></i>
-              </div>
-              <h4 class="mt-3 mb-1 fw-bold">{{selectedEtudiant.prenom}} {{selectedEtudiant.nom}}</h4>
-              <span class="badge" [ngClass]="selectedEtudiant.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-                {{selectedEtudiant.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-              </span>
-            </div>
-
-            <div class="info-card p-3 mb-3 rounded-3">
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
-                <span>{{selectedEtudiant.mail}}</span>
-              </div>
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-telephone text-orange me-3" style="width: 24px;"></i>
-                <span>{{selectedEtudiant.tel}}</span>
-              </div>
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-mortarboard text-orange me-3" style="width: 24px;"></i>
-                <span>Niveau: <strong>{{selectedEtudiant.niveau}}</strong></span>
-              </div>
-              <div class="info-row d-flex align-items-center">
-                <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
-                <span>ID: #{{selectedEtudiant.idEtudiant}}</span>
-              </div>
-            </div>
-
-            <div class="mt-3" *ngIf="getInscriptionsByEtudiant(selectedEtudiant.idEtudiant).length > 0">
-              <h6 class="fw-bold mb-2">
-                <i class="bi bi-journal-bookmark me-2 text-orange"></i>
-                Formations suivies ({{getInscriptionsByEtudiant(selectedEtudiant.idEtudiant).length}})
-              </h6>
-              <div class="inscriptions-list">
-                <div *ngFor="let ins of getInscriptionsByEtudiant(selectedEtudiant.idEtudiant)" class="formation-item d-flex justify-content-between align-items-center p-2 mb-1 rounded-2">
-                  <span class="small">{{getFormationById(ins.idFormation)?.intitule}}</span>
-                  <span class="badge" [ngClass]="ins.statut === 'paye' ? 'bg-success' : 'bg-warning'">
-                    {{ins.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-3 text-center text-muted" *ngIf="getInscriptionsByEtudiant(selectedEtudiant.idEtudiant).length === 0">
-              <i class="bi bi-inbox"></i>
-              <p class="mb-0">Aucune formation suivie</p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-danger" (click)="confirmDeleteEtudiant(selectedEtudiant)">
-              <i class="bi bi-trash3 me-1"></i> Supprimer
+            <button class="btn btn-orange btn-sm mt-2" (click)="openAddEtudiantModal()">
+              <i class="bi bi-plus-circle"></i> Ajouter un étudiant
             </button>
-            <button class="btn btn-secondary" (click)="showEtudiantModal = false">Fermer</button>
           </div>
         </div>
       </div>
@@ -716,90 +606,359 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucun formateur trouvé</h5>
-            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+            <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormateurModal()">
+              <i class="bi bi-plus-circle"></i> Ajouter un formateur
+            </button>
           </div>
         </div>
       </div>
-      <div class="mt-3 text-muted small">Total: {{filteredFormateurs.length}} formateur(s)</div>
     </div>
+  </div>
+</div>
 
-    <!-- Modal Détails Formateur -->
-    <div class="modal fade" id="formateurModal" tabindex="-1" [class.show]="showFormateurModal" [style.display]="showFormateurModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 overflow-hidden">
-          <div class="modal-header" [ngClass]="selectedFormateur?.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-            <h5 class="modal-title text-white">
-              <i class="bi bi-person-badge me-2"></i>
-              Détails du formateur
-            </h5>
-            <button type="button" class="btn-close btn-close-white" (click)="showFormateurModal = false"></button>
-          </div>
-          <div class="modal-body p-4" *ngIf="selectedFormateur">
-            <div class="text-center mb-4">
-              <div class="modal-avatar mx-auto">
-                <i class="bi bi-person-badge fs-1"></i>
-              </div>
-              <h4 class="mt-3 mb-1 fw-bold">{{selectedFormateur.prenom}} {{selectedFormateur.nom}}</h4>
-              <span class="badge" [ngClass]="selectedFormateur.statut === 'actif' ? 'bg-success' : 'bg-danger'">
-                {{selectedFormateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
-              </span>
-              <div class="mt-2">
-                <span class="badge bg-primary">{{selectedFormateur.specialite}}</span>
-              </div>
-            </div>
+<!-- ==================== MODALS D'AJOUT ==================== -->
 
-            <div class="info-card p-3 mb-3 rounded-3">
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
-                <span>{{selectedFormateur.mail}}</span>
-              </div>
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-telephone text-orange me-3" style="width: 24px;"></i>
-                <span>{{selectedFormateur.tel}}</span>
-              </div>
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-star text-orange me-3" style="width: 24px;"></i>
-                <span>Spécialité: <strong>{{selectedFormateur.specialite}}</strong></span>
-              </div>
-              <div class="info-row d-flex align-items-center mb-2">
-                <i class="bi bi-graph-up text-orange me-3" style="width: 24px;"></i>
-                <span>Niveau: <strong>{{selectedFormateur.niveau}}</strong></span>
-              </div>
-              <div class="info-row d-flex align-items-center">
-                <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
-                <span>ID: #{{selectedFormateur.idFormateur}}</span>
-              </div>
+<!-- Modal Ajouter un étudiant -->
+<div class="modal fade" id="addEtudiantModal" tabindex="-1" [class.show]="showAddEtudiantModal" [style.display]="showAddEtudiantModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-plus me-2"></i>
+          Ajouter un étudiant
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddEtudiantModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Nom</label>
+              <input type="text" class="form-control" [(ngModel)]="newEtudiant.nom" name="newEtudiantNom" required>
             </div>
-
-            <div class="mt-3" *ngIf="getFormationsByFormateur(selectedFormateur.idFormateur).length > 0">
-              <h6 class="fw-bold mb-2">
-                <i class="bi bi-book me-2 text-orange"></i>
-                Formations créées ({{getFormationsByFormateur(selectedFormateur.idFormateur).length}})
-              </h6>
-              <div class="formations-list">
-                <div *ngFor="let formation of getFormationsByFormateur(selectedFormateur.idFormateur)" class="formation-item d-flex justify-content-between align-items-center p-2 mb-1 rounded-2">
-                  <div>
-                    <span class="small fw-semibold">{{formation.intitule}}</span>
-                    <small class="text-muted d-block">{{formation.duree}} - {{formatPrice(formation.prix)}}</small>
-                  </div>
-                  <span class="badge" [ngClass]="formation.statut === 'valide' ? 'bg-success' : 'bg-warning'">
-                    {{formation.statut === 'valide' ? 'Validée' : 'Non validée'}}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-3 text-center text-muted" *ngIf="getFormationsByFormateur(selectedFormateur.idFormateur).length === 0">
-              <i class="bi bi-inbox"></i>
-              <p class="mb-0">Aucune formation créée</p>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prénom</label>
+              <input type="text" class="form-control" [(ngModel)]="newEtudiant.prenom" name="newEtudiantPrenom" required>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-danger" (click)="confirmDeleteFormateur(selectedFormateur)">
-              <i class="bi bi-trash3 me-1"></i> Supprimer
-            </button>
-            <button class="btn btn-secondary" (click)="showFormateurModal = false">Fermer</button>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="newEtudiant.mail" name="newEtudiantMail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Téléphone</label>
+            <input type="tel" class="form-control" [(ngModel)]="newEtudiant.tel" name="newEtudiantTel" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Niveau d'études</label>
+            <select class="form-select" [(ngModel)]="newEtudiant.niveau" name="newEtudiantNiveau">
+              <option *ngFor="let niveau of niveauxEtudiants" [value]="niveau">{{niveau}}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Mot de passe</label>
+            <input type="password" class="form-control" [(ngModel)]="newEtudiant.motpass" name="newEtudiantPassword" required>
+            <small class="text-muted">Minimum 6 caractères</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddEtudiantModal()">Annuler</button>
+        <button type="button" class="btn btn-success" (click)="saveNewEtudiant()">
+          <i class="bi bi-save me-1"></i> Créer l'étudiant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter un formateur -->
+<div class="modal fade" id="addFormateurModal" tabindex="-1" [class.show]="showAddFormateurModal" [style.display]="showAddFormateurModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-badge-plus me-2"></i>
+          Ajouter un formateur
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddFormateurModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Nom</label>
+              <input type="text" class="form-control" [(ngModel)]="newFormateur.nom" name="newFormateurNom" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prénom</label>
+              <input type="text" class="form-control" [(ngModel)]="newFormateur.prenom" name="newFormateurPrenom" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="newFormateur.mail" name="newFormateurMail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Téléphone</label>
+            <input type="tel" class="form-control" [(ngModel)]="newFormateur.tel" name="newFormateurTel" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Spécialité</label>
+            <input type="text" class="form-control" [(ngModel)]="newFormateur.specialite" name="newFormateurSpecialite" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Niveau d'études</label>
+            <select class="form-select" [(ngModel)]="newFormateur.niveau" name="newFormateurNiveau">
+              <option *ngFor="let niveau of niveauxFormateurs" [value]="niveau">{{niveau}}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Mot de passe</label>
+            <input type="password" class="form-control" [(ngModel)]="newFormateur.motpass" name="newFormateurPassword" required>
+            <small class="text-muted">Minimum 6 caractères</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddFormateurModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveNewFormateur()">
+          <i class="bi bi-save me-1"></i> Créer le formateur
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter une formation -->
+<div class="modal fade" id="addFormationModal" tabindex="-1" [class.show]="showAddFormationModal" [style.display]="showAddFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-book-plus me-2"></i>
+          Ajouter une formation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddFormationModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Intitulé de la formation *</label>
+            <input type="text" class="form-control" [(ngModel)]="newFormation.intitule" name="newFormationIntitule" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Formateur</label>
+            <select class="form-select" [(ngModel)]="newFormation.idFormateur" name="newFormationFormateur" required>
+              <option value="" disabled selected>Sélectionner un formateur</option>
+              <option *ngFor="let formateur of formateursActifs" [value]="formateur.idFormateur">
+                {{formateur.prenom}} {{formateur.nom}} - {{formateur.specialite}}
+              </option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Durée</label>
+              <input type="text" class="form-control" [(ngModel)]="newFormation.duree" name="newFormationDuree" placeholder="Ex: 35h">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prix (€)</label>
+              <input type="number" class="form-control" [(ngModel)]="newFormation.prix" name="newFormationPrix" placeholder="Ex: 299">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description *</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="newFormation.description" name="newFormationDescription" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Programme de la formation</label>
+            <div class="input-group mb-2">
+              <input type="text" class="form-control" [(ngModel)]="programmeInput" name="programmeInput" placeholder="Ajouter un point du programme">
+              <button class="btn btn-outline-info" type="button" (click)="addProgrammePointAdmin()">
+                <i class="bi bi-plus"></i> Ajouter
+              </button>
+            </div>
+            <ul class="list-group mt-2">
+              <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let point of newFormation.programme; let i = index">
+                {{point}}
+                <button class="btn btn-sm btn-outline-danger" (click)="removeProgrammePointAdmin(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Note: Les formations sont créées avec le statut "Validée" par défaut.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddFormationModal()">Annuler</button>
+        <button type="button" class="btn btn-info" (click)="saveNewFormation()">
+          <i class="bi bi-save me-1"></i> Créer la formation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter une inscription -->
+<div class="modal fade" id="addInscriptionModal" tabindex="-1" [class.show]="showAddInscriptionModal" [style.display]="showAddInscriptionModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+          <i class="bi bi-journal-plus me-2"></i>
+          Ajouter une inscription
+        </h5>
+        <button type="button" class="btn-close" (click)="closeAddInscriptionModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Étudiant</label>
+            <select class="form-select" [(ngModel)]="newInscription.idEtudiant" name="newInscriptionEtudiant" required>
+              <option value="" disabled selected>Sélectionner un étudiant</option>
+              <option *ngFor="let etudiant of etudiantsActifs" [value]="etudiant.idEtudiant">
+                {{etudiant.prenom}} {{etudiant.nom}} - {{etudiant.niveau}}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Formation</label>
+            <select class="form-select" [(ngModel)]="newInscription.idFormation" name="newInscriptionFormation" required>
+              <option value="" disabled selected>Sélectionner une formation</option>
+              <option *ngFor="let formation of formationsValidesList" [value]="formation.idFormation">
+                {{formation.intitule}} - {{formation.prix}} € - {{formation.duree}}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Date d'inscription</label>
+            <input type="date" class="form-control" [(ngModel)]="newInscription.dateInscription" name="newInscriptionDate" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Statut de paiement</label>
+            <select class="form-select" [(ngModel)]="newInscription.statut" name="newInscriptionStatut" required>
+              <option value="non paye">💳 Non payée</option>
+              <option value="paye">💰 Payée</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddInscriptionModal()">Annuler</button>
+        <button type="button" class="btn btn-warning" (click)="saveNewInscription()">
+          <i class="bi bi-save me-1"></i> Créer l'inscription
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Étudiant -->
+<div class="modal fade" id="etudiantModal" tabindex="-1" [class.show]="showEtudiantModal" [style.display]="showEtudiantModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header" [ngClass]="selectedEtudiant?.statut === 'actif' ? 'bg-success' : 'bg-danger'">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-person-circle me-2"></i>
+          Détails de l'étudiant
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="showEtudiantModal = false"></button>
+      </div>
+      <div class="modal-body p-4" *ngIf="selectedEtudiant">
+        <div class="text-center mb-4">
+          <div class="modal-avatar mx-auto">
+            <i class="bi bi-person-circle fs-1"></i>
+          </div>
+          <h4 class="mt-3 mb-1 fw-bold">{{selectedEtudiant.prenom}} {{selectedEtudiant.nom}}</h4>
+          <span class="badge" [ngClass]="selectedEtudiant.statut === 'actif' ? 'bg-success' : 'bg-danger'">
+            {{selectedEtudiant.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+          </span>
+        </div>
+        <div class="info-card p-3 mb-3 rounded-3">
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
+            <span>{{selectedEtudiant.mail}}</span>
+          </div>
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-telephone text-orange me-3" style="width: 24px;"></i>
+            <span>{{selectedEtudiant.tel}}</span>
+          </div>
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-mortarboard text-orange me-3" style="width: 24px;"></i>
+            <span>Niveau: <strong>{{selectedEtudiant.niveau}}</strong></span>
+          </div>
+          <div class="info-row d-flex align-items-center">
+            <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
+            <span>ID: #{{selectedEtudiant.idEtudiant}}</span>
           </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger" (click)="confirmDeleteEtudiant(selectedEtudiant)">
+          <i class="bi bi-trash3 me-1"></i> Supprimer
+        </button>
+        <button class="btn btn-secondary" (click)="showEtudiantModal = false">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Formateur -->
+<div class="modal fade" id="formateurModal" tabindex="-1" [class.show]="showFormateurModal" [style.display]="showFormateurModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header" [ngClass]="selectedFormateur?.statut === 'actif' ? 'bg-success' : 'bg-danger'">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-person-badge me-2"></i>
+          Détails du formateur
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="showFormateurModal = false"></button>
+      </div>
+      <div class="modal-body p-4" *ngIf="selectedFormateur">
+        <div class="text-center mb-4">
+          <div class="modal-avatar mx-auto">
+            <i class="bi bi-person-badge fs-1"></i>
+          </div>
+          <h4 class="mt-3 mb-1 fw-bold">{{selectedFormateur.prenom}} {{selectedFormateur.nom}}</h4>
+          <span class="badge" [ngClass]="selectedFormateur.statut === 'actif' ? 'bg-success' : 'bg-danger'">
+            {{selectedFormateur.statut === 'actif' ? 'Actif' : 'Bloqué'}}
+          </span>
+          <div class="mt-2">
+            <span class="badge bg-primary">{{selectedFormateur.specialite}}</span>
+          </div>
+        </div>
+        <div class="info-card p-3 mb-3 rounded-3">
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-envelope text-orange me-3" style="width: 24px;"></i>
+            <span>{{selectedFormateur.mail}}</span>
+          </div>
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-telephone text-orange me-3" style="width: 24px;"></i>
+            <span>{{selectedFormateur.tel}}</span>
+          </div>
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-star text-orange me-3" style="width: 24px;"></i>
+            <span>Spécialité: <strong>{{selectedFormateur.specialite}}</strong></span>
+          </div>
+          <div class="info-row d-flex align-items-center mb-2">
+            <i class="bi bi-graph-up text-orange me-3" style="width: 24px;"></i>
+            <span>Niveau: <strong>{{selectedFormateur.niveau}}</strong></span>
+          </div>
+          <div class="info-row d-flex align-items-center">
+            <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
+            <span>ID: #{{selectedFormateur.idFormateur}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger" (click)="confirmDeleteFormateur(selectedFormateur)">
+          <i class="bi bi-trash3 me-1"></i> Supprimer
+        </button>
+        <button class="btn btn-secondary" (click)="showFormateurModal = false">Fermer</button>
       </div>
     </div>
   </div>
@@ -817,7 +976,6 @@
         <button type="button" class="btn-close btn-close-white" (click)="closeParamModal()"></button>
       </div>
       <div class="modal-body p-4">
-        <!-- Devise -->
         <div class="mb-4">
           <label class="form-label fw-bold">
             <i class="bi bi-currency-exchange text-orange me-2"></i>
@@ -832,10 +990,7 @@
             <option value="CHF">Franc Suisse (CHF)</option>
             <option value="CAD">Dollar Canadien (CAD)</option>
           </select>
-          <small class="text-muted">Cette devise sera utilisée pour tous les prix affichés</small>
         </div>
-
-        <!-- Pourcentage de bénéfice -->
         <div class="mb-4">
           <label class="form-label fw-bold">
             <i class="bi bi-graph-up text-orange me-2"></i>
@@ -845,7 +1000,6 @@
             <input type="number" class="form-control" [(ngModel)]="pourcentageBenefice" min="0" max="100" step="5">
             <span class="input-group-text">%</span>
           </div>
-          <small class="text-muted">Le bénéfice est calculé sur le prix total des formations payées</small>
         </div>
       </div>
       <div class="modal-footer">
@@ -875,13 +1029,10 @@
             <label class="form-label fw-bold">Nom complet</label>
             <input type="text" class="form-control" [(ngModel)]="profileForm.nom" name="profileNom" required>
           </div>
-
           <div class="mb-3">
             <label class="form-label fw-bold">Email</label>
             <input type="email" class="form-control" [(ngModel)]="profileForm.email" name="profileEmail" required>
           </div>
-
-          <!-- Mot de passe avec icône œil -->
           <div class="mb-3">
             <label class="form-label fw-bold">Nouveau mot de passe</label>
             <div class="input-group">
@@ -894,10 +1045,7 @@
                 <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
               </button>
             </div>
-            <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
           </div>
-
-          <!-- Confirmation du nouveau mot de passe -->
           <div class="mb-3" *ngIf="profileForm.password">
             <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
             <div class="input-group">
@@ -911,8 +1059,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Message d'erreur mot de passe -->
           <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
             <i class="bi bi-exclamation-triangle me-1"></i>
             {{passwordError}}

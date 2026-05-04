@@ -842,6 +842,138 @@ export class AdminDashboard implements OnInit, OnDestroy {
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
+
+  showAddEtudiantModal: boolean = false;
+  showAddFormateurModal: boolean = false;
+  showAddFormationModal: boolean = false;
+  showAddInscriptionModal: boolean = false;
+  programmeInput: string = '';
+
+  niveauxEtudiants: string[] = ['bac+1', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'bac+6', 'bac+7', 'bac+8'];
+  niveauxFormateurs: string[] = ['autre', 'licence', 'master', 'ingenieur', 'magister', 'doctorat'];
+
+  newEtudiant: any = {
+    nom: '', prenom: '', mail: '', tel: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+  };
+  newFormateur: any = {
+    nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+  };
+  newFormation: any = {
+    intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide'
+  };
+  newInscription: any = {
+    idEtudiant: null, idFormation: null, dateInscription: '', statut: 'non paye'
+  };
+
+// Getters pour les listes déroulantes
+  get formateursActifs(): Formateur[] {
+    return this.formateurs.filter(f => f.statut === 'actif');
+  }
+
+  get etudiantsActifs(): Etudiant[] {
+    return this.etudiants.filter(e => e.statut === 'actif');
+  }
+
+  get formationsValidesList(): FormationDetail[] {
+    return this.formations.filter(f => f.statut === 'valide');
+  }
+
+// Méthodes pour les modals d'ajout
+  openAddEtudiantModal() {
+    this.newEtudiant = { nom: '', prenom: '', mail: '', tel: '', niveau: 'bac+1', motpass: '', statut: 'actif', photo: '' };
+    this.showAddEtudiantModal = true;
+  }
+  closeAddEtudiantModal() { this.showAddEtudiantModal = false; }
+
+  openAddFormateurModal() {
+    this.newFormateur = { nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: 'autre', motpass: '', statut: 'actif', photo: '' };
+    this.showAddFormateurModal = true;
+  }
+  closeAddFormateurModal() { this.showAddFormateurModal = false; }
+
+  openAddFormationModal() {
+    this.newFormation = { intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide' };
+    this.programmeInput = '';
+    this.showAddFormationModal = true;
+  }
+  closeAddFormationModal() { this.showAddFormationModal = false; }
+
+  openAddInscriptionModal() {
+    this.newInscription = { idEtudiant: null, idFormation: null, dateInscription: new Date().toISOString().split('T')[0], statut: 'non paye' };
+    this.showAddInscriptionModal = true;
+  }
+  closeAddInscriptionModal() { this.showAddInscriptionModal = false; }
+
+// Sauvegarder les nouveaux éléments
+  saveNewEtudiant() {
+    if (!this.newEtudiant.nom || !this.newEtudiant.prenom || !this.newEtudiant.mail || !this.newEtudiant.motpass) {
+      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    if (this.newEtudiant.motpass.length < 6) {
+      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+      return;
+    }
+    this.databaseService.addEtudiant(this.newEtudiant);
+    this.showMessage(`Étudiant ${this.newEtudiant.prenom} ${this.newEtudiant.nom} créé avec succès`, 'success');
+    this.closeAddEtudiantModal();
+    this.refreshData();
+  }
+
+  saveNewFormateur() {
+    if (!this.newFormateur.nom || !this.newFormateur.prenom || !this.newFormateur.mail || !this.newFormateur.motpass) {
+      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    if (this.newFormateur.motpass.length < 6) {
+      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+      return;
+    }
+    this.databaseService.addFormateur(this.newFormateur);
+    this.showMessage(`Formateur ${this.newFormateur.prenom} ${this.newFormateur.nom} créé avec succès`, 'success');
+    this.closeAddFormateurModal();
+    this.refreshData();
+  }
+
+  addProgrammePointAdmin() {
+    if (this.programmeInput.trim()) {
+      this.newFormation.programme.push(this.programmeInput.trim());
+      this.programmeInput = '';
+    }
+  }
+
+  removeProgrammePointAdmin(index: number) {
+    this.newFormation.programme.splice(index, 1);
+  }
+
+  saveNewFormation() {
+    if (!this.newFormation.intitule || !this.newFormation.description || !this.newFormation.idFormateur) {
+      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    this.databaseService.addFormation(this.newFormation);
+    this.showMessage(`Formation "${this.newFormation.intitule}" créée avec succès`, 'success');
+    this.closeAddFormationModal();
+    this.refreshData();
+  }
+
+  saveNewInscription() {
+    if (!this.newInscription.idEtudiant || !this.newInscription.idFormation) {
+      this.showMessage('Veuillez sélectionner un étudiant et une formation', 'error');
+      return;
+    }
+    // Vérifier si l'étudiant est déjà inscrit
+    const existingInscription = this.inscriptions.find(i => i.idEtudiant === this.newInscription.idEtudiant && i.idFormation === this.newInscription.idFormation);
+    if (existingInscription) {
+      this.showMessage('Cet étudiant est déjà inscrit à cette formation', 'error');
+      return;
+    }
+    this.databaseService.addInscription(this.newInscription);
+    this.showMessage('Inscription ajoutée avec succès', 'success');
+    this.closeAddInscriptionModal();
+    this.refreshData();
+  }
+
 }
 
 interface ProfileForm {
