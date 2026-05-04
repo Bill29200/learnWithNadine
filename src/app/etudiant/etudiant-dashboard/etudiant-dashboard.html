@@ -15,7 +15,7 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#">
+              <a class="dropdown-item" (click)="openProfileModal()" style="cursor: pointer;">
                 <i class="bi bi-person"></i> Mon profil
               </a>
             </li>
@@ -213,9 +213,7 @@
       <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
         <div class="formation-mini-card" (click)="voirDetails(formation)">
           <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
-            <div class="formation-mini-badge">
-              <i class="bi bi-star-fill"></i> Formation certifiante
-            </div>
+
             <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
           </div>
           <div class="formation-mini-body">
@@ -367,6 +365,97 @@
             <i class="bi bi-check-circle-fill me-1"></i> Déjà inscrit
           </button>
         </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Modification du Profil Étudiant -->
+<div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-circle me-2"></i>
+          Modifier mon profil
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeProfileModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Nom</label>
+              <input type="text" class="form-control" [(ngModel)]="profileForm.nom" name="profileNom" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prénom</label>
+              <input type="text" class="form-control" [(ngModel)]="profileForm.prenom" name="profilePrenom" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="profileForm.mail" name="profileMail" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Téléphone</label>
+            <input type="tel" class="form-control" [(ngModel)]="profileForm.tel" name="profileTel" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Niveau d'études</label>
+            <select class="form-select" [(ngModel)]="profileForm.niveau" name="profileNiveau">
+              <option *ngFor="let niveau of niveauxDisponibles" [value]="niveau">
+                {{niveau}}
+              </option>
+            </select>
+          </div>
+
+          <!-- Mot de passe avec icône œil -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.password"
+                     name="profilePassword"
+                     placeholder="Laissez vide pour ne pas changer">
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+            <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
+          </div>
+
+          <!-- Confirmation du nouveau mot de passe -->
+          <div class="mb-3" *ngIf="profileForm.password">
+            <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+            <div class="input-group">
+              <input [type]="showConfirmPassword ? 'text' : 'password'"
+                     class="form-control"
+                     [(ngModel)]="profileForm.confirmPassword"
+                     name="profileConfirmPassword"
+                     placeholder="Confirmez votre nouveau mot de passe">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleConfirmPasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Message d'erreur mot de passe -->
+          <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            {{passwordError}}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProfileModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="saveProfile()">
+          <i class="bi bi-save me-1"></i> Enregistrer
+        </button>
       </div>
     </div>
   </div>

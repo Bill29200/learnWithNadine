@@ -28,6 +28,24 @@ export class EtudiantDashboard implements OnInit {
   selectedFormation: FormationDetail | null = null;
   showDetailModal: boolean = false;
 
+  // Formulaire de modification du profil
+  showProfileModal: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+  passwordError: string = '';
+  profileForm: ProfileForm = {
+    nom: '',
+    prenom: '',
+    mail: '',
+    tel: '',
+    niveau: '',
+    password: '',
+    confirmPassword: ''
+  };
+
+  // Niveaux disponibles pour les étudiants
+  niveauxDisponibles: string[] = ['bac+1', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'bac+6', 'bac+7', 'bac+8'];
+
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -39,6 +57,7 @@ export class EtudiantDashboard implements OnInit {
     if (this.currentUser) {
       this.etudiantInfo = this.databaseService.getEtudiantById(this.currentUser.id) || null;
       this.loadData();
+      this.loadProfileData();
     }
 
     this.databaseService.getDatabase$().subscribe(() => {
@@ -53,6 +72,117 @@ export class EtudiantDashboard implements OnInit {
       .map(inscription => this.databaseService.getFormationById(inscription.idFormation))
       .filter((formation): formation is FormationDetail => formation !== undefined);
     this.isLoading = false;
+  }
+
+  // Charger les données du profil pour le formulaire
+  loadProfileData() {
+    if (this.etudiantInfo) {
+      this.profileForm = {
+        nom: this.etudiantInfo.nom,
+        prenom: this.etudiantInfo.prenom,
+        mail: this.etudiantInfo.mail,
+        tel: this.etudiantInfo.tel,
+        niveau: this.etudiantInfo.niveau,
+        password: '',
+        confirmPassword: ''
+      };
+    }
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
+  // Ouvrir le modal de modification du profil
+  openProfileModal() {
+    this.loadProfileData();
+    this.showProfileModal = true;
+  }
+
+  // Fermer le modal de modification du profil
+  closeProfileModal() {
+    this.showProfileModal = false;
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
+  // Basculer la visibilité du mot de passe
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Basculer la visibilité de la confirmation du mot de passe
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  // Sauvegarder les modifications du profil
+  saveProfile() {
+    if (!this.etudiantInfo) return;
+
+    // Vérifier les mots de passe si un nouveau mot de passe est saisi
+    if (this.profileForm.password) {
+      if (this.profileForm.password.length < 6) {
+        this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
+        return;
+      }
+      if (this.profileForm.password !== this.profileForm.confirmPassword) {
+        this.passwordError = 'Les mots de passe ne correspondent pas';
+        return;
+      }
+    }
+
+    this.passwordError = '';
+
+    // Préparer les données de mise à jour
+    const updateData: any = {
+      nom: this.profileForm.nom,
+      prenom: this.profileForm.prenom,
+      mail: this.profileForm.mail,
+      tel: this.profileForm.tel,
+      niveau: this.profileForm.niveau
+    };
+
+    // Ajouter le mot de passe seulement s'il a été modifié
+    if (this.profileForm.password) {
+      updateData.motpass = this.profileForm.password;
+    }
+
+    // Mettre à jour dans la base de données
+    this.databaseService.updateEtudiant(this.etudiantInfo.idEtudiant, updateData);
+
+    // Mettre à jour l'objet local
+    this.etudiantInfo = {
+      ...this.etudiantInfo,
+      nom: this.profileForm.nom,
+      prenom: this.profileForm.prenom,
+      mail: this.profileForm.mail,
+      tel: this.profileForm.tel,
+      niveau: this.profileForm.niveau
+    };
+
+    // Mettre à jour le mot de passe local si modifié
+    if (this.profileForm.password) {
+      this.etudiantInfo.motpass = this.profileForm.password;
+    }
+
+    // Mettre à jour currentUser si nécessaire
+    if (this.currentUser) {
+      this.currentUser.firstName = this.profileForm.prenom;
+      this.currentUser.lastName = this.profileForm.nom;
+      this.currentUser.email = this.profileForm.mail;
+      this.currentUser.phone = this.profileForm.tel;
+      this.currentUser.level = this.profileForm.niveau as any;
+      if (this.profileForm.password) {
+        this.currentUser.password = this.profileForm.password;
+      }
+
+      // Sauvegarder dans le storage
+      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    }
+
+    this.showMessage('Profil mis à jour avec succès', 'success');
+    this.closeProfileModal();
   }
 
   onSearch() {
@@ -218,4 +348,14 @@ export class EtudiantDashboard implements OnInit {
     });
     return total;
   }
+}
+
+interface ProfileForm {
+  nom: string;
+  prenom: string;
+  mail: string;
+  tel: string;
+  niveau: string;
+  password: string;
+  confirmPassword: string;
 }
