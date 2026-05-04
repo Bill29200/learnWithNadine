@@ -60,31 +60,13 @@
 
   <!-- Contenu principal -->
   <div *ngIf="!isLoading">
-    <!-- Bienvenue avec boutons d'action -->
+    <!-- Bienvenue -->
     <div class="row">
       <div class="col-12">
         <div class="card shadow-sm mb-4 border-0">
           <div class="card-body bg-gradient-light">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-              <div>
-                <h3 class="text-orange mb-2">Bonjour, {{getFullName()}} !</h3>
-                <p class="text-muted mb-0">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
-              </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary btn-sm" (click)="openAddEtudiantModal()">
-                  <i class="bi bi-person-plus me-1"></i> Étudiant
-                </button>
-                <button class="btn btn-outline-success btn-sm" (click)="openAddFormateurModal()">
-                  <i class="bi bi-person-badge-plus me-1"></i> Formateur
-                </button>
-                <button class="btn btn-outline-info btn-sm" (click)="openAddFormationModal()">
-                  <i class="bi bi-book-plus me-1"></i> Formation
-                </button>
-                <button class="btn btn-outline-warning btn-sm" (click)="openAddInscriptionModal()">
-                  <i class="bi bi-journal-plus me-1"></i> Inscription
-                </button>
-              </div>
-            </div>
+            <h3 class="text-orange mb-2">Bonjour, {{getFullName()}} !</h3>
+            <p class="text-muted mb-0">Tableau de bord administrateur - Gérez les formations, les inscriptions et les utilisateurs</p>
           </div>
         </div>
       </div>
@@ -187,40 +169,40 @@
 
     <!-- ==================== ONGLET FORMATIONS ==================== -->
     <div *ngIf="activeTab === 'formations'">
-      <div class="filters-section mb-4">
-        <div class="row g-2">
-          <div class="col-md-7">
-            <div class="search-container">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-search text-orange"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       placeholder="🔍 Rechercher par titre, description, programme, durée, prix ou formateur..."
-                       [(ngModel)]="searchFormationTerm"
-                       (input)="onSearchFormation()">
-                <button class="btn btn-outline-orange" type="button" (click)="searchFormationTerm = ''; onSearchFormation()" *ngIf="searchFormationTerm">
-                  <i class="bi bi-x-lg"></i> Effacer
-                </button>
-                <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormationTerm">
-                  <i class="bi bi-search"></i> Rechercher
-                </button>
-              </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-7">
+          <div class="search-container">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange"></i>
+              </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher..."
+                     [(ngModel)]="searchFormationTerm"
+                     (input)="onSearchFormation()">
+              <button class="btn btn-outline-orange" type="button" (click)="searchFormationTerm = ''; onSearchFormation()" *ngIf="searchFormationTerm">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
           </div>
-          <div class="col-md-5">
-            <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
-              <option value="all">📊 Tous les statuts</option>
-              <option value="valide">✅ Validées</option>
-              <option value="nonValide">⏳ Non validées</option>
-            </select>
-          </div>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+            <option value="all">📊 Tous les statuts</option>
+            <option value="valide">✅ Validées</option>
+            <option value="nonValide">⏳ Non validées</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <button class="btn btn-outline-primary btn-sm w-100" (click)="openAddFormationModal()">
+            <i class="bi bi-book"> </i> nouvelle formation
+          </button>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let formation of filteredFormations; let i = index">
           <div class="formation-mini-card" (click)="selectedFormationDetail = formation; showFormationModal = true">
             <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
               <div class="formation-mini-badge">
@@ -258,131 +240,47 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune formation trouvée</h5>
-            <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormationModal()">
-              <i class="bi bi-plus-circle"></i> Créer une formation
-            </button>
           </div>
         </div>
       </div>
       <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
     </div>
 
-    <!-- Modal Détails Formation -->
-    <div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormationModal" [style.display]="showFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rounded-4 overflow-hidden">
-          <div class="modal-header" [ngClass]="selectedFormationDetail?.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-            <h5 class="modal-title text-white">
-              <i class="bi bi-book me-2"></i>
-              Détails de la formation
-            </h5>
-            <button type="button" class="btn-close btn-close-white" (click)="showFormationModal = false"></button>
-          </div>
-          <div class="modal-body p-4" *ngIf="selectedFormationDetail">
-            <div class="text-center mb-4">
-              <div class="modal-formation-icon mx-auto">
-                <i class="bi bi-journal-bookmark-fill fs-1"></i>
-              </div>
-              <h3 class="mt-3 mb-2 fw-bold" [innerHTML]="highlightFormationText(selectedFormationDetail.intitule)"></h3>
-              <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-                {{selectedFormationDetail.statut === 'valide' ? '✅ Formation validée' : '⏳ En attente de validation'}}
-              </span>
-            </div>
-
-            <div class="info-card p-3 mb-3 rounded-3">
-              <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-orange me-2"></i>Description</h6>
-              <p class="mb-0" [innerHTML]="highlightFormationText(selectedFormationDetail.description)"></p>
-            </div>
-
-            <div class="info-card p-3 mb-3 rounded-3" *ngIf="selectedFormationDetail.programme.length > 0">
-              <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
-              <ul class="mb-0 ps-3">
-                <li *ngFor="let point of selectedFormationDetail.programme" [innerHTML]="highlightFormationText(point)"></li>
-              </ul>
-            </div>
-
-            <div class="info-card p-3 mb-3 rounded-3">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="info-row d-flex align-items-center mb-2">
-                    <i class="bi bi-clock text-orange me-3" style="width: 24px;"></i>
-                    <span>Durée: <strong [innerHTML]="highlightFormationText(selectedFormationDetail.duree)"></strong></span>
-                  </div>
-                  <div class="info-row d-flex align-items-center mb-2">
-                    <i class="bi bi-tag text-orange me-3" style="width: 24px;"></i>
-                    <span>Prix: <strong>{{formatPrice(selectedFormationDetail.prix)}}</strong></span>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="info-row d-flex align-items-center mb-2">
-                    <i class="bi bi-person-badge text-orange me-3" style="width: 24px;"></i>
-                    <span>Formateur: <strong>{{getFormateurById(selectedFormationDetail.idFormateur)?.prenom}} {{getFormateurById(selectedFormationDetail.idFormateur)?.nom}}</strong></span>
-                  </div>
-                  <div class="info-row d-flex align-items-center mb-2">
-                    <i class="bi bi-calendar3 text-orange me-3" style="width: 24px;"></i>
-                    <span>ID: #{{selectedFormationDetail.idFormation}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-success" (click)="toggleFormationStatut(selectedFormationDetail); showFormationModal = false">
-              <i class="bi {{selectedFormationDetail?.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}} me-1"></i>
-              {{selectedFormationDetail?.statut === 'valide' ? 'Invalider' : 'Valider'}}
-            </button>
-            <button class="btn btn-outline-danger" (click)="confirmDeleteFormation(selectedFormationDetail); showFormationModal = false" *ngIf="selectedFormationDetail">
-              <i class="bi bi-trash3 me-1"></i> Supprimer
-            </button>
-            <button class="btn btn-secondary" (click)="showFormationModal = false">Fermer</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
     <div *ngIf="activeTab === 'inscriptions'">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <div class="row align-items-center">
-            <div class="col-md-4">
-              <h5 class="mb-0">
-                <i class="bi bi-journal-bookmark-fill me-1"></i> Gestion des inscriptions
-              </h5>
-            </div>
-            <div class="col-md-8">
-              <div class="row g-2">
-                <div class="col-md-7">
-                  <div class="search-container">
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-orange"></i>
-                      </span>
-                      <input type="text"
-                             class="form-control border-start-0"
-                             placeholder="🔍 Rechercher par étudiant, email, formation ou date..."
-                             [(ngModel)]="searchInscriptionTerm"
-                             (input)="onSearchInscription()">
-                      <button class="btn btn-outline-orange" type="button" (click)="searchInscriptionTerm = ''; onSearchInscription()" *ngIf="searchInscriptionTerm">
-                        <i class="bi bi-x-lg"></i> Effacer
-                      </button>
-                      <button class="btn btn-outline-orange" type="button" *ngIf="!searchInscriptionTerm">
-                        <i class="bi bi-search"></i> Rechercher
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-5">
-                  <select class="form-select form-select-sm" [(ngModel)]="selectedPaiementStatut" (change)="onPaiementStatutChange()">
-                    <option value="all">💳 Tous les statuts</option>
-                    <option value="paye">💰 Payées</option>
-                    <option value="non paye">⏳ Non payées</option>
-                  </select>
-                </div>
-              </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-7">
+          <div class="search-container">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange"></i>
+              </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher..."
+                     [(ngModel)]="searchInscriptionTerm"
+                     (input)="onSearchInscription()">
+              <button class="btn btn-outline-orange" type="button" (click)="searchInscriptionTerm = ''; onSearchInscription()" *ngIf="searchInscriptionTerm">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
           </div>
         </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedPaiementStatut" (change)="onPaiementStatutChange()">
+            <option value="all">💳 Tous les statuts</option>
+            <option value="paye">💰 Payées</option>
+            <option value="non paye">⏳ Non payées</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <button class="btn btn-outline-warning btn-sm w-100" (click)="openAddInscriptionModal()">
+            <i class="bi bi-file-person"></i> nouvelle inscription
+          </button>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
         <div class="card-body p-0">
           <div *ngFor="let formationGroup of getInscriptionsByFormation()" class="formation-section mb-0">
             <div class="formation-header p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -478,9 +376,6 @@
           <div *ngIf="filteredInscriptions.length === 0" class="text-center py-5">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune inscription trouvée</h5>
-            <button class="btn btn-orange btn-sm mt-2" (click)="openAddInscriptionModal()">
-              <i class="bi bi-plus-circle"></i> Ajouter une inscription
-            </button>
           </div>
         </div>
       </div>
@@ -488,35 +383,35 @@
 
     <!-- ==================== ONGLET ÉTUDIANTS ==================== -->
     <div *ngIf="activeTab === 'etudiants'">
-      <div class="filters-section mb-4">
-        <div class="row g-2">
-          <div class="col-md-7">
-            <div class="search-container">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-search text-orange"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       placeholder="🔍 Rechercher par nom, prénom, email, téléphone ou niveau..."
-                       [(ngModel)]="searchEtudiantTerm"
-                       (input)="onSearchEtudiant()">
-                <button class="btn btn-outline-orange" type="button" (click)="searchEtudiantTerm = ''; onSearchEtudiant()" *ngIf="searchEtudiantTerm">
-                  <i class="bi bi-x-lg"></i> Effacer
-                </button>
-                <button class="btn btn-outline-orange" type="button" *ngIf="!searchEtudiantTerm">
-                  <i class="bi bi-search"></i> Rechercher
-                </button>
-              </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-7">
+          <div class="search-container">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange"></i>
+              </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher..."
+                     [(ngModel)]="searchEtudiantTerm"
+                     (input)="onSearchEtudiant()">
+              <button class="btn btn-outline-orange" type="button" (click)="searchEtudiantTerm = ''; onSearchEtudiant()" *ngIf="searchEtudiantTerm">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
           </div>
-          <div class="col-md-5">
-            <select class="form-select form-select-sm" [(ngModel)]="selectedEtudiantStatut" (change)="onEtudiantStatutChange()">
-              <option value="all">👥 Tous les statuts</option>
-              <option value="actif">🟢 Actifs</option>
-              <option value="bloque">🔴 Bloqués</option>
-            </select>
-          </div>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedEtudiantStatut" (change)="onEtudiantStatutChange()">
+            <option value="all">👥 Tous les statuts</option>
+            <option value="actif">🟢 Actifs</option>
+            <option value="bloque">🔴 Bloqués</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <button class="btn btn-outline-success btn-sm w-100" (click)="openAddEtudiantModal()">
+            <i class="bi bi-person-badge"></i> Nouvel étudiant
+          </button>
         </div>
       </div>
 
@@ -542,45 +437,43 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucun étudiant trouvé</h5>
-            <button class="btn btn-orange btn-sm mt-2" (click)="openAddEtudiantModal()">
-              <i class="bi bi-plus-circle"></i> Ajouter un étudiant
-            </button>
           </div>
         </div>
       </div>
+      <div class="mt-3 text-muted small">Total: {{filteredEtudiants.length}} étudiant(s)</div>
     </div>
 
     <!-- ==================== ONGLET FORMATEURS ==================== -->
     <div *ngIf="activeTab === 'formateurs'">
-      <div class="filters-section mb-4">
-        <div class="row g-2">
-          <div class="col-md-7">
-            <div class="search-container">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-search text-orange"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       placeholder="🔍 Rechercher par nom, prénom, email, spécialité ou niveau..."
-                       [(ngModel)]="searchFormateurTerm"
-                       (input)="onSearchFormateur()">
-                <button class="btn btn-outline-orange" type="button" (click)="searchFormateurTerm = ''; onSearchFormateur()" *ngIf="searchFormateurTerm">
-                  <i class="bi bi-x-lg"></i> Effacer
-                </button>
-                <button class="btn btn-outline-orange" type="button" *ngIf="!searchFormateurTerm">
-                  <i class="bi bi-search"></i> Rechercher
-                </button>
-              </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-7">
+          <div class="search-container">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange"></i>
+              </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher..."
+                     [(ngModel)]="searchFormateurTerm"
+                     (input)="onSearchFormateur()">
+              <button class="btn btn-outline-orange" type="button" (click)="searchFormateurTerm = ''; onSearchFormateur()" *ngIf="searchFormateurTerm">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
           </div>
-          <div class="col-md-5">
-            <select class="form-select form-select-sm" [(ngModel)]="selectedFormateurStatut" (change)="onFormateurStatutChange()">
-              <option value="all">👥 Tous les statuts</option>
-              <option value="actif">🟢 Actifs</option>
-              <option value="bloque">🔴 Bloqués</option>
-            </select>
-          </div>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedFormateurStatut" (change)="onFormateurStatutChange()">
+            <option value="all">👥 Tous les statuts</option>
+            <option value="actif">🟢 Actifs</option>
+            <option value="bloque">🔴 Bloqués</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <button class="btn btn-outline-primary btn-sm w-100" (click)="openAddFormateurModal()">
+            <i class="bi bi-person-rolodex"></i> Nouveau formateur
+          </button>
         </div>
       </div>
 
@@ -606,12 +499,10 @@
           <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucun formateur trouvé</h5>
-            <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormateurModal()">
-              <i class="bi bi-plus-circle"></i> Ajouter un formateur
-            </button>
           </div>
         </div>
       </div>
+      <div class="mt-3 text-muted small">Total: {{filteredFormateurs.length}} formateur(s)</div>
     </div>
   </div>
 </div>
