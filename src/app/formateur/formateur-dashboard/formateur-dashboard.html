@@ -188,12 +188,14 @@
     <div class="row">
       <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
         <div class="formation-mini-card" (click)="voirEtudiantsInscrits(formation)">
-          <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
+          <!-- Header avec dégradé de couleur -->
+          <div class="formation-mini-header" [ngClass]="getCardHeaderClass(i)">
             <div class="formation-mini-badge">
               {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
             </div>
             <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
           </div>
+
           <div class="formation-mini-body">
             <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
             <div class="formation-mini-info">

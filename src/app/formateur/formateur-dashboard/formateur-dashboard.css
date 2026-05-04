@@ -609,3 +609,349 @@
     margin: 0.5rem;
   }
 }
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  background-color: white;
+}
+
+.content-with-header {
+  padding-top: 90px;
+}
+
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.dropdown-toggle::after {
+  margin-left: 8px;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+}
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.formation-mini-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.formation-mini-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+}
+
+/* Header de la carte avec dégradé */
+.formation-mini-header {
+  padding: 1rem 1rem 0.8rem 1rem;
+  color: white;
+  position: relative;
+  min-height: 95px;
+}
+
+/* Badge dans le header */
+.formation-mini-badge {
+  font-size: 0.65rem;
+  background: rgba(255,255,255,0.25);
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  backdrop-filter: blur(5px);
+  font-weight: 500;
+}
+
+/* Titre dans le header */
+.formation-mini-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ==================== DÉGRADÉS DE COULEURS POUR LES HEADERS ==================== */
+/* Rouge/orange - chaud */
+.card-header-color-0 {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+}
+
+/* Violet/pourpre */
+.card-header-color-1 {
+  background: linear-gradient(135deg, #A770EF 0%, #CF8BF3 100%);
+}
+
+/* Bleu océan */
+.card-header-color-2 {
+  background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%);
+}
+
+/* Vert émeraude */
+.card-header-color-3 {
+  background: linear-gradient(135deg, #11998E 0%, #38EF7D 100%);
+}
+
+/* Orange/jaune */
+.card-header-color-4 {
+  background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%);
+}
+
+/* Rose */
+.card-header-color-5 {
+  background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+}
+
+/* Bleu nuit */
+.card-header-color-6 {
+  background: linear-gradient(135deg, #1E3C72 0%, #2A5298 100%);
+}
+
+/* Vert forêt */
+.card-header-color-7 {
+  background: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
+}
+
+/* Pourpre */
+.card-header-color-8 {
+  background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
+}
+
+/* Rouge profond */
+.card-header-color-9 {
+  background: linear-gradient(135deg, #CB356B 0%, #BD3F32 100%);
+}
+
+/* Cyan */
+.card-header-color-10 {
+  background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+}
+
+/* Magenta */
+.card-header-color-11 {
+  background: linear-gradient(135deg, #F53844 0%, #42378F 100%);
+}
+
+/* Ambre */
+.card-header-color-12 {
+  background: linear-gradient(135deg, #FFB75E 0%, #ED8F03 100%);
+}
+
+/* Bleu glacier */
+.card-header-color-13 {
+  background: linear-gradient(135deg, #2193B0 0%, #6DD5ED 100%);
+}
+
+/* Vert lime */
+.card-header-color-14 {
+  background: linear-gradient(135deg, #00B09B 0%, #96C93D 100%);
+}
+
+/* Corail */
+.card-header-color-15 {
+  background: linear-gradient(135deg, #FF5F6D 0%, #FFC371 100%);
+}
+
+.formation-mini-body {
+  padding: 0.8rem 1rem;
+  flex: 1;
+}
+
+.formation-mini-description {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.formation-mini-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+  color: #6c757d;
+}
+
+.formation-mini-info i {
+  margin-right: 3px;
+  color: #ff5928;
+}
+
+.formation-mini-footer {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.formation-mini-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #ff5928;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.formation-mini-card:hover .formation-mini-icon {
+  opacity: 0.5;
+  transform: translateX(3px);
+}
+
+.search-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.input-group {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.input-group-text {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  height: 38px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #ced4da;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: #ff5928;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-orange {
+  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-orange:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(255, 89, 40, 0.4);
+  color: white;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #dee2e6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-with-header {
+    padding-top: 80px;
+  }
+
+  .formation-mini-title {
+    font-size: 0.85rem;
+  }
+
+  .formation-mini-description {
+    font-size: 0.7rem;
+  }
+
+  .formation-mini-info {
+    font-size: 0.6rem;
+    gap: 0.4rem;
+  }
+
+  .formation-mini-footer .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .formation-mini-header {
+    padding: 0.8rem 0.8rem 0.6rem 0.8rem;
+  }
+
+  .formation-mini-badge {
+    font-size: 0.55rem;
+    padding: 3px 8px;
+  }
+}

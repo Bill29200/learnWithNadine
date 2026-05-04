@@ -383,6 +383,11 @@ export class FormateurDashboard implements OnInit {
     }
     return 'F';
   }
+
+  getCardHeaderClass(index: number): string {
+    // Cycle à travers 16 couleurs différentes
+    return `card-header-color-${index % 16}`;
+  }
 }
 
 interface FormationForm {
