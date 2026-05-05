@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur } from '../../services/database.service';
+import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, DemandeFormation } from '../../services/database.service';
 import { User } from '../../model/user.model';
 
 @Component({
@@ -23,6 +23,10 @@ export class FormateurDashboard implements OnInit {
   searchTerm: string = '';
   selectedStatut: string = 'all';
 
+  // Demandes de formation
+  demandesEnAttente: DemandeFormation[] = [];
+  activeDemandeTab: string = 'mesFormations';
+
   // Formation sélectionnée pour voir les étudiants (modal)
   selectedFormation: FormationDetail | null = null;
   showFormationModal: boolean = false;
@@ -41,6 +45,16 @@ export class FormateurDashboard implements OnInit {
     statut: 'nonValide'
   };
   programmeInput: string = '';
+
+  // Modal de complétion de formation (pour les demandes)
+  showCompleterModal: boolean = false;
+  selectedDemande: DemandeFormation | null = null;
+  completionForm: CompletionForm = {
+    duree: '',
+    prix: 0,
+    programme: [] as string[]
+  };
+  completionProgrammeInput: string = '';
 
   // Formulaire de modification du profil
   showProfileModal: boolean = false;
@@ -79,11 +93,13 @@ export class FormateurDashboard implements OnInit {
     if (this.currentUser) {
       this.formateurInfo = this.databaseService.getFormateurById(this.currentUser.id) || null;
       this.loadMesFormations();
+      this.loadDemandesEnAttente();
       this.loadProfileData();
     }
 
     this.databaseService.getDatabase$().subscribe(() => {
       this.loadMesFormations();
+      this.loadDemandesEnAttente();
     });
   }
 
@@ -92,6 +108,11 @@ export class FormateurDashboard implements OnInit {
     this.mesFormations = allFormations.filter(f => f.idFormateur === this.currentUser?.id);
     this.applyFormationFilters();
     this.isLoading = false;
+  }
+
+  // Charger les demandes en attente
+  loadDemandesEnAttente() {
+    this.demandesEnAttente = this.databaseService.getDemandesEnAttenteFormateur();
   }
 
   // Charger les données du profil pour le formulaire
@@ -141,7 +162,6 @@ export class FormateurDashboard implements OnInit {
   saveProfile() {
     if (!this.formateurInfo) return;
 
-    // Vérifier les mots de passe si un nouveau mot de passe est saisi
     if (this.profileForm.password) {
       if (this.profileForm.password.length < 6) {
         this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
@@ -155,7 +175,6 @@ export class FormateurDashboard implements OnInit {
 
     this.passwordError = '';
 
-    // Préparer les données de mise à jour
     const updateData: any = {
       nom: this.profileForm.nom,
       prenom: this.profileForm.prenom,
@@ -165,15 +184,12 @@ export class FormateurDashboard implements OnInit {
       niveau: this.profileForm.niveau
     };
 
-    // Ajouter le mot de passe seulement s'il a été modifié
     if (this.profileForm.password) {
       updateData.motpass = this.profileForm.password;
     }
 
-    // Mettre à jour dans la base de données
     this.databaseService.updateFormateur(this.formateurInfo.idFormateur, updateData);
 
-    // Mettre à jour l'objet local
     this.formateurInfo = {
       ...this.formateurInfo,
       nom: this.profileForm.nom,
@@ -184,12 +200,10 @@ export class FormateurDashboard implements OnInit {
       niveau: this.profileForm.niveau
     };
 
-    // Mettre à jour le mot de passe local si modifié
     if (this.profileForm.password) {
       this.formateurInfo.motpass = this.profileForm.password;
     }
 
-    // Mettre à jour currentUser si nécessaire
     if (this.currentUser) {
       this.currentUser.firstName = this.profileForm.prenom;
       this.currentUser.lastName = this.profileForm.nom;
@@ -200,8 +214,6 @@ export class FormateurDashboard implements OnInit {
       if (this.profileForm.password) {
         this.currentUser.password = this.profileForm.password;
       }
-
-      // Sauvegarder dans le storage
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
     }
 
@@ -209,35 +221,131 @@ export class FormateurDashboard implements OnInit {
     this.closeProfileModal();
   }
 
-  // Méthode de recherche multi-critères
+  // ==================== GESTION DES DEMANDES DE FORMATION ====================
+
+  // Changer d'onglet
+  setActiveDemandeTab(tab: string) {
+    this.activeDemandeTab = tab;
+  }
+
+  // Accepter une demande de formation
+  accepterDemande(demande: DemandeFormation) {
+    if (confirm(`Acceptez-vous de devenir formateur pour la formation "${demande.intitule}" ?`)) {
+      this.databaseService.updateDemandeFormation(demande.idDemande, {
+        statut: 'acceptee_par_formateur',
+        idFormateurAccepteur: this.currentUser?.id
+      });
+      this.showMessage(`Vous avez accepté la formation "${demande.intitule}". Complétez-la maintenant !`, 'success');
+      this.loadDemandesEnAttente();
+      // Ouvrir le modal de complétion
+      this.selectedDemande = demande;
+      this.completionForm = { duree: '', prix: 0, programme: [] };
+      this.completionProgrammeInput = '';
+      this.showCompleterModal = true;
+    }
+  }
+
+  // Refuser une demande de formation
+  refuserDemande(demande: DemandeFormation) {
+    if (confirm(`Refusez-vous la formation "${demande.intitule}" ?`)) {
+      this.databaseService.updateDemandeFormation(demande.idDemande, { statut: 'refusee' });
+      this.showMessage(`Demande refusée`, 'error');
+      this.loadDemandesEnAttente();
+    }
+  }
+
+  // Fermer le modal de complétion
+  closeCompleterModal() {
+    this.showCompleterModal = false;
+    this.selectedDemande = null;
+    this.completionForm = { duree: '', prix: 0, programme: [] };
+    this.completionProgrammeInput = '';
+  }
+
+  // Ajouter un point au programme
+  addCompletionProgrammePoint() {
+    if (this.completionProgrammeInput.trim()) {
+      this.completionForm.programme.push(this.completionProgrammeInput.trim());
+      this.completionProgrammeInput = '';
+    }
+  }
+
+  // Supprimer un point du programme
+  removeCompletionProgrammePoint(index: number) {
+    this.completionForm.programme.splice(index, 1);
+  }
+
+  // Sauvegarder la formation complétée
+  saveFormationCompletee() {
+    if (!this.selectedDemande) return;
+
+    if (!this.completionForm.duree || this.completionForm.prix <= 0) {
+      this.showMessage('Veuillez renseigner la durée et le prix', 'error');
+      return;
+    }
+
+    // Créer la formation complète
+    const nouvelleFormation: Omit<FormationDetail, 'idFormation'> = {
+      idFormateur: this.currentUser!.id,
+      intitule: this.selectedDemande.intitule,
+      duree: this.completionForm.duree,
+      prix: this.completionForm.prix,
+      description: this.selectedDemande.description,
+      programme: this.completionForm.programme,
+      statut: 'nonValide' // En attente de validation admin
+    };
+
+    const formationCreee = this.databaseService.addFormation(nouvelleFormation);
+
+    // Mettre à jour la demande avec l'ID de la formation créée
+    this.databaseService.updateDemandeFormation(this.selectedDemande.idDemande, {
+      formationFinaleId: formationCreee.idFormation
+    });
+
+    // Inscrire automatiquement l'étudiant qui a proposé
+    const inscription: Omit<Inscription, 'idInscription'> = {
+      idFormation: formationCreee.idFormation,
+      idEtudiant: this.selectedDemande.idEtudiant,
+      dateInscription: new Date().toISOString().split('T')[0],
+      statut: 'non paye'
+    };
+    this.databaseService.addInscription(inscription);
+
+    this.showMessage(`Formation "${this.selectedDemande.intitule}" créée avec succès ! En attente de validation admin.`, 'success');
+    this.closeCompleterModal();
+    this.loadMesFormations();
+    this.loadDemandesEnAttente();
+  }
+
+  // Récupérer le nom d'un étudiant par son ID
+  getEtudiantNom(idEtudiant: number): string {
+    const etudiant = this.databaseService.getEtudiantById(idEtudiant);
+    return etudiant ? `${etudiant.prenom} ${etudiant.nom}` : 'Inconnu';
+  }
+
+  // ==================== MÉTHODES DE RECHERCHE ====================
   onSearch() {
+    this.applyFormationFilters();
+  }
+
+  onStatutChange() {
     this.applyFormationFilters();
   }
 
   applyFormationFilters() {
     let filtered = [...this.mesFormations];
 
-    // Filtre par recherche multi-critères
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const searchTermLower = this.searchTerm.toLowerCase().trim();
       const searchWords = searchTermLower.split(/\s+/);
 
       filtered = filtered.filter(formation => {
-        // 1. Recherche dans l'intitulé
         const intituleMatch = formation.intitule.toLowerCase().includes(searchTermLower);
-
-        // 2. Recherche dans la description
         const descriptionMatch = formation.description.toLowerCase().includes(searchTermLower);
-
-        // 3. Recherche dans le programme
         const programmeMatch = formation.programme.some(point =>
           point.toLowerCase().includes(searchTermLower)
         );
-
-        // 4. Recherche dans la durée
         const dureeMatch = formation.duree.toLowerCase().includes(searchTermLower);
-
-        // 5. Recherche dans le prix
         const prixString = formation.prix.toString();
         const prixAvecEuro = `${formation.prix} €`;
         let prixMatch = prixString.includes(searchTermLower) ||
@@ -248,7 +356,6 @@ export class FormateurDashboard implements OnInit {
           prixMatch = prixString.includes(prixSansEuro);
         }
 
-        // 6. Recherche par mots-clés multiples
         let multiWordMatch = false;
         if (searchWords.length > 1) {
           multiWordMatch = searchWords.every(word =>
@@ -263,7 +370,6 @@ export class FormateurDashboard implements OnInit {
       });
     }
 
-    // Filtre par statut
     if (this.selectedStatut !== 'all') {
       filtered = filtered.filter(formation => formation.statut === this.selectedStatut);
     }
@@ -271,11 +377,6 @@ export class FormateurDashboard implements OnInit {
     this.filteredFormations = filtered;
   }
 
-  onStatutChange() {
-    this.applyFormationFilters();
-  }
-
-  // Mise en évidence des termes recherchés
   highlightText(text: string): string {
     if (!this.searchTerm || this.searchTerm.trim() === '') {
       return text;
@@ -296,7 +397,7 @@ export class FormateurDashboard implements OnInit {
     return result;
   }
 
-  // Voir les étudiants inscrits (ouvre modal)
+  // ==================== CRUD FORMATIONS ====================
   voirEtudiantsInscrits(formation: FormationDetail) {
     this.selectedFormation = formation;
     const inscriptions = this.databaseService.getInscriptionsByFormation(formation.idFormation);
@@ -321,7 +422,6 @@ export class FormateurDashboard implements OnInit {
     this.etudiantsInscrits = [];
   }
 
-  // CRUD Formations
   openAddFormation() {
     this.isEditing = false;
     this.formationForm = {
@@ -428,6 +528,7 @@ export class FormateurDashboard implements OnInit {
     }
   }
 
+  // ==================== MÉTHODES UTILITAIRES ====================
   getFormationStatutBadgeClass(statut: string): string {
     return statut === 'valide' ? 'badge bg-success' : 'badge bg-warning text-dark';
   }
@@ -459,19 +560,15 @@ export class FormateurDashboard implements OnInit {
   }
 
   // ==================== CALCUL DES REVENUS ET BÉNÉFICES ====================
-
-  // Récupérer le pourcentage de commission de l'admin (depuis localStorage)
   getPourcentageCommission(): number {
     const pourcentage = localStorage.getItem('pourcentageBenefice');
-    return pourcentage ? parseFloat(pourcentage) : 50; // 50% par défaut
+    return pourcentage ? parseFloat(pourcentage) : 50;
   }
 
-  // Pourcentage que garde le formateur (affichage)
   getPourcentageFormateur(): number {
     return 100 - this.getPourcentageCommission();
   }
 
-  // Calcul du bénéfice NET total du formateur (après commission de l'admin) - avec 2 décimales
   getBeneficeFormateur(): string {
     let totalRevenus = 0;
     this.mesFormations.forEach(formation => {
@@ -486,7 +583,6 @@ export class FormateurDashboard implements OnInit {
     return benefice.toFixed(2);
   }
 
-  // Calcul du bénéfice net pour UNE formation spécifique - avec 2 décimales
   getBeneficeFormation(formationId: number): string {
     const formation = this.mesFormations.find(f => f.idFormation === formationId);
     if (!formation || formation.statut !== 'valide') return '0.00';
@@ -499,7 +595,6 @@ export class FormateurDashboard implements OnInit {
     return benefice.toFixed(2);
   }
 
-  // Ancienne méthode conservée pour compatibilité (retourne le CA brut) - avec 2 décimales
   getRevenusTotaux(): string {
     let total = 0;
     this.mesFormations.forEach(formation => {
@@ -512,7 +607,6 @@ export class FormateurDashboard implements OnInit {
     return total.toFixed(2);
   }
 
-  // Vérifier si une formation peut être supprimée (seulement si non validée)
   canDeleteFormation(formation: FormationDetail): boolean {
     return formation.statut !== 'valide';
   }
@@ -569,7 +663,6 @@ export class FormateurDashboard implements OnInit {
   }
 
   getCardHeaderClass(index: number): string {
-    // Cycle à travers 16 couleurs différentes
     return `card-header-color-${index % 16}`;
   }
 }
@@ -593,4 +686,10 @@ interface ProfileForm {
   niveau: string;
   password: string;
   confirmPassword: string;
+}
+
+interface CompletionForm {
+  duree: string;
+  prix: number;
+  programme: string[];
 }

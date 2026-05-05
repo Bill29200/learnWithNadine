@@ -78,9 +78,9 @@
       </div>
     </div>
 
-    <!-- Cartes de statistiques - Style Admin Dashboard -->
+    <!-- Cartes de statistiques -->
     <div class="row mb-4">
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-primary h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -94,7 +94,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-success h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -108,20 +108,28 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Demandes reçues</h6>
+                <p class="card-text display-6 mb-0">{{demandesEnAttente.length}}</p>
+                <small class="opacity-75">À traiter</small>
+              </div>
+              <i class="bi bi-envelope-paper display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-warning h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <h6 class="card-title mb-0 opacity-75">
-                  <i class="bi bi-pie-chart me-1"></i>
-                  Mon Bénéfice Net
-                </h6>
+                <h6 class="card-title mb-0 opacity-75">Mon Bénéfice Net</h6>
                 <p class="card-text display-6 mb-0">{{getBeneficeFormateur()}} €</p>
-                <small class="opacity-75">
-                  Vous recevez <strong>{{getPourcentageFormateur()}}%</strong> du chiffre d'affaires
-                  (commission plateforme: <strong>{{getPourcentageCommission()}}%</strong>)
-                </small>
+                <small class="opacity-75">Commission: {{getPourcentageFormateur()}}% du CA</small>
               </div>
               <i class="bi bi-wallet2 display-4 opacity-50"></i>
             </div>
@@ -130,135 +138,197 @@
       </div>
     </div>
 
-    <!-- Barre de recherche multi-critères -->
-    <div class="row justify-content-center mb-4">
-      <div class="col-md-8">
-        <div class="search-container">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text bg-white border-end-0">
-              <i class="bi bi-search text-orange"></i>
-            </span>
-            <input type="text"
-                   class="form-control border-start-0"
-                   placeholder="🔍 Rechercher par titre, description, programme, durée ou prix..."
-                   [(ngModel)]="searchTerm"
-                   (input)="onSearch()"
-                   name="search"
-                   autocomplete="off">
-            <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''; onSearch()" *ngIf="searchTerm">
-              <i class="bi bi-x-lg"></i> Effacer
-            </button>
-            <button class="btn btn-outline-orange" type="button" (click)="onSearch()" *ngIf="!searchTerm">
-              <i class="bi bi-search"></i> Rechercher
-            </button>
-          </div>
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeDemandeTab === 'mesFormations'" (click)="setActiveDemandeTab('mesFormations')" style="cursor: pointer;">
+          <i class="bi bi-journal-bookmark me-1"></i> Mes formations
+          <span class="badge bg-orange ms-1">{{mesFormations.length}}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeDemandeTab === 'demandes'" (click)="setActiveDemandeTab('demandes')" style="cursor: pointer;">
+          <i class="bi bi-envelope-paper me-1"></i> Demandes reçues
+          <span class="badge bg-danger ms-1" *ngIf="demandesEnAttente.length">{{demandesEnAttente.length}}</span>
+        </a>
+      </li>
+    </ul>
 
-          <!-- Conseils de recherche -->
-          <div class="search-tips mt-2 text-center">
-            <small class="text-muted">
-              <i class="bi bi-lightbulb text-orange me-1"></i>
-              Recherche multi-critères :
-              <span class="badge bg-light text-dark mx-1">Angular</span>
-              <span class="badge bg-light text-dark mx-1">35h</span>
-              <span class="badge bg-light text-dark mx-1">299€</span>
-              <span class="badge bg-light text-dark mx-1">Développement</span>
-            </small>
-          </div>
-
-          <!-- Résultats de recherche -->
-          <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length > 0">
-            <div class="alert alert-success py-1 px-3 d-inline-block rounded-pill">
-              <i class="bi bi-check-circle-fill me-1"></i>
-              <strong>{{filteredFormations.length}}</strong> formation(s) trouvée(s) pour "<strong>{{searchTerm}}</strong>"
+    <!-- ==================== ONGLET MES FORMATIONS ==================== -->
+    <div *ngIf="activeDemandeTab === 'mesFormations'">
+      <!-- Barre de recherche multi-critères -->
+      <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+          <div class="search-container">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-orange"></i>
+              </span>
+              <input type="text"
+                     class="form-control border-start-0"
+                     placeholder="🔍 Rechercher par titre, description, programme, durée ou prix..."
+                     [(ngModel)]="searchTerm"
+                     (input)="onSearch()"
+                     name="search"
+                     autocomplete="off">
+              <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''; onSearch()" *ngIf="searchTerm">
+                <i class="bi bi-x-lg"></i> Effacer
+              </button>
+              <button class="btn btn-outline-orange" type="button" (click)="onSearch()" *ngIf="!searchTerm">
+                <i class="bi bi-search"></i> Rechercher
+              </button>
             </div>
-          </div>
 
-          <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length === 0 && mesFormations.length > 0">
-            <div class="alert alert-warning py-1 px-3 d-inline-block rounded-pill">
-              <i class="bi bi-exclamation-triangle-fill me-1"></i>
-              Aucune formation trouvée pour "<strong>{{searchTerm}}</strong>"
-              <a href="javascript:void(0)" (click)="searchTerm = ''; onSearch()" class="text-orange ms-2">
-                <i class="bi bi-arrow-repeat"></i> Voir toutes
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filtre par statut -->
-    <div class="row mb-3">
-      <div class="col-md-3 ms-auto">
-        <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
-          <option value="all">📊 Tous les statuts</option>
-          <option value="valide">✅ Validées</option>
-          <option value="nonValide">⏳ Non validées</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Grille des cartes formations -->
-    <div class="row">
-      <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
-        <div class="formation-mini-card" (click)="voirEtudiantsInscrits(formation)">
-          <!-- Header avec dégradé de couleur -->
-          <div class="formation-mini-header" [ngClass]="getCardHeaderClass(i)">
-            <div class="formation-mini-badge">
-              {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
-            </div>
-            <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
-          </div>
-
-          <div class="formation-mini-body">
-            <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
-            <div class="formation-mini-info">
-              <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightText(formation.duree)"></span></span>
-              <span><i class="bi bi-tag"></i> <span [innerHTML]="highlightText(formation.prix + ' €')"></span></span>
-              <span><i class="bi bi-people"></i> {{getNombreInscrits(formation.idFormation)}} inscrits</span>
-            </div>
-            <!-- Bénéfice net par formation -->
-            <div class="formation-benefice mt-2 pt-1 border-top">
-              <small class="text-success fw-bold">
-                <i class="bi bi-wallet2"></i> Mon bénéfice: {{getBeneficeFormation(formation.idFormation)}} €
-              </small>
-              <small class="text-muted d-block" style="font-size: 0.6rem;">
-                ({{getPourcentageFormateur()}}% du CA)
+            <!-- Conseils de recherche -->
+            <div class="search-tips mt-2 text-center">
+              <small class="text-muted">
+                <i class="bi bi-lightbulb text-orange me-1"></i>
+                Recherche multi-critères :
+                <span class="badge bg-light text-dark mx-1">Angular</span>
+                <span class="badge bg-light text-dark mx-1">35h</span>
+                <span class="badge bg-light text-dark mx-1">299€</span>
+                <span class="badge bg-light text-dark mx-1">Développement</span>
               </small>
             </div>
-          </div>
-          <div class="formation-mini-footer">
-            <!-- Bouton Modifier - toujours actif -->
-            <button class="btn btn-sm btn-outline-primary"
-                    (click)="$event.stopPropagation(); openEditFormation(formation)"
-                    title="Modifier la formation">
-              <i class="bi bi-pencil"></i> Modifier
-            </button>
 
-            <!-- Bouton Supprimer - visible seulement si la formation n'est pas validée -->
-            <button *ngIf="canDeleteFormation(formation)"
-                    class="btn btn-sm btn-outline-danger"
-                    (click)="$event.stopPropagation(); confirmDeleteFormation(formation)"
-                    title="Supprimer la formation">
-              <i class="bi bi-trash3"></i> Supprimer
+            <!-- Résultats de recherche -->
+            <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length > 0">
+              <div class="alert alert-success py-1 px-3 d-inline-block rounded-pill">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                <strong>{{filteredFormations.length}}</strong> formation(s) trouvée(s) pour "<strong>{{searchTerm}}</strong>"
+              </div>
+            </div>
+
+            <div class="search-results mt-2 text-center" *ngIf="searchTerm && filteredFormations.length === 0 && mesFormations.length > 0">
+              <div class="alert alert-warning py-1 px-3 d-inline-block rounded-pill">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Aucune formation trouvée pour "<strong>{{searchTerm}}</strong>"
+                <a href="javascript:void(0)" (click)="searchTerm = ''; onSearch()" class="text-orange ms-2">
+                  <i class="bi bi-arrow-repeat"></i> Voir toutes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtre par statut -->
+      <div class="row mb-3">
+        <div class="col-md-3 ms-auto">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
+            <option value="all">📊 Tous les statuts</option>
+            <option value="valide">✅ Validées</option>
+            <option value="nonValide">⏳ Non validées</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grille des cartes formations -->
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+          <div class="formation-mini-card" (click)="voirEtudiantsInscrits(formation)">
+            <div class="formation-mini-header" [ngClass]="getCardHeaderClass(i)">
+              <div class="formation-mini-badge">
+                {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+              </div>
+              <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
+            </div>
+            <div class="formation-mini-body">
+              <p class="formation-mini-description" [innerHTML]="highlightText(formation.description | slice:0:80) + (formation.description.length > 80 ? '...' : '')"></p>
+              <div class="formation-mini-info">
+                <span><i class="bi bi-clock"></i> <span [innerHTML]="highlightText(formation.duree)"></span></span>
+                <span><i class="bi bi-tag"></i> <span [innerHTML]="highlightText(formation.prix + ' €')"></span></span>
+                <span><i class="bi bi-people"></i> {{getNombreInscrits(formation.idFormation)}} inscrits</span>
+              </div>
+              <div class="formation-benefice mt-2 pt-1 border-top">
+                <small class="text-success fw-bold">
+                  <i class="bi bi-wallet2"></i> Mon bénéfice: {{getBeneficeFormation(formation.idFormation)}} €
+                </small>
+                <small class="text-muted d-block" style="font-size: 0.6rem;">
+                  ({{getPourcentageFormateur()}}% du CA)
+                </small>
+              </div>
+            </div>
+            <div class="formation-mini-footer">
+              <button class="btn btn-sm btn-outline-primary"
+                      (click)="$event.stopPropagation(); openEditFormation(formation)"
+                      title="Modifier la formation">
+                <i class="bi bi-pencil"></i> Modifier
+              </button>
+              <button *ngIf="canDeleteFormation(formation)"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="$event.stopPropagation(); confirmDeleteFormation(formation)"
+                      title="Supprimer la formation">
+                <i class="bi bi-trash3"></i> Supprimer
+              </button>
+            </div>
+            <div class="formation-mini-icon">
+              <i class="bi bi-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredFormations.length === 0" class="col-12 text-center py-4">
+          <div class="empty-state">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">Aucune formation trouvée</h5>
+            <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormation()">
+              <i class="bi bi-plus-circle"></i> Créer ma première formation
             </button>
           </div>
-          <div class="formation-mini-icon">
-            <i class="bi bi-chevron-right"></i>
-          </div>
         </div>
       </div>
-      <div *ngIf="filteredFormations.length === 0" class="col-12 text-center py-4">
-        <div class="empty-state">
-          <i class="bi bi-inbox display-1 text-muted"></i>
-          <h5 class="mt-3 text-muted">Aucune formation trouvée</h5>
-          <button class="btn btn-orange btn-sm mt-2" (click)="openAddFormation()">
-            <i class="bi bi-plus-circle"></i> Créer ma première formation
-          </button>
-        </div>
-      </div>
+      <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
     </div>
 
-    <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
+    <!-- ==================== ONGLET DEMANDES REÇUES ==================== -->
+    <div *ngIf="activeDemandeTab === 'demandes'">
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Voici les formations proposées par les étudiants. Vous pouvez les accepter, les compléter (durée, prix, programme) et les soumettre à validation.
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let demande of demandesEnAttente; let i = index">
+          <div class="demande-card" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+            <div class="demande-header p-3" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
+              <div class="d-flex justify-content-between align-items-start">
+                <h6 class="mb-0 fw-bold">{{demande.intitule}}</h6>
+                <span class="badge bg-warning text-dark">En attente</span>
+              </div>
+            </div>
+            <div class="demande-body p-3">
+              <p class="small text-muted mb-2">{{demande.description}}</p>
+              <div class="small text-muted mb-2">
+                <i class="bi bi-person me-1"></i> Proposé par: {{getEtudiantNom(demande.idEtudiant)}}
+              </div>
+              <div class="small text-muted">
+                <i class="bi bi-calendar3 me-1"></i> Le {{demande.dateDemande}}
+              </div>
+            </div>
+            <div class="demande-footer p-3 border-top d-flex gap-2">
+              <button class="btn btn-sm btn-success flex-grow-1" (click)="accepterDemande(demande)">
+                <i class="bi bi-check-circle me-1"></i> Accepter & compléter
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="refuserDemande(demande)">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="demandesEnAttente.length === 0" class="col-12 text-center py-5">
+          <div class="empty-state">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">Aucune demande en attente</h5>
+            <p class="text-muted">Les étudiants pourront proposer des formations ici</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 text-muted small" *ngIf="demandesEnAttente.length > 0">Total: {{demandesEnAttente.length}} demande(s) en attente</div>
+    </div>
   </div>
 </div>
 
@@ -274,7 +344,6 @@
         <button type="button" class="btn-close btn-close-white" (click)="closeFormationModal()"></button>
       </div>
       <div class="modal-body p-3">
-        <!-- Bénéfice de la formation dans le modal -->
         <div class="alert alert-success mb-3" *ngIf="selectedFormation">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -288,7 +357,6 @@
           </div>
         </div>
 
-        <!-- Grille des cartes étudiants -->
         <div *ngIf="etudiantsInscrits.length > 0">
           <h6 class="mb-3"><i class="bi bi-people me-2"></i>Liste des étudiants inscrits ({{etudiantsInscrits.length}})</h6>
           <div class="row g-3">
@@ -326,7 +394,6 @@
           </div>
         </div>
 
-        <!-- Message si aucun étudiant -->
         <div *ngIf="etudiantsInscrits.length === 0" class="text-center py-5">
           <i class="bi bi-inbox display-1 text-muted"></i>
           <h5 class="mt-3 text-muted">Aucun étudiant inscrit</h5>
@@ -408,6 +475,71 @@
   </div>
 </div>
 
+<!-- Modal Compléter la formation (pour les demandes) -->
+<div class="modal fade" id="completerModal" tabindex="-1" [class.show]="showCompleterModal" [style.display]="showCompleterModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2"></i>
+          Compléter la formation: {{selectedDemande?.intitule}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCompleterModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Complétez les informations de la formation. L'étudiant qui a proposé sera automatiquement inscrit.
+          La formation sera en attente de validation par l'admin.
+        </div>
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Intitulé</label>
+            <input type="text" class="form-control" [value]="selectedDemande?.intitule" disabled>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Durée *</label>
+              <input type="text" class="form-control" [(ngModel)]="completionForm.duree" name="completionDuree" placeholder="Ex: 40h" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Prix (€) *</label>
+              <input type="number" class="form-control" [(ngModel)]="completionForm.prix" name="completionPrix" placeholder="Ex: 499" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description</label>
+            <textarea class="form-control" rows="3" [value]="selectedDemande?.description" disabled></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Programme de la formation</label>
+            <div class="input-group mb-2">
+              <input type="text" class="form-control" [(ngModel)]="completionProgrammeInput" name="completionProgrammeInput" placeholder="Ajouter un point du programme">
+              <button class="btn btn-outline-success" type="button" (click)="addCompletionProgrammePoint()">
+                <i class="bi bi-plus"></i> Ajouter
+              </button>
+            </div>
+            <ul class="list-group mt-2">
+              <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let point of completionForm.programme; let i = index">
+                {{point}}
+                <button class="btn btn-sm btn-outline-danger" (click)="removeCompletionProgrammePoint(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCompleterModal()">Annuler</button>
+        <button type="button" class="btn btn-success" (click)="saveFormationCompletee()">
+          <i class="bi bi-check-lg me-1"></i> Créer la formation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Modification du Profil avec Mot de Passe -->
 <div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-dialog-centered">
@@ -456,7 +588,6 @@
             </select>
           </div>
 
-          <!-- Mot de passe avec icône œil -->
           <div class="mb-3">
             <label class="form-label fw-bold">Nouveau mot de passe</label>
             <div class="input-group">
@@ -472,7 +603,6 @@
             <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
           </div>
 
-          <!-- Confirmation du nouveau mot de passe -->
           <div class="mb-3" *ngIf="profileForm.password">
             <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
             <div class="input-group">
@@ -487,7 +617,6 @@
             </div>
           </div>
 
-          <!-- Message d'erreur mot de passe -->
           <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
             <i class="bi bi-exclamation-triangle me-1"></i>
             {{passwordError}}

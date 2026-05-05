@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur } from '../../services/database.service';
+import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, DemandeFormation } from '../../services/database.service';
 import { User } from '../../model/user.model';
 
 @Component({
@@ -19,6 +19,7 @@ export class EtudiantDashboard implements OnInit {
   formations: FormationDetail[] = [];
   mesInscriptions: Inscription[] = [];
   mesFormations: FormationDetail[] = [];
+  mesDemandes: DemandeFormation[] = [];
   searchTerm: string = '';
   message: string = '';
   messageType: 'success' | 'error' = 'success';
@@ -27,6 +28,13 @@ export class EtudiantDashboard implements OnInit {
   // Pour le modal de détails
   selectedFormation: FormationDetail | null = null;
   showDetailModal: boolean = false;
+
+  // Formulaire de demande de formation
+  showDemandeModal: boolean = false;
+  demandeForm: DemandeFormData = {
+    intitule: '',
+    description: ''
+  };
 
   // Formulaire de modification du profil
   showProfileModal: boolean = false;
@@ -57,11 +65,13 @@ export class EtudiantDashboard implements OnInit {
     if (this.currentUser) {
       this.etudiantInfo = this.databaseService.getEtudiantById(this.currentUser.id) || null;
       this.loadData();
+      this.loadMesDemandes();
       this.loadProfileData();
     }
 
     this.databaseService.getDatabase$().subscribe(() => {
       this.loadData();
+      this.loadMesDemandes();
     });
   }
 
@@ -74,7 +84,83 @@ export class EtudiantDashboard implements OnInit {
     this.isLoading = false;
   }
 
-  // Charger les données du profil pour le formulaire
+  // Charger les demandes de l'étudiant
+  loadMesDemandes() {
+    if (this.currentUser) {
+      this.mesDemandes = this.databaseService.getDemandesByEtudiant(this.currentUser.id);
+    }
+  }
+
+  // ==================== GESTION DES DEMANDES DE FORMATION ====================
+
+  // Ouvrir le modal de demande
+  openDemandeModal() {
+    this.demandeForm = { intitule: '', description: '' };
+    this.showDemandeModal = true;
+  }
+
+  // Fermer le modal de demande
+  closeDemandeModal() {
+    this.showDemandeModal = false;
+    this.demandeForm = { intitule: '', description: '' };
+  }
+
+  // Soumettre une demande de formation
+  soumettreDemande() {
+    if (!this.demandeForm.intitule.trim() || !this.demandeForm.description.trim()) {
+      this.showMessage('Veuillez remplir tous les champs', 'error');
+      return;
+    }
+
+    const nouvelleDemande: Omit<DemandeFormation, 'idDemande'> = {
+      intitule: this.demandeForm.intitule,
+      description: this.demandeForm.description,
+      idEtudiant: this.currentUser!.id,
+      dateDemande: new Date().toISOString().split('T')[0],
+      statut: 'en_attente'
+    };
+
+    this.databaseService.addDemandeFormation(nouvelleDemande);
+    this.showMessage('Votre demande de formation a été envoyée avec succès !', 'success');
+    this.closeDemandeModal();
+    this.loadMesDemandes();
+  }
+
+  // Obtenir le libellé du statut d'une demande
+  getStatutDemandeLabel(statut: string): string {
+    switch(statut) {
+      case 'en_attente': return 'En attente';
+      case 'acceptee_par_formateur': return 'Acceptée par formateur';
+      case 'validee_par_admin': return 'Validée par admin';
+      case 'refusee': return 'Refusée';
+      default: return 'Inconnu';
+    }
+  }
+
+  // Obtenir la classe CSS pour le badge de statut
+  getStatutDemandeClass(statut: string): string {
+    switch(statut) {
+      case 'en_attente': return 'bg-warning text-dark';
+      case 'acceptee_par_formateur': return 'bg-info text-white';
+      case 'validee_par_admin': return 'bg-success text-white';
+      case 'refusee': return 'bg-danger text-white';
+      default: return 'bg-secondary text-white';
+    }
+  }
+
+  // Obtenir l'icône pour le statut
+  getStatutDemandeIcon(statut: string): string {
+    switch(statut) {
+      case 'en_attente': return 'bi-clock';
+      case 'acceptee_par_formateur': return 'bi-check-circle';
+      case 'validee_par_admin': return 'bi-star-fill';
+      case 'refusee': return 'bi-x-circle';
+      default: return 'bi-question-circle';
+    }
+  }
+
+  // ==================== GESTION DU PROFIL ====================
+
   loadProfileData() {
     if (this.etudiantInfo) {
       this.profileForm = {
@@ -92,13 +178,11 @@ export class EtudiantDashboard implements OnInit {
     this.showConfirmPassword = false;
   }
 
-  // Ouvrir le modal de modification du profil
   openProfileModal() {
     this.loadProfileData();
     this.showProfileModal = true;
   }
 
-  // Fermer le modal de modification du profil
   closeProfileModal() {
     this.showProfileModal = false;
     this.passwordError = '';
@@ -106,21 +190,17 @@ export class EtudiantDashboard implements OnInit {
     this.showConfirmPassword = false;
   }
 
-  // Basculer la visibilité du mot de passe
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  // Basculer la visibilité de la confirmation du mot de passe
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // Sauvegarder les modifications du profil
   saveProfile() {
     if (!this.etudiantInfo) return;
 
-    // Vérifier les mots de passe si un nouveau mot de passe est saisi
     if (this.profileForm.password) {
       if (this.profileForm.password.length < 6) {
         this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
@@ -134,7 +214,6 @@ export class EtudiantDashboard implements OnInit {
 
     this.passwordError = '';
 
-    // Préparer les données de mise à jour
     const updateData: any = {
       nom: this.profileForm.nom,
       prenom: this.profileForm.prenom,
@@ -143,15 +222,12 @@ export class EtudiantDashboard implements OnInit {
       niveau: this.profileForm.niveau
     };
 
-    // Ajouter le mot de passe seulement s'il a été modifié
     if (this.profileForm.password) {
       updateData.motpass = this.profileForm.password;
     }
 
-    // Mettre à jour dans la base de données
     this.databaseService.updateEtudiant(this.etudiantInfo.idEtudiant, updateData);
 
-    // Mettre à jour l'objet local
     this.etudiantInfo = {
       ...this.etudiantInfo,
       nom: this.profileForm.nom,
@@ -161,12 +237,10 @@ export class EtudiantDashboard implements OnInit {
       niveau: this.profileForm.niveau
     };
 
-    // Mettre à jour le mot de passe local si modifié
     if (this.profileForm.password) {
       this.etudiantInfo.motpass = this.profileForm.password;
     }
 
-    // Mettre à jour currentUser si nécessaire
     if (this.currentUser) {
       this.currentUser.firstName = this.profileForm.prenom;
       this.currentUser.lastName = this.profileForm.nom;
@@ -176,14 +250,14 @@ export class EtudiantDashboard implements OnInit {
       if (this.profileForm.password) {
         this.currentUser.password = this.profileForm.password;
       }
-
-      // Sauvegarder dans le storage
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
     }
 
     this.showMessage('Profil mis à jour avec succès', 'success');
     this.closeProfileModal();
   }
+
+  // ==================== RECHERCHE ET FILTRAGE ====================
 
   onSearch() {
     // Le getter filteredFormations gère automatiquement la recherche
@@ -254,6 +328,8 @@ export class EtudiantDashboard implements OnInit {
     return result;
   }
 
+  // ==================== GESTION DES INSCRIPTIONS ====================
+
   isInscrit(formationId: number): boolean {
     return this.mesInscriptions.some(inscription => inscription.idFormation === formationId);
   }
@@ -290,6 +366,37 @@ export class EtudiantDashboard implements OnInit {
     this.showMessage(`Inscription réussie à la formation "${formation.intitule}" !`, 'success');
   }
 
+  // ==================== MÉTHODES STATISTIQUES ====================
+
+  getFormateurName(idFormateur: number): string {
+    const formateur = this.databaseService.getFormateurById(idFormateur);
+    return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Non défini';
+  }
+
+  getFormateurSpecialite(idFormateur: number): string {
+    const formateur = this.databaseService.getFormateurById(idFormateur);
+    return formateur ? formateur.specialite : 'Non définie';
+  }
+
+  getInscriptionsPayeesCount(): number {
+    return this.mesInscriptions.filter(i => i.statut === 'paye').length;
+  }
+
+  getTotalDepense(): number {
+    let total = 0;
+    this.mesInscriptions.forEach(inscription => {
+      if (inscription.statut === 'paye') {
+        const formation = this.databaseService.getFormationById(inscription.idFormation);
+        if (formation) {
+          total += formation.prix;
+        }
+      }
+    });
+    return total;
+  }
+
+  // ==================== MÉTHODES UTILITAIRES ====================
+
   showMessage(msg: string, type: 'success' | 'error') {
     this.message = msg;
     this.messageType = type;
@@ -320,34 +427,6 @@ export class EtudiantDashboard implements OnInit {
   getCardHeaderClass(index: number): string {
     return `card-header-color-${index % 10}`;
   }
-
-  // Méthodes pour les statistiques
-  getFormateurName(idFormateur: number): string {
-    const formateur = this.databaseService.getFormateurById(idFormateur);
-    return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Non défini';
-  }
-
-  getFormateurSpecialite(idFormateur: number): string {
-    const formateur = this.databaseService.getFormateurById(idFormateur);
-    return formateur ? formateur.specialite : 'Non définie';
-  }
-
-  getInscriptionsPayeesCount(): number {
-    return this.mesInscriptions.filter(i => i.statut === 'paye').length;
-  }
-
-  getTotalDepense(): number {
-    let total = 0;
-    this.mesInscriptions.forEach(inscription => {
-      if (inscription.statut === 'paye') {
-        const formation = this.databaseService.getFormationById(inscription.idFormation);
-        if (formation) {
-          total += formation.prix;
-        }
-      }
-    });
-    return total;
-  }
 }
 
 interface ProfileForm {
@@ -358,4 +437,9 @@ interface ProfileForm {
   niveau: string;
   password: string;
   confirmPassword: string;
+}
+
+interface DemandeFormData {
+  intitule: string;
+  description: string;
 }

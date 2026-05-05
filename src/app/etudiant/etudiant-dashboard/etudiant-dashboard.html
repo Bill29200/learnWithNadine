@@ -20,6 +20,11 @@
               </a>
             </li>
             <li>
+              <a class="dropdown-item" (click)="openDemandeModal()" style="cursor: pointer;">
+                <i class="bi bi-plus-circle"></i> Proposer une formation
+              </a>
+            </li>
+            <li>
               <a class="dropdown-item" (click)="loadData()" style="cursor: pointer;">
                 <i class="bi bi-arrow-repeat"></i> Rafraîchir
               </a>
@@ -72,7 +77,7 @@
 
     <!-- Cartes de statistiques -->
     <div class="row mb-4">
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-primary h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -86,7 +91,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-success h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -100,7 +105,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card text-white bg-info h-100 shadow-sm stat-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -110,6 +115,65 @@
                 <small class="opacity-75">Montant total payé</small>
               </div>
               <i class="bi bi-currency-euro display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning h-100 shadow-sm stat-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0 opacity-75">Mes Demandes</h6>
+                <p class="card-text display-6 mb-0">{{mesDemandes.length}}</p>
+                <small class="opacity-75">Formations proposées</small>
+              </div>
+              <i class="bi bi-envelope-paper display-4 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Mes demandes de formation -->
+    <div class="row mb-4" *ngIf="mesDemandes.length > 0">
+      <div class="col-12">
+        <div class="section-card">
+          <div class="section-header" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-envelope-paper fs-4"></i>
+              <h4 class="mb-0 fw-semibold">Mes demandes de formation ({{mesDemandes.length}})</h4>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-md-6 col-lg-4 mb-3" *ngFor="let demande of mesDemandes; let i = index">
+                <div class="demande-card p-3 rounded-3 border" style="background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="fw-bold mb-0 text-orange">{{demande.intitule}}</h6>
+                    <span class="badge" [ngClass]="getStatutDemandeClass(demande.statut)">
+                      <i class="bi {{getStatutDemandeIcon(demande.statut)}} me-1"></i>
+                      {{getStatutDemandeLabel(demande.statut)}}
+                    </span>
+                  </div>
+                  <p class="small text-muted mb-2">{{demande.description | slice:0:100}}{{demande.description.length > 100 ? '...' : ''}}</p>
+                  <div class="small text-muted">
+                    <i class="bi bi-calendar3 me-1"></i> Demandée le {{demande.dateDemande}}
+                  </div>
+                  <div class="mt-2 small" *ngIf="demande.statut === 'acceptee_par_formateur'">
+                    <i class="bi bi-check-circle text-success me-1"></i>
+                    <span class="text-success">Un formateur a accepté votre demande ! La formation sera bientôt disponible.</span>
+                  </div>
+                  <div class="mt-2 small" *ngIf="demande.statut === 'validee_par_admin'">
+                    <i class="bi bi-star-fill text-warning me-1"></i>
+                    <span class="text-warning">Votre formation a été validée et est maintenant disponible !</span>
+                  </div>
+                  <div class="mt-2 small" *ngIf="demande.statut === 'refusee'">
+                    <i class="bi bi-x-circle text-danger me-1"></i>
+                    <span class="text-danger">Votre demande a été refusée.</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -213,7 +277,6 @@
       <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
         <div class="formation-mini-card" (click)="voirDetails(formation)">
           <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
-
             <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
           </div>
           <div class="formation-mini-body">
@@ -298,6 +361,44 @@
   </div>
 </div>
 
+<!-- Modal Demande de Formation -->
+<div class="modal fade" id="demandeModal" tabindex="-1" [class.show]="showDemandeModal" [style.display]="showDemandeModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <div class="modal-header bg-orange text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle me-2"></i>
+          Proposer une nouvelle formation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDemandeModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Vous pouvez proposer une formation qui n'existe pas encore sur la plateforme.
+          Un formateur pourra l'accepter et la compléter, puis un admin la validera.
+        </div>
+        <form>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Intitulé de la formation *</label>
+            <input type="text" class="form-control" [(ngModel)]="demandeForm.intitule" name="demandeIntitule" placeholder="Ex: Formation IA Avancée" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description *</label>
+            <textarea class="form-control" rows="4" [(ngModel)]="demandeForm.description" name="demandeDescription" placeholder="Décrivez le contenu souhaité de la formation..." required></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDemandeModal()">Annuler</button>
+        <button type="button" class="btn btn-orange" (click)="soumettreDemande()">
+          <i class="bi bi-send me-1"></i> Envoyer la demande
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Détails Formation -->
 <div class="modal fade" id="detailModal" tabindex="-1" [class.show]="showDetailModal" [style.display]="showDetailModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -310,16 +411,13 @@
         <button type="button" class="btn-close btn-close-white" (click)="closeDetailModal()"></button>
       </div>
       <div class="modal-body p-4" *ngIf="selectedFormation">
-        <!-- Titre -->
         <h3 class="text-center mb-4 fw-bold text-orange" [innerHTML]="highlightText(selectedFormation.intitule)"></h3>
 
-        <!-- Description -->
         <div class="info-card p-3 mb-3 rounded-3">
           <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-orange me-2"></i>Description</h6>
           <p class="mb-0" [innerHTML]="highlightText(selectedFormation.description)"></p>
         </div>
 
-        <!-- Programme -->
         <div class="info-card p-3 mb-3 rounded-3" *ngIf="selectedFormation.programme.length > 0">
           <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
           <ul class="mb-0 ps-3">
@@ -327,7 +425,6 @@
           </ul>
         </div>
 
-        <!-- Informations générales -->
         <div class="info-card p-3 mb-3 rounded-3">
           <div class="row">
             <div class="col-md-6">
@@ -413,7 +510,6 @@
             </select>
           </div>
 
-          <!-- Mot de passe avec icône œil -->
           <div class="mb-3">
             <label class="form-label fw-bold">Nouveau mot de passe</label>
             <div class="input-group">
@@ -429,7 +525,6 @@
             <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
           </div>
 
-          <!-- Confirmation du nouveau mot de passe -->
           <div class="mb-3" *ngIf="profileForm.password">
             <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
             <div class="input-group">
@@ -444,7 +539,6 @@
             </div>
           </div>
 
-          <!-- Message d'erreur mot de passe -->
           <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
             <i class="bi bi-exclamation-triangle me-1"></i>
             {{passwordError}}
@@ -460,3 +554,4 @@
     </div>
   </div>
 </div>
+

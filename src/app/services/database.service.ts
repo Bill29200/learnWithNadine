@@ -55,12 +55,24 @@ export interface Inscription {
   statut: 'paye' | 'non paye';
 }
 
+export interface DemandeFormation {
+  idDemande: number;
+  intitule: string;
+  description: string;
+  idEtudiant: number;
+  dateDemande: string;
+  statut: 'en_attente' | 'acceptee_par_formateur' | 'validee_par_admin' | 'refusee';
+  idFormateurAccepteur?: number;
+  formationFinaleId?: number;
+}
+
 export interface Database {
   admins: Admin[];
   formateurs: Formateur[];
   formations: FormationDetail[];
   etudiants: Etudiant[];
   inscriptions: Inscription[];
+  demandesFormation: DemandeFormation[];
 }
 
 @Injectable({
@@ -110,7 +122,8 @@ export class DatabaseService {
                 formateurs: data.formateurs || [],
                 formations: data.formations || [],
                 etudiants: data.etudiants || [],
-                inscriptions: data.inscriptions || []
+                inscriptions: data.inscriptions || [],
+                demandesFormation: data.demandesFormation || []
               };
 
               this.database$.next(normalizedData);
@@ -145,6 +158,10 @@ export class DatabaseService {
     this.http.get<Database>(this.jsonPath).subscribe(
       (data: Database) => {
         console.log('DatabaseService: Données chargées depuis JSON', data);
+        // S'assurer que demandesFormation existe
+        if (!data.demandesFormation) {
+          data.demandesFormation = [];
+        }
         this.database$.next(data);
         this.isLoading = false;
         observer.next(data);
@@ -548,6 +565,98 @@ export class DatabaseService {
     const index = database.inscriptions.findIndex(i => i.idInscription === id);
     if (index !== -1) {
       database.inscriptions.splice(index, 1);
+      this.updateFirebase();
+      this.database$.next(database);
+      return true;
+    }
+    return false;
+  }
+
+  // ===== GESTION DES DEMANDES DE FORMATION =====
+
+  /**
+   * Récupère toutes les demandes de formation
+   */
+  getDemandesFormation(): DemandeFormation[] {
+    return this.database$.value?.demandesFormation || [];
+  }
+
+  /**
+   * Récupère une demande par ID
+   */
+  getDemandeFormationById(id: number): DemandeFormation | undefined {
+    return this.getDemandesFormation().find(d => d.idDemande === id);
+  }
+
+  /**
+   * Récupère les demandes d'un étudiant
+   */
+  getDemandesByEtudiant(idEtudiant: number): DemandeFormation[] {
+    return this.getDemandesFormation().filter(d => d.idEtudiant === idEtudiant);
+  }
+
+  /**
+   * Récupère les demandes en attente de validation par formateur
+   */
+  getDemandesEnAttenteFormateur(): DemandeFormation[] {
+    return this.getDemandesFormation().filter(d => d.statut === 'en_attente');
+  }
+
+  /**
+   * Récupère les demandes acceptées par formateur mais en attente admin
+   */
+  getDemandesAccepteesFormateur(): DemandeFormation[] {
+    return this.getDemandesFormation().filter(d => d.statut === 'acceptee_par_formateur');
+  }
+
+  /**
+   * Ajoute une nouvelle demande de formation
+   */
+  addDemandeFormation(demande: Omit<DemandeFormation, 'idDemande'>): DemandeFormation {
+    const database = this.database$.value;
+    if (!database) return {} as DemandeFormation;
+
+    // Initialiser demandesFormation si inexistant
+    if (!database.demandesFormation) {
+      database.demandesFormation = [];
+    }
+
+    const newDemande: DemandeFormation = {
+      idDemande: Math.max(...database.demandesFormation.map(d => d.idDemande), 0) + 1,
+      ...demande
+    };
+    database.demandesFormation.push(newDemande);
+    this.updateFirebase();
+    this.database$.next(database);
+    return newDemande;
+  }
+
+  /**
+   * Met à jour une demande de formation
+   */
+  updateDemandeFormation(id: number, demandeData: Partial<DemandeFormation>): DemandeFormation | null {
+    const database = this.database$.value;
+    if (!database || !database.demandesFormation) return null;
+
+    const demande = database.demandesFormation.find(d => d.idDemande === id);
+    if (demande) {
+      Object.assign(demande, demandeData);
+      this.updateFirebase();
+      this.database$.next(database);
+    }
+    return demande || null;
+  }
+
+  /**
+   * Supprime une demande de formation
+   */
+  deleteDemandeFormation(id: number): boolean {
+    const database = this.database$.value;
+    if (!database || !database.demandesFormation) return false;
+
+    const index = database.demandesFormation.findIndex(d => d.idDemande === id);
+    if (index !== -1) {
+      database.demandesFormation.splice(index, 1);
       this.updateFirebase();
       this.database$.next(database);
       return true;

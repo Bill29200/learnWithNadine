@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth';
-import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, Admin, Database } from '../../services/database.service';
+import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, Admin, Database, DemandeFormation } from '../../services/database.service';
 import { User } from '../../model/user.model';
 
 // Interface pour le regroupement par formation
@@ -31,6 +31,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
   inscriptions: Inscription[] = [];
   etudiants: Etudiant[] = [];
   formateurs: Formateur[] = [];
+  demandesFormation: DemandeFormation[] = [];
 
   // Recherche Formations
   searchFormationTerm: string = '';
@@ -102,11 +103,37 @@ export class AdminDashboard implements OnInit, OnDestroy {
   isLoading: boolean = true;
 
   // Onglet actif
-  activeTab: string = 'formations';
+  activeAdminTab: string = 'formations';
 
   // Message
   message: string = '';
   messageType: 'success' | 'error' = 'success';
+
+  // Demandes à valider
+  demandesAcceptees: DemandeFormation[] = [];
+
+  // Modals d'ajout
+  showAddEtudiantModal: boolean = false;
+  showAddFormateurModal: boolean = false;
+  showAddFormationModal: boolean = false;
+  showAddInscriptionModal: boolean = false;
+  programmeInput: string = '';
+
+  niveauxEtudiants: string[] = ['bac+1', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'bac+6', 'bac+7', 'bac+8'];
+  niveauxFormateurs: string[] = ['autre', 'licence', 'master', 'ingenieur', 'magister', 'doctorat'];
+
+  newEtudiant: any = {
+    nom: '', prenom: '', mail: '', tel: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+  };
+  newFormateur: any = {
+    nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+  };
+  newFormation: any = {
+    intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide'
+  };
+  newInscription: any = {
+    idEtudiant: null, idFormation: null, dateInscription: '', statut: 'non paye'
+  };
 
   constructor(
     private auth: AuthService,
@@ -154,11 +181,13 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.inscriptions = database.inscriptions || [];
     this.etudiants = database.etudiants || [];
     this.formateurs = database.formateurs || [];
+    this.demandesFormation = database.demandesFormation || [];
 
     this.applyFormationFilters();
     this.applyInscriptionFilters();
     this.applyEtudiantFilters();
     this.applyFormateurFilters();
+    this.loadDemandesAcceptees();
 
     this.updateStats();
   }
@@ -205,7 +234,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   // ==================== GESTION DU PROFIL ADMIN ====================
 
-  // Charger les données du profil pour le formulaire
   loadProfileData() {
     if (this.adminInfo) {
       this.profileForm = {
@@ -227,13 +255,11 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showConfirmPassword = false;
   }
 
-  // Ouvrir le modal de modification du profil
   openProfileModal() {
     this.loadProfileData();
     this.showProfileModal = true;
   }
 
-  // Fermer le modal de modification du profil
   closeProfileModal() {
     this.showProfileModal = false;
     this.passwordError = '';
@@ -241,21 +267,17 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showConfirmPassword = false;
   }
 
-  // Basculer la visibilité du mot de passe
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  // Basculer la visibilité de la confirmation du mot de passe
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // Sauvegarder les modifications du profil
   saveProfile() {
     if (!this.adminInfo && !this.currentUser) return;
 
-    // Vérifier les mots de passe si un nouveau mot de passe est saisi
     if (this.profileForm.password) {
       if (this.profileForm.password.length < 6) {
         this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
@@ -269,34 +291,27 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
     this.passwordError = '';
 
-    // Préparer les données de mise à jour
     const updateData: any = {
       nom: this.profileForm.nom,
       email: this.profileForm.email
     };
 
-    // Ajouter le mot de passe seulement s'il a été modifié
     if (this.profileForm.password) {
       updateData.motpass = this.profileForm.password;
     }
 
-    // Mettre à jour dans la base de données
     if (this.adminInfo) {
       this.databaseService.updateAdmin(this.adminInfo.id, updateData);
-
-      // Mettre à jour l'objet local
       this.adminInfo = {
         ...this.adminInfo,
         nom: this.profileForm.nom,
         email: this.profileForm.email
       };
-
       if (this.profileForm.password) {
         this.adminInfo.motpass = this.profileForm.password;
       }
     }
 
-    // Mettre à jour currentUser
     if (this.currentUser) {
       const nameParts = this.profileForm.nom.split(' ');
       this.currentUser.firstName = nameParts[0] || '';
@@ -305,8 +320,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
       if (this.profileForm.password) {
         this.currentUser.password = this.profileForm.password;
       }
-
-      // Sauvegarder dans le storage
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
     }
 
@@ -414,12 +427,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
       return text;
     }
     return this.highlightText(text, this.searchFormationTerm);
-  }
-
-  // ==================== MÉTHODES POUR LES CARTES FORMATIONS ====================
-
-  getInscriptionsByFormationId(idFormation: number): Inscription[] {
-    return this.inscriptions.filter(i => i.idFormation === idFormation);
   }
 
   // ==================== RECHERCHE INSCRIPTIONS ====================
@@ -531,12 +538,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.highlightText(text, this.searchEtudiantTerm);
   }
 
-  // ==================== MÉTHODES POUR LES CARTES ÉTUDIANTS ====================
-
-  getInscriptionsByEtudiant(idEtudiant: number): Inscription[] {
-    return this.inscriptions.filter(i => i.idEtudiant === idEtudiant);
-  }
-
   // ==================== RECHERCHE FORMATEURS ====================
   onSearchFormateur() {
     this.applyFormateurFilters();
@@ -589,10 +590,34 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.highlightText(text, this.searchFormateurTerm);
   }
 
-  // ==================== MÉTHODES POUR LES CARTES FORMATEURS ====================
+  // ==================== GESTION DES DEMANDES DE FORMATION ====================
 
-  getFormationsByFormateur(idFormateur: number): FormationDetail[] {
-    return this.formations.filter(f => f.idFormateur === idFormateur);
+  loadDemandesAcceptees() {
+    this.demandesAcceptees = this.databaseService.getDemandesAccepteesFormateur();
+  }
+
+  validerDemandeAdmin(demande: DemandeFormation) {
+    if (confirm(`Valider la formation "${demande.intitule}" ?`)) {
+      if (demande.formationFinaleId) {
+        this.databaseService.updateFormation(demande.formationFinaleId, { statut: 'valide' });
+      }
+      this.databaseService.updateDemandeFormation(demande.idDemande, { statut: 'validee_par_admin' });
+      this.showMessage(`Formation "${demande.intitule}" validée avec succès !`, 'success');
+      this.loadDemandesAcceptees();
+      this.refreshData();
+    }
+  }
+
+  refuserDemandeAdmin(demande: DemandeFormation) {
+    if (confirm(`Refuser la formation "${demande.intitule}" ?`)) {
+      this.databaseService.updateDemandeFormation(demande.idDemande, { statut: 'refusee' });
+      if (demande.formationFinaleId) {
+        this.databaseService.deleteFormation(demande.formationFinaleId);
+      }
+      this.showMessage(`Demande refusée`, 'error');
+      this.loadDemandesAcceptees();
+      this.refreshData();
+    }
   }
 
   // ==================== UTILITAIRE DE SURBRILLANCE ====================
@@ -796,6 +821,17 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.formateurs.find(f => f.idFormateur === id);
   }
 
+  getEtudiantNom(idEtudiant: number): string {
+    const etudiant = this.getEtudiantById(idEtudiant);
+    return etudiant ? `${etudiant.prenom} ${etudiant.nom}` : 'Inconnu';
+  }
+
+  getFormateurNom(idFormateur?: number): string {
+    if (!idFormateur) return 'Non assigné';
+    const formateur = this.getFormateurById(idFormateur);
+    return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Inconnu';
+  }
+
   getFormationStatutBadgeClass(statut: string): string {
     return statut === 'valide' ? 'badge bg-success' : 'badge bg-warning text-dark';
   }
@@ -812,60 +848,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.filteredInscriptions.filter(i => i.statut === 'non paye').length;
   }
 
-  showMessage(msg: string, type: 'success' | 'error') {
-    this.message = msg;
-    this.messageType = type;
-    setTimeout(() => {
-      this.message = '';
-    }, 3000);
-  }
-
-  logout() {
-    this.auth.logout();
-    this.router.navigate(['/login']);
-  }
-
-  getFullName(): string {
-    if (this.currentUser) {
-      return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
-    }
-    return 'Administrateur';
-  }
-
-  getInitials(): string {
-    if (this.currentUser) {
-      return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`;
-    }
-    return 'A';
-  }
-
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
-  }
-
-  showAddEtudiantModal: boolean = false;
-  showAddFormateurModal: boolean = false;
-  showAddFormationModal: boolean = false;
-  showAddInscriptionModal: boolean = false;
-  programmeInput: string = '';
-
-  niveauxEtudiants: string[] = ['bac+1', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'bac+6', 'bac+7', 'bac+8'];
-  niveauxFormateurs: string[] = ['autre', 'licence', 'master', 'ingenieur', 'magister', 'doctorat'];
-
-  newEtudiant: any = {
-    nom: '', prenom: '', mail: '', tel: '', niveau: '', motpass: '', statut: 'actif', photo: ''
-  };
-  newFormateur: any = {
-    nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: '', motpass: '', statut: 'actif', photo: ''
-  };
-  newFormation: any = {
-    intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide'
-  };
-  newInscription: any = {
-    idEtudiant: null, idFormation: null, dateInscription: '', statut: 'non paye'
-  };
-
-// Getters pour les listes déroulantes
+  // Getters pour les listes déroulantes
   get formateursActifs(): Formateur[] {
     return this.formateurs.filter(f => f.statut === 'actif');
   }
@@ -878,7 +861,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return this.formations.filter(f => f.statut === 'valide');
   }
 
-// Méthodes pour les modals d'ajout
+  // Méthodes pour les modals d'ajout
   openAddEtudiantModal() {
     this.newEtudiant = { nom: '', prenom: '', mail: '', tel: '', niveau: 'bac+1', motpass: '', statut: 'actif', photo: '' };
     this.showAddEtudiantModal = true;
@@ -904,7 +887,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
   }
   closeAddInscriptionModal() { this.showAddInscriptionModal = false; }
 
-// Sauvegarder les nouveaux éléments
   saveNewEtudiant() {
     if (!this.newEtudiant.nom || !this.newEtudiant.prenom || !this.newEtudiant.mail || !this.newEtudiant.motpass) {
       this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
@@ -962,7 +944,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
       this.showMessage('Veuillez sélectionner un étudiant et une formation', 'error');
       return;
     }
-    // Vérifier si l'étudiant est déjà inscrit
     const existingInscription = this.inscriptions.find(i => i.idEtudiant === this.newInscription.idEtudiant && i.idFormation === this.newInscription.idFormation);
     if (existingInscription) {
       this.showMessage('Cet étudiant est déjà inscrit à cette formation', 'error');
@@ -974,6 +955,36 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.refreshData();
   }
 
+  showMessage(msg: string, type: 'success' | 'error') {
+    this.message = msg;
+    this.messageType = type;
+    setTimeout(() => {
+      this.message = '';
+    }, 3000);
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
+
+  getFullName(): string {
+    if (this.currentUser) {
+      return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    }
+    return 'Administrateur';
+  }
+
+  getInitials(): string {
+    if (this.currentUser) {
+      return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`;
+    }
+    return 'A';
+  }
+
+  setActiveTab(tab: string) {
+    this.activeAdminTab = tab;
+  }
 }
 
 interface ProfileForm {
