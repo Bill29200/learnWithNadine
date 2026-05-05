@@ -1,3 +1,5 @@
+<!-- src/app/formateur/formateur-dashboard/formateur-dashboard.html -->
+
 <!-- Barre supérieure avec le profil et déconnexion -->
 <div class="main-header bg-light border-bottom">
   <div class="container">
@@ -10,7 +12,12 @@
       <div class="col-md-6 text-end">
         <div class="dropdown d-inline-block">
           <button class="btn btn-outline-orange dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="avatar-circle me-2">{{getInitials()}}</span>
+            <ng-container *ngIf="getProfilePhotoUrl(); else initialsAvatar">
+              <img [src]="getProfilePhotoUrl()" class="avatar-img me-2" width="32" height="32" style="object-fit: cover; border-radius: 50%;">
+            </ng-container>
+            <ng-template #initialsAvatar>
+              <span class="avatar-circle me-2">{{getInitials()}}</span>
+            </ng-template>
             {{getFullName()}}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
@@ -540,7 +547,7 @@
   </div>
 </div>
 
-<!-- Modal Modification du Profil avec Mot de Passe -->
+<!-- Modal Modification du Profil Formateur -->
 <div class="modal fade" id="profileModal" tabindex="-1" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded-4 overflow-hidden">
@@ -553,6 +560,33 @@
       </div>
       <div class="modal-body p-4">
         <form>
+          <!-- Photo de profil -->
+          <div class="mb-3 text-center">
+            <label class="form-label fw-bold d-block">Photo de profil</label>
+            <div class="photo-upload-container position-relative d-inline-block">
+              <div class="photo-preview" (click)="formateurPhotoInput.click()">
+                <img *ngIf="photoPreview" [src]="photoPreview" alt="Photo de profil" class="profile-photo rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                <div *ngIf="!photoPreview" class="photo-placeholder rounded-circle" style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                  <i class="bi bi-camera-fill fs-1"></i>
+                </div>
+                <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
+                  <i class="bi bi-pencil-fill text-white"></i>
+                </div>
+              </div>
+              <input type="file" #formateurPhotoInput accept="image/*" style="display: none" (change)="onPhotoSelected($event)">
+            </div>
+            <small class="text-muted d-block mt-1">Cliquez sur la photo pour la modifier (max 5MB)</small>
+            <div *ngIf="selectedFile" class="mt-2">
+              <span class="badge bg-info">Nouvelle photo sélectionnée</span>
+            </div>
+            <div *ngIf="isUploadingPhoto" class="mt-2">
+              <div class="spinner-border spinner-border-sm text-orange" role="status">
+                <span class="visually-hidden">Upload...</span>
+              </div>
+              <span class="ms-2 text-muted">Upload en cours...</span>
+            </div>
+          </div>
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label fw-bold">Nom</label>
@@ -588,6 +622,7 @@
             </select>
           </div>
 
+          <!-- Mot de passe avec icône œil -->
           <div class="mb-3">
             <label class="form-label fw-bold">Nouveau mot de passe</label>
             <div class="input-group">
@@ -603,6 +638,7 @@
             <small class="text-muted">Laissez vide si vous ne voulez pas modifier votre mot de passe</small>
           </div>
 
+          <!-- Confirmation du nouveau mot de passe -->
           <div class="mb-3" *ngIf="profileForm.password">
             <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
             <div class="input-group">
@@ -617,6 +653,7 @@
             </div>
           </div>
 
+          <!-- Message d'erreur mot de passe -->
           <div *ngIf="passwordError" class="alert alert-danger alert-sm mb-3">
             <i class="bi bi-exclamation-triangle me-1"></i>
             {{passwordError}}
@@ -625,8 +662,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeProfileModal()">Annuler</button>
-        <button type="button" class="btn btn-orange" (click)="saveProfile()">
-          <i class="bi bi-save me-1"></i> Enregistrer
+        <button type="button" class="btn btn-orange" (click)="saveProfile()" [disabled]="isUploadingPhoto">
+          <i class="bi bi-save me-1"></i> {{isUploadingPhoto ? 'Upload en cours...' : 'Enregistrer'}}
         </button>
       </div>
     </div>

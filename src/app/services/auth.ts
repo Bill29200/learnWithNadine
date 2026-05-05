@@ -1,3 +1,4 @@
+// src/app/services/auth.ts
 import { Injectable } from '@angular/core';
 import { Role, User } from '../model/user.model';
 import { Admin, DatabaseService, Etudiant, Formateur } from './database.service';
@@ -98,7 +99,7 @@ export class AuthService {
         motpass: user.password,
         niveau: user.level as string || 'autre',
         specialite: user.specialty || '',
-        photo: '',
+        photoUrl: '',  // Changé de 'photo' à 'photoUrl'
         statut: 'actif' as const
       };
       this.databaseService.addFormateur(formateur);
@@ -111,7 +112,7 @@ export class AuthService {
         niveau: user.level as string || 'bac+1',
         motpass: user.password,
         statut: 'actif' as const,
-        photo: ''
+        photoUrl: ''  // Changé de 'photo' à 'photoUrl'
       };
       this.databaseService.addEtudiant(etudiant);
     }

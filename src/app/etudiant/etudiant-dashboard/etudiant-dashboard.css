@@ -1,3 +1,5 @@
+/* src/app/etudiant/etudiant-dashboard/etudiant-dashboard.css */
+
 .main-header {
   position: fixed;
   top: 0;
@@ -22,6 +24,22 @@
   border-radius: 50%;
   font-weight: bold;
   font-size: 14px;
+}
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff5928;
+}
+
+.avatar-lg {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff5928;
 }
 
 .dropdown-toggle::after {
@@ -64,7 +82,74 @@
   padding: 1rem;
 }
 
-/* ==================== CARTES FORMATIONS (même look que formateur) ==================== */
+/* ==================== GESTION DES PHOTOS ==================== */
+.photo-upload-container {
+  position: relative;
+  display: inline-block;
+}
+
+.photo-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid #ff5928;
+  transition: all 0.3s ease;
+  margin: 0 auto;
+}
+
+.photo-preview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.photo-placeholder i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.photo-placeholder span {
+  font-size: 0.75rem;
+}
+
+.photo-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: #ff5928;
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.photo-edit-icon:hover {
+  transform: scale(1.1);
+}
+
+/* ==================== CARTES FORMATIONS ==================== */
 .formation-mini-card {
   background: white;
   border-radius: 16px;
@@ -86,21 +171,15 @@
 .formation-mini-header {
   padding: 0.8rem 1rem;
   color: white;
-}
-
-.formation-mini-badge {
-  font-size: 0.65rem;
-  background: rgba(255,255,255,0.2);
-  padding: 2px 8px;
-  border-radius: 20px;
-  display: inline-block;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
 }
 
 .formation-mini-title {
   font-size: 0.9rem;
   font-weight: 600;
-  margin-top: 0.5rem;
-  margin-bottom: 0;
+  margin: 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -218,12 +297,16 @@
 .profile-avatar {
   width: 55px;
   height: 55px;
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  overflow: hidden;
+}
+
+.profile-avatar i {
+  font-size: 2.5rem;
+  color: #ff5928;
 }
 
 .profile-body {
@@ -414,6 +497,10 @@
   background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
 }
 
+.badge.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+
 .text-orange {
   color: #ff5928 !important;
 }
@@ -466,43 +553,23 @@
   color: #dee2e6;
 }
 
-/* ==================== CARTES ÉTUDIANTS (MODAL) ==================== */
-.student-card {
-  transition: all 0.3s ease;
-  border: none !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border-radius: 16px !important;
-  cursor: pointer;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.student-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+.modal-content {
+  animation: fadeIn 0.3s ease-out;
 }
 
-.student-avatar i {
-  transition: transform 0.3s ease;
-}
-
-.student-card:hover .student-avatar i {
-  transform: scale(1.1);
-}
-
-.student-info {
-  font-size: 0.75rem;
-}
-
-.student-info i {
-  width: 16px;
-  color: #ff5928;
-}
-
-/* Scrollbar pour la grille si beaucoup d'étudiants */
-.modal-body {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
+/* Scrollbar */
 .modal-body::-webkit-scrollbar {
   width: 6px;
 }
@@ -517,25 +584,20 @@
   border-radius: 10px;
 }
 
-/* Badges dans les cartes */
-.student-card .badge {
-  font-size: 0.65rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 20px;
-}
-
-.student-card .badge.bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
-
-.student-card .badge.bg-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-}
-
 /* Responsive */
+@media (max-width: 992px) {
+  .display-6 {
+    font-size: 1.4rem;
+  }
+}
+
 @media (max-width: 768px) {
   .content-with-header {
     padding-top: 80px;
+  }
+
+  .display-6 {
+    font-size: 1.2rem;
   }
 
   .formation-mini-title {
@@ -592,258 +654,40 @@
     font-size: 1.5rem !important;
   }
 
-  /* Responsive pour les cartes étudiants */
-  .student-card {
-    padding: 0.75rem !important;
+  .photo-preview {
+    width: 100px;
+    height: 100px;
   }
 
-  .student-avatar i {
-    font-size: 1.5rem !important;
+  .photo-edit-icon {
+    padding: 5px;
   }
 
-  .student-info {
-    font-size: 0.7rem;
-  }
-
-  .modal-dialog {
-    margin: 0.5rem;
-  }
-}
-/* ==================== VOLEUR INSCRIPTIONS STYLES ==================== */
-
-/* Carte formation */
-.formation-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.formation-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* En-tête formation */
-.formation-header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-
-.formation-icon {
-  width: 45px;
-  height: 45px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Badges de statistiques */
-.stat-badge {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 8px 12px;
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-/* Compteurs blancs */
-.counter-badge {
-  padding: 8px 16px;
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.counter-badge.bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
-
-.counter-badge.bg-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-  color: #000;
-}
-
-/* Tableau */
-.inscription-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.inscription-table thead th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  padding: 12px;
-  border-bottom: 2px solid #e9ecef;
-}
-
-.inscription-table tbody td {
-  padding: 12px;
-  vertical-align: middle;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.inscription-table tbody tr:hover {
-  background-color: rgba(255, 89, 40, 0.05);
-}
-
-/* Badge statut */
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 30px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.status-paid {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-}
-
-.status-unpaid {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-}
-
-/* Boutons d'action */
-.action-btn {
-  padding: 6px 14px;
-  font-size: 0.7rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-  transform: translateY(-2px);
-}
-
-.btn-paid {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-  border: none;
-  color: #000;
-}
-
-.btn-unpaid {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  border: none;
-  color: white;
-}
-
-.btn-outline-danger {
-  border: 1px solid #dc3545;
-  color: #dc3545;
-  background: transparent;
-}
-
-.btn-outline-danger:hover {
-  background: #dc3545;
-  color: white;
-  border-color: #dc3545;
-}
-
-/* Avatar étudiant */
-.student-avatar-sm {
-  width: 36px;
-  height: 36px;
-  background: #f8f9fa;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.student-avatar-sm i {
-  font-size: 1.2rem;
-  color: #6c757d;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .stat-value {
-    font-size: 0.9rem;
-  }
-
-  .stat-label {
-    font-size: 0.6rem;
-  }
-
-  .counter-badge {
-    padding: 5px 10px;
-    font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .formation-header .row {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
-  }
-
-  .formation-header .col-md-5,
-  .formation-header .col-md-7 {
-    width: 100%;
-  }
-
-  .stat-badge {
-    padding: 5px 8px;
-  }
-
-  .stat-value {
+  .photo-edit-icon i {
     font-size: 0.8rem;
-  }
-
-  .action-btn {
-    padding: 4px 10px;
-    font-size: 0.65rem;
-  }
-
-  .inscription-table td,
-  .inscription-table th {
-    padding: 8px;
-    font-size: 0.7rem;
-  }
-
-  .student-avatar-sm {
-    width: 28px;
-    height: 28px;
-  }
-
-  .student-avatar-sm i {
-    font-size: 1rem;
   }
 }
 
 @media (max-width: 576px) {
-  .counter-badge {
-    padding: 4px 8px;
-    font-size: 0.6rem;
+  .content-with-header {
+    padding-top: 70px;
   }
 
-  .action-btn {
-    padding: 3px 8px;
-    font-size: 0.6rem;
+  .display-6 {
+    font-size: 1rem;
+  }
+
+  .card-body {
+    padding: 0.75rem;
+  }
+
+  .photo-preview {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-avatar {
+    width: 40px;
+    height: 40px;
   }
 }

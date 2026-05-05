@@ -1,3 +1,4 @@
+// src/app/formateur/formateur-dashboard/formateur-dashboard.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -5,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, DemandeFormation } from '../../services/database.service';
 import { User } from '../../model/user.model';
+import {PhotoService} from '../../services/photo';
 
 @Component({
   selector: 'app-formateur-dashboard',
@@ -61,6 +63,12 @@ export class FormateurDashboard implements OnInit {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
   passwordError: string = '';
+
+  // Gestion photo de profil
+  selectedFile: File | null = null;
+  photoPreview: string | null = null;
+  isUploadingPhoto: boolean = false;
+
   profileForm: ProfileForm = {
     nom: '',
     prenom: '',
@@ -85,7 +93,8 @@ export class FormateurDashboard implements OnInit {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private photoService: PhotoService
   ) {}
 
   ngOnInit() {
@@ -115,7 +124,8 @@ export class FormateurDashboard implements OnInit {
     this.demandesEnAttente = this.databaseService.getDemandesEnAttenteFormateur();
   }
 
-  // Charger les données du profil pour le formulaire
+  // ==================== GESTION DU PROFIL ====================
+
   loadProfileData() {
     if (this.formateurInfo) {
       this.profileForm = {
@@ -128,40 +138,74 @@ export class FormateurDashboard implements OnInit {
         password: '',
         confirmPassword: ''
       };
+
+      // Charger la photo depuis localStorage d'abord
+      const localPhoto = localStorage.getItem(`photo_formateur_${this.formateurInfo.idFormateur}`);
+      this.photoPreview = localPhoto || this.formateurInfo.photoUrl || null;
     }
     this.passwordError = '';
     this.showPassword = false;
     this.showConfirmPassword = false;
+    this.selectedFile = null;
   }
 
-  // Ouvrir le modal de modification du profil
   openProfileModal() {
     this.loadProfileData();
     this.showProfileModal = true;
   }
 
-  // Fermer le modal de modification du profil
   closeProfileModal() {
     this.showProfileModal = false;
     this.passwordError = '';
     this.showPassword = false;
     this.showConfirmPassword = false;
+    this.selectedFile = null;
+    // Restaurer l'aperçu original
+    const localPhoto = localStorage.getItem(`photo_formateur_${this.formateurInfo?.idFormateur}`);
+    this.photoPreview = localPhoto || this.formateurInfo?.photoUrl || null;
+    this.isUploadingPhoto = false;
   }
 
-  // Basculer la visibilité du mot de passe
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  // Basculer la visibilité de la confirmation du mot de passe
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // Sauvegarder les modifications du profil
-  saveProfile() {
-    if (!this.formateurInfo) return;
+  onPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showMessage('Veuillez sélectionner une image', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.showMessage('L\'image ne doit pas dépasser 5MB', 'error');
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async saveProfile() {
+    if (!this.formateurInfo) {
+      this.showMessage('Informations formateur non trouvées', 'error');
+      return;
+    }
+
+    // Vérifier les mots de passe
     if (this.profileForm.password) {
       if (this.profileForm.password.length < 6) {
         this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
@@ -174,61 +218,113 @@ export class FormateurDashboard implements OnInit {
     }
 
     this.passwordError = '';
+    this.isUploadingPhoto = true;
 
-    const updateData: any = {
-      nom: this.profileForm.nom,
-      prenom: this.profileForm.prenom,
-      mail: this.profileForm.mail,
-      tel: this.profileForm.tel,
-      specialite: this.profileForm.specialite,
-      niveau: this.profileForm.niveau
-    };
+    try {
+      let photoUrl = this.formateurInfo?.photoUrl;
 
-    if (this.profileForm.password) {
-      updateData.motpass = this.profileForm.password;
-    }
+      // Upload de la photo si une nouvelle a été sélectionnée
+      if (this.selectedFile && this.formateurInfo) {
+        console.log('Sauvegarde de la nouvelle photo...');
 
-    this.databaseService.updateFormateur(this.formateurInfo.idFormateur, updateData);
-
-    this.formateurInfo = {
-      ...this.formateurInfo,
-      nom: this.profileForm.nom,
-      prenom: this.profileForm.prenom,
-      mail: this.profileForm.mail,
-      tel: this.profileForm.tel,
-      specialite: this.profileForm.specialite,
-      niveau: this.profileForm.niveau
-    };
-
-    if (this.profileForm.password) {
-      this.formateurInfo.motpass = this.profileForm.password;
-    }
-
-    if (this.currentUser) {
-      this.currentUser.firstName = this.profileForm.prenom;
-      this.currentUser.lastName = this.profileForm.nom;
-      this.currentUser.email = this.profileForm.mail;
-      this.currentUser.phone = this.profileForm.tel;
-      this.currentUser.specialty = this.profileForm.specialite;
-      this.currentUser.level = this.profileForm.niveau as any;
-      if (this.profileForm.password) {
-        this.currentUser.password = this.profileForm.password;
+        photoUrl = await this.photoService.uploadProfilePhoto(
+          this.selectedFile,
+          this.formateurInfo.idFormateur,
+          'formateur'
+        );
+        console.log('Photo sauvegardée');
+        this.photoPreview = photoUrl;
       }
-      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-    }
 
-    this.showMessage('Profil mis à jour avec succès', 'success');
-    this.closeProfileModal();
+      // Préparer les données de mise à jour
+      const updateData: any = {
+        nom: this.profileForm.nom,
+        prenom: this.profileForm.prenom,
+        mail: this.profileForm.mail,
+        tel: this.profileForm.tel,
+        specialite: this.profileForm.specialite,
+        niveau: this.profileForm.niveau
+      };
+
+      if (this.profileForm.password) {
+        updateData.motpass = this.profileForm.password;
+      }
+
+      if (photoUrl) {
+        updateData.photoUrl = photoUrl;
+      }
+
+      // Mettre à jour dans la base de données
+      this.databaseService.updateFormateur(this.formateurInfo.idFormateur, updateData);
+
+      // Mettre à jour l'objet local
+      this.formateurInfo = {
+        ...this.formateurInfo,
+        nom: this.profileForm.nom,
+        prenom: this.profileForm.prenom,
+        mail: this.profileForm.mail,
+        tel: this.profileForm.tel,
+        specialite: this.profileForm.specialite,
+        niveau: this.profileForm.niveau
+      };
+
+      if (this.profileForm.password) {
+        this.formateurInfo.motpass = this.profileForm.password;
+      }
+
+      if (photoUrl) {
+        this.formateurInfo.photoUrl = photoUrl;
+        // Sauvegarder dans localStorage
+        localStorage.setItem(`photo_formateur_${this.formateurInfo.idFormateur}`, photoUrl);
+      }
+
+      // Mettre à jour currentUser
+      if (this.currentUser) {
+        this.currentUser.firstName = this.profileForm.prenom;
+        this.currentUser.lastName = this.profileForm.nom;
+        this.currentUser.email = this.profileForm.mail;
+        this.currentUser.phone = this.profileForm.tel;
+        this.currentUser.specialty = this.profileForm.specialite;
+        this.currentUser.level = this.profileForm.niveau as any;
+        if (this.profileForm.password) {
+          this.currentUser.password = this.profileForm.password;
+        }
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+      }
+
+      this.selectedFile = null;
+
+      this.showMessage('Profil mis à jour avec succès', 'success');
+      this.closeProfileModal();
+
+      // Forcer l'affichage
+      setTimeout(() => {
+        this.photoPreview = this.formateurInfo?.photoUrl || null;
+      }, 500);
+
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      this.showMessage('Erreur lors de la sauvegarde du profil', 'error');
+    } finally {
+      this.isUploadingPhoto = false;
+    }
+  }
+
+  // Récupérer l'URL de la photo de profil
+  getProfilePhotoUrl(): string | null {
+    if (this.formateurInfo) {
+      const localPhoto = localStorage.getItem(`photo_formateur_${this.formateurInfo.idFormateur}`);
+      if (localPhoto) return localPhoto;
+    }
+    return this.formateurInfo?.photoUrl || null;
   }
 
   // ==================== GESTION DES DEMANDES DE FORMATION ====================
 
-  // Changer d'onglet
   setActiveDemandeTab(tab: string) {
     this.activeDemandeTab = tab;
   }
 
-  // Accepter une demande de formation
   accepterDemande(demande: DemandeFormation) {
     if (confirm(`Acceptez-vous de devenir formateur pour la formation "${demande.intitule}" ?`)) {
       this.databaseService.updateDemandeFormation(demande.idDemande, {
@@ -245,7 +341,6 @@ export class FormateurDashboard implements OnInit {
     }
   }
 
-  // Refuser une demande de formation
   refuserDemande(demande: DemandeFormation) {
     if (confirm(`Refusez-vous la formation "${demande.intitule}" ?`)) {
       this.databaseService.updateDemandeFormation(demande.idDemande, { statut: 'refusee' });
@@ -254,7 +349,6 @@ export class FormateurDashboard implements OnInit {
     }
   }
 
-  // Fermer le modal de complétion
   closeCompleterModal() {
     this.showCompleterModal = false;
     this.selectedDemande = null;
@@ -262,7 +356,6 @@ export class FormateurDashboard implements OnInit {
     this.completionProgrammeInput = '';
   }
 
-  // Ajouter un point au programme
   addCompletionProgrammePoint() {
     if (this.completionProgrammeInput.trim()) {
       this.completionForm.programme.push(this.completionProgrammeInput.trim());
@@ -270,12 +363,10 @@ export class FormateurDashboard implements OnInit {
     }
   }
 
-  // Supprimer un point du programme
   removeCompletionProgrammePoint(index: number) {
     this.completionForm.programme.splice(index, 1);
   }
 
-  // Sauvegarder la formation complétée
   saveFormationCompletee() {
     if (!this.selectedDemande) return;
 
@@ -292,7 +383,7 @@ export class FormateurDashboard implements OnInit {
       prix: this.completionForm.prix,
       description: this.selectedDemande.description,
       programme: this.completionForm.programme,
-      statut: 'nonValide' // En attente de validation admin
+      statut: 'nonValide'
     };
 
     const formationCreee = this.databaseService.addFormation(nouvelleFormation);
@@ -317,7 +408,6 @@ export class FormateurDashboard implements OnInit {
     this.loadDemandesEnAttente();
   }
 
-  // Récupérer le nom d'un étudiant par son ID
   getEtudiantNom(idEtudiant: number): string {
     const etudiant = this.databaseService.getEtudiantById(idEtudiant);
     return etudiant ? `${etudiant.prenom} ${etudiant.nom}` : 'Inconnu';

@@ -1,7 +1,8 @@
+// src/app/config/firebase.config.ts
 import { initializeApp } from 'firebase/app';
 import { Database, getDatabase } from 'firebase/database';
+import { FirebaseStorage, getStorage } from 'firebase/storage';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: 'AIzaSyA19hRWJOkn6pDGd9DmsydiSW2wRCOfBFo',
   authDomain: 'cinema-0.firebaseapp.com',
@@ -12,9 +13,9 @@ const firebaseConfig = {
   appId: '1:190914981079:web:2898d4720a28c3d33c1492'
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Realtime Database and get a reference to the service
 export const db: Database = getDatabase(app);
+export const storage: FirebaseStorage = getStorage(app);  // Typage correct
+
 export default app;

@@ -1,3 +1,4 @@
+<!-- src/app/admin/admin-dashboard/admin-dashboard.html -->
 <!-- Barre supérieure avec le profil et déconnexion -->
 <div class="main-header bg-light border-bottom">
   <div class="container">
@@ -10,7 +11,12 @@
       <div class="col-md-6 text-end">
         <div class="dropdown d-inline-block">
           <button class="btn btn-outline-orange dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="avatar-circle me-2">{{getInitials()}}</span>
+            <ng-container *ngIf="getAdminPhotoUrl(); else initialsAvatar">
+              <img [src]="getAdminPhotoUrl()" class="avatar-img me-2" width="32" height="32" style="object-fit: cover; border-radius: 50%;">
+            </ng-container>
+            <ng-template #initialsAvatar>
+              <span class="avatar-circle me-2">{{getInitials()}}</span>
+            </ng-template>
             {{getFullName()}}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
@@ -331,7 +337,10 @@
                     <div class="inscription-student-header">
                       <div class="d-flex align-items-center gap-2">
                         <div class="student-avatar">
-                          <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                          <img *ngIf="getEtudiantById(inscription.idEtudiant)?.photoUrl"
+                               [src]="getEtudiantById(inscription.idEtudiant)?.photoUrl"
+                               class="avatar-img-circle" width="40" height="40" style="object-fit: cover; border-radius: 50%;">
+                          <i *ngIf="!getEtudiantById(inscription.idEtudiant)?.photoUrl" class="bi bi-person-circle fs-3 text-secondary"></i>
                         </div>
                         <div>
                           <h6 class="mb-0 fw-semibold" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.prenom + ' ' + getEtudiantById(inscription.idEtudiant)?.nom)"></h6>
@@ -425,7 +434,8 @@
         <div class="col-md-4 col-lg-3 mb-4" *ngFor="let etudiant of filteredEtudiants">
           <div class="student-mini-card" (click)="selectedEtudiant = etudiant; showEtudiantModal = true">
             <div class="student-mini-avatar" [ngClass]="etudiant.statut === 'actif' ? 'active' : 'blocked'">
-              <i class="bi bi-person-circle fs-1"></i>
+              <img *ngIf="etudiant.photoUrl" [src]="etudiant.photoUrl" class="avatar-img-circle" width="50" height="50" style="object-fit: cover; border-radius: 50%;">
+              <i *ngIf="!etudiant.photoUrl" class="bi bi-person-circle fs-1"></i>
             </div>
             <div class="student-mini-info">
               <h6 class="mb-0 fw-bold" [innerHTML]="highlightEtudiantText(etudiant.prenom + ' ' + etudiant.nom)"></h6>
@@ -487,7 +497,8 @@
         <div class="col-md-4 col-lg-3 mb-4" *ngFor="let formateur of filteredFormateurs">
           <div class="formateur-mini-card" (click)="selectedFormateur = formateur; showFormateurModal = true">
             <div class="formateur-mini-avatar" [ngClass]="formateur.statut === 'actif' ? 'active' : 'blocked'">
-              <i class="bi bi-person-badge fs-1"></i>
+              <img *ngIf="formateur.photoUrl" [src]="formateur.photoUrl" class="avatar-img-circle" width="50" height="50" style="object-fit: cover; border-radius: 50%;">
+              <i *ngIf="!formateur.photoUrl" class="bi bi-person-badge fs-1"></i>
             </div>
             <div class="formateur-mini-info">
               <h6 class="mb-0 fw-bold" [innerHTML]="highlightFormateurText(formateur.prenom + ' ' + formateur.nom)"></h6>
@@ -583,6 +594,24 @@
       </div>
       <div class="modal-body p-4">
         <form>
+          <!-- Photo de profil -->
+          <div class="mb-3 text-center">
+            <label class="form-label fw-bold d-block">Photo de profil</label>
+            <div class="photo-upload-container position-relative d-inline-block">
+              <div class="photo-preview" (click)="fileInputEtudiant.click()">
+                <img *ngIf="etudiantPhotoPreview" [src]="etudiantPhotoPreview" alt="Photo" class="profile-photo rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                <div *ngIf="!etudiantPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                  <i class="bi bi-camera-fill fs-2"></i>
+                </div>
+                <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
+                  <i class="bi bi-pencil-fill text-white"></i>
+                </div>
+              </div>
+              <input type="file" #fileInputEtudiant accept="image/*" style="display: none" (change)="onEtudiantPhotoSelected($event)">
+            </div>
+            <small class="text-muted d-block mt-1">Format: JPG, PNG (max 5MB)</small>
+          </div>
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label fw-bold">Nom</label>
@@ -616,8 +645,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeAddEtudiantModal()">Annuler</button>
-        <button type="button" class="btn btn-success" (click)="saveNewEtudiant()">
-          <i class="bi bi-save me-1"></i> Créer l'étudiant
+        <button type="button" class="btn btn-success" (click)="saveNewEtudiant()" [disabled]="isUploadingEtudiantPhoto">
+          <i class="bi bi-save me-1"></i> {{isUploadingEtudiantPhoto ? 'Upload en cours...' : 'Créer l\'étudiant'}}
         </button>
       </div>
     </div>
@@ -637,6 +666,24 @@
       </div>
       <div class="modal-body p-4">
         <form>
+          <!-- Photo de profil -->
+          <div class="mb-3 text-center">
+            <label class="form-label fw-bold d-block">Photo de profil</label>
+            <div class="photo-upload-container position-relative d-inline-block">
+              <div class="photo-preview" (click)="fileInputFormateur.click()">
+                <img *ngIf="formateurPhotoPreview" [src]="formateurPhotoPreview" alt="Photo" class="profile-photo rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                <div *ngIf="!formateurPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                  <i class="bi bi-camera-fill fs-2"></i>
+                </div>
+                <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
+                  <i class="bi bi-pencil-fill text-white"></i>
+                </div>
+              </div>
+              <input type="file" #fileInputFormateur accept="image/*" style="display: none" (change)="onFormateurPhotoSelected($event)">
+            </div>
+            <small class="text-muted d-block mt-1">Format: JPG, PNG (max 5MB)</small>
+          </div>
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label fw-bold">Nom</label>
@@ -674,8 +721,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeAddFormateurModal()">Annuler</button>
-        <button type="button" class="btn btn-primary" (click)="saveNewFormateur()">
-          <i class="bi bi-save me-1"></i> Créer le formateur
+        <button type="button" class="btn btn-primary" (click)="saveNewFormateur()" [disabled]="isUploadingFormateurPhoto">
+          <i class="bi bi-save me-1"></i> {{isUploadingFormateurPhoto ? 'Upload en cours...' : 'Créer le formateur'}}
         </button>
       </div>
     </div>
@@ -876,7 +923,8 @@
       <div class="modal-body p-4" *ngIf="selectedEtudiant">
         <div class="text-center mb-4">
           <div class="modal-avatar mx-auto">
-            <i class="bi bi-person-circle fs-1"></i>
+            <img *ngIf="selectedEtudiant.photoUrl" [src]="selectedEtudiant.photoUrl" class="rounded-circle" width="80" height="80" style="object-fit: cover;">
+            <i *ngIf="!selectedEtudiant.photoUrl" class="bi bi-person-circle fs-1"></i>
           </div>
           <h4 class="mt-3 mb-1 fw-bold">{{selectedEtudiant.prenom}} {{selectedEtudiant.nom}}</h4>
           <span class="badge" [ngClass]="selectedEtudiant.statut === 'actif' ? 'bg-success' : 'bg-danger'">
@@ -926,7 +974,8 @@
       <div class="modal-body p-4" *ngIf="selectedFormateur">
         <div class="text-center mb-4">
           <div class="modal-avatar mx-auto">
-            <i class="bi bi-person-badge fs-1"></i>
+            <img *ngIf="selectedFormateur.photoUrl" [src]="selectedFormateur.photoUrl" class="rounded-circle" width="80" height="80" style="object-fit: cover;">
+            <i *ngIf="!selectedFormateur.photoUrl" class="bi bi-person-badge fs-1"></i>
           </div>
           <h4 class="mt-3 mb-1 fw-bold">{{selectedFormateur.prenom}} {{selectedFormateur.nom}}</h4>
           <span class="badge" [ngClass]="selectedFormateur.statut === 'actif' ? 'bg-success' : 'bg-danger'">
@@ -1030,6 +1079,28 @@
       </div>
       <div class="modal-body p-4">
         <form>
+          <!-- Photo de profil Admin -->
+          <div class="mb-3 text-center">
+            <label class="form-label fw-bold d-block">Photo de profil</label>
+            <div class="photo-upload-container position-relative d-inline-block">
+              <div class="photo-preview" (click)="adminPhotoInput.click()">
+                <img *ngIf="photoPreview" [src]="photoPreview" alt="Photo de profil" class="profile-photo rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                <div *ngIf="!photoPreview" class="photo-placeholder rounded-circle" style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                  <i class="bi bi-camera-fill fs-1"></i>
+                </div>
+                <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
+                  <i class="bi bi-pencil-fill text-white"></i>
+                </div>
+              </div>
+              <input type="file" #adminPhotoInput accept="image/*" style="display: none" (change)="onPhotoSelected($event)">
+            </div>
+            <button *ngIf="selectedFile" type="button" class="btn btn-sm btn-orange mt-2" (click)="uploadAdminPhoto()" [disabled]="isUploadingPhoto">
+              <i class="bi bi-cloud-upload"></i>
+              {{isUploadingPhoto ? 'Upload...' : 'Enregistrer la photo'}}
+            </button>
+            <small class="text-muted d-block mt-1">Format: JPG, PNG (max 5MB)</small>
+          </div>
+
           <div class="mb-3">
             <label class="form-label fw-bold">Nom complet</label>
             <input type="text" class="form-control" [(ngModel)]="profileForm.nom" name="profileNom" required>

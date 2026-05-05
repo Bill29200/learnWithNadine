@@ -1,10 +1,13 @@
+// src/app/etudiant/etudiant-dashboard/etudiant-dashboard.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, DemandeFormation } from '../../services/database.service';
+
 import { User } from '../../model/user.model';
+import {PhotoService} from '../../services/photo';
 
 @Component({
   selector: 'app-etudiant-dashboard',
@@ -41,6 +44,12 @@ export class EtudiantDashboard implements OnInit {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
   passwordError: string = '';
+
+  // Gestion photo de profil
+  selectedFile: File | null = null;
+  photoPreview: string | null = null;
+  isUploadingPhoto: boolean = false;
+
   profileForm: ProfileForm = {
     nom: '',
     prenom: '',
@@ -57,7 +66,8 @@ export class EtudiantDashboard implements OnInit {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private photoService: PhotoService
   ) {}
 
   ngOnInit() {
@@ -91,21 +101,209 @@ export class EtudiantDashboard implements OnInit {
     }
   }
 
+  // ==================== GESTION DU PROFIL ====================
+
+  loadProfileData() {
+    if (this.etudiantInfo) {
+      this.profileForm = {
+        nom: this.etudiantInfo.nom,
+        prenom: this.etudiantInfo.prenom,
+        mail: this.etudiantInfo.mail,
+        tel: this.etudiantInfo.tel,
+        niveau: this.etudiantInfo.niveau || 'bac+1',
+        password: '',
+        confirmPassword: ''
+      };
+
+      // Charger la photo depuis localStorage d'abord
+      const localPhoto = localStorage.getItem(`photo_etudiant_${this.etudiantInfo.idEtudiant}`);
+      this.photoPreview = localPhoto || this.etudiantInfo.photoUrl || null;
+    }
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+    this.selectedFile = null;
+  }
+
+  openProfileModal() {
+    this.loadProfileData();
+    this.showProfileModal = true;
+  }
+
+  closeProfileModal() {
+    this.showProfileModal = false;
+    this.passwordError = '';
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+    this.selectedFile = null;
+    // Restaurer l'aperçu original
+    const localPhoto = localStorage.getItem(`photo_etudiant_${this.etudiantInfo?.idEtudiant}`);
+    this.photoPreview = localPhoto || this.etudiantInfo?.photoUrl || null;
+    this.isUploadingPhoto = false;
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  onPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showMessage('Veuillez sélectionner une image', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.showMessage('L\'image ne doit pas dépasser 5MB', 'error');
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async saveProfile() {
+    if (!this.etudiantInfo) {
+      this.showMessage('Informations étudiant non trouvées', 'error');
+      return;
+    }
+
+    // Vérifier les mots de passe
+    if (this.profileForm.password) {
+      if (this.profileForm.password.length < 6) {
+        this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
+        return;
+      }
+      if (this.profileForm.password !== this.profileForm.confirmPassword) {
+        this.passwordError = 'Les mots de passe ne correspondent pas';
+        return;
+      }
+    }
+
+    this.passwordError = '';
+    this.isUploadingPhoto = true;
+
+    try {
+      let photoUrl = this.etudiantInfo?.photoUrl;
+
+      // Upload de la photo si une nouvelle a été sélectionnée
+      if (this.selectedFile && this.etudiantInfo) {
+        console.log('Sauvegarde de la nouvelle photo...');
+
+        photoUrl = await this.photoService.uploadProfilePhoto(
+          this.selectedFile,
+          this.etudiantInfo.idEtudiant,
+          'etudiant'
+        );
+        console.log('Photo sauvegardée');
+        this.photoPreview = photoUrl;
+      }
+
+      // Préparer les données de mise à jour
+      const updateData: any = {
+        nom: this.profileForm.nom,
+        prenom: this.profileForm.prenom,
+        mail: this.profileForm.mail,
+        tel: this.profileForm.tel,
+        niveau: this.profileForm.niveau
+      };
+
+      if (this.profileForm.password) {
+        updateData.motpass = this.profileForm.password;
+      }
+
+      if (photoUrl) {
+        updateData.photoUrl = photoUrl;
+      }
+
+      // Mettre à jour dans la base de données
+      this.databaseService.updateEtudiant(this.etudiantInfo.idEtudiant, updateData);
+
+      // Mettre à jour l'objet local
+      this.etudiantInfo = {
+        ...this.etudiantInfo,
+        nom: this.profileForm.nom,
+        prenom: this.profileForm.prenom,
+        mail: this.profileForm.mail,
+        tel: this.profileForm.tel,
+        niveau: this.profileForm.niveau
+      };
+
+      if (this.profileForm.password) {
+        this.etudiantInfo.motpass = this.profileForm.password;
+      }
+
+      if (photoUrl) {
+        this.etudiantInfo.photoUrl = photoUrl;
+        // Sauvegarder dans localStorage
+        localStorage.setItem(`photo_etudiant_${this.etudiantInfo.idEtudiant}`, photoUrl);
+      }
+
+      // Mettre à jour currentUser
+      if (this.currentUser) {
+        this.currentUser.firstName = this.profileForm.prenom;
+        this.currentUser.lastName = this.profileForm.nom;
+        this.currentUser.email = this.profileForm.mail;
+        this.currentUser.phone = this.profileForm.tel;
+        this.currentUser.level = this.profileForm.niveau as any;
+        if (this.profileForm.password) {
+          this.currentUser.password = this.profileForm.password;
+        }
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+      }
+
+      this.selectedFile = null;
+
+      this.showMessage('Profil mis à jour avec succès', 'success');
+      this.closeProfileModal();
+
+      // Forcer l'affichage
+      setTimeout(() => {
+        this.photoPreview = this.etudiantInfo?.photoUrl || null;
+      }, 500);
+
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      this.showMessage('Erreur lors de la sauvegarde du profil', 'error');
+    } finally {
+      this.isUploadingPhoto = false;
+    }
+  }
+
+  // Récupérer l'URL de la photo de profil
+  getProfilePhotoUrl(): string | null {
+    if (this.etudiantInfo) {
+      const localPhoto = localStorage.getItem(`photo_etudiant_${this.etudiantInfo.idEtudiant}`);
+      if (localPhoto) return localPhoto;
+    }
+    return this.etudiantInfo?.photoUrl || null;
+  }
+
   // ==================== GESTION DES DEMANDES DE FORMATION ====================
 
-  // Ouvrir le modal de demande
   openDemandeModal() {
     this.demandeForm = { intitule: '', description: '' };
     this.showDemandeModal = true;
   }
 
-  // Fermer le modal de demande
   closeDemandeModal() {
     this.showDemandeModal = false;
     this.demandeForm = { intitule: '', description: '' };
   }
 
-  // Soumettre une demande de formation
   soumettreDemande() {
     if (!this.demandeForm.intitule.trim() || !this.demandeForm.description.trim()) {
       this.showMessage('Veuillez remplir tous les champs', 'error');
@@ -126,7 +324,6 @@ export class EtudiantDashboard implements OnInit {
     this.loadMesDemandes();
   }
 
-  // Obtenir le libellé du statut d'une demande
   getStatutDemandeLabel(statut: string): string {
     switch(statut) {
       case 'en_attente': return 'En attente';
@@ -137,7 +334,6 @@ export class EtudiantDashboard implements OnInit {
     }
   }
 
-  // Obtenir la classe CSS pour le badge de statut
   getStatutDemandeClass(statut: string): string {
     switch(statut) {
       case 'en_attente': return 'bg-warning text-dark';
@@ -148,7 +344,6 @@ export class EtudiantDashboard implements OnInit {
     }
   }
 
-  // Obtenir l'icône pour le statut
   getStatutDemandeIcon(statut: string): string {
     switch(statut) {
       case 'en_attente': return 'bi-clock';
@@ -157,104 +352,6 @@ export class EtudiantDashboard implements OnInit {
       case 'refusee': return 'bi-x-circle';
       default: return 'bi-question-circle';
     }
-  }
-
-  // ==================== GESTION DU PROFIL ====================
-
-  loadProfileData() {
-    if (this.etudiantInfo) {
-      this.profileForm = {
-        nom: this.etudiantInfo.nom,
-        prenom: this.etudiantInfo.prenom,
-        mail: this.etudiantInfo.mail,
-        tel: this.etudiantInfo.tel,
-        niveau: this.etudiantInfo.niveau,
-        password: '',
-        confirmPassword: ''
-      };
-    }
-    this.passwordError = '';
-    this.showPassword = false;
-    this.showConfirmPassword = false;
-  }
-
-  openProfileModal() {
-    this.loadProfileData();
-    this.showProfileModal = true;
-  }
-
-  closeProfileModal() {
-    this.showProfileModal = false;
-    this.passwordError = '';
-    this.showPassword = false;
-    this.showConfirmPassword = false;
-  }
-
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
-
-  toggleConfirmPasswordVisibility() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
-  saveProfile() {
-    if (!this.etudiantInfo) return;
-
-    if (this.profileForm.password) {
-      if (this.profileForm.password.length < 6) {
-        this.passwordError = 'Le mot de passe doit contenir au moins 6 caractères';
-        return;
-      }
-      if (this.profileForm.password !== this.profileForm.confirmPassword) {
-        this.passwordError = 'Les mots de passe ne correspondent pas';
-        return;
-      }
-    }
-
-    this.passwordError = '';
-
-    const updateData: any = {
-      nom: this.profileForm.nom,
-      prenom: this.profileForm.prenom,
-      mail: this.profileForm.mail,
-      tel: this.profileForm.tel,
-      niveau: this.profileForm.niveau
-    };
-
-    if (this.profileForm.password) {
-      updateData.motpass = this.profileForm.password;
-    }
-
-    this.databaseService.updateEtudiant(this.etudiantInfo.idEtudiant, updateData);
-
-    this.etudiantInfo = {
-      ...this.etudiantInfo,
-      nom: this.profileForm.nom,
-      prenom: this.profileForm.prenom,
-      mail: this.profileForm.mail,
-      tel: this.profileForm.tel,
-      niveau: this.profileForm.niveau
-    };
-
-    if (this.profileForm.password) {
-      this.etudiantInfo.motpass = this.profileForm.password;
-    }
-
-    if (this.currentUser) {
-      this.currentUser.firstName = this.profileForm.prenom;
-      this.currentUser.lastName = this.profileForm.nom;
-      this.currentUser.email = this.profileForm.mail;
-      this.currentUser.phone = this.profileForm.tel;
-      this.currentUser.level = this.profileForm.niveau as any;
-      if (this.profileForm.password) {
-        this.currentUser.password = this.profileForm.password;
-      }
-      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-    }
-
-    this.showMessage('Profil mis à jour avec succès', 'success');
-    this.closeProfileModal();
   }
 
   // ==================== RECHERCHE ET FILTRAGE ====================

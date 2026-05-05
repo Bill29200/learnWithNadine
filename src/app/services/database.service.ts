@@ -9,6 +9,7 @@ export interface Admin {
   nom: string;
   email: string;
   motpass: string;
+  photoUrl?: string;  // Ajouté
 }
 
 export interface Formateur {
@@ -20,7 +21,7 @@ export interface Formateur {
   motpass: string;
   niveau: string;
   specialite: string;
-  photo: string;
+  photoUrl: string;  // Utilisez photoUrl (pas photo)
   statut: 'actif' | 'bloque';
 }
 
@@ -44,7 +45,7 @@ export interface Etudiant {
   niveau: string;
   motpass: string;
   statut: 'actif' | 'bloque';
-  photo: string;
+  photoUrl: string;  // Changé de 'photo' à 'photoUrl'
 }
 
 export interface Inscription {

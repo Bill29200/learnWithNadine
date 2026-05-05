@@ -1,3 +1,4 @@
+// src/app/admin/admin-dashboard/admin-dashboard.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -5,7 +6,9 @@ import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { DatabaseService, FormationDetail, Inscription, Etudiant, Formateur, Admin, Database, DemandeFormation } from '../../services/database.service';
+
 import { User } from '../../model/user.model';
+import {PhotoService} from '../../services/photo';
 
 // Interface pour le regroupement par formation
 interface FormationInscriptionGroup {
@@ -76,6 +79,12 @@ export class AdminDashboard implements OnInit, OnDestroy {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
   passwordError: string = '';
+
+  // Gestion photo de profil admin
+  selectedFile: File | null = null;
+  photoPreview: string | null = null;
+  isUploadingPhoto: boolean = false;
+
   profileForm: ProfileForm = {
     nom: '',
     email: '',
@@ -119,14 +128,22 @@ export class AdminDashboard implements OnInit, OnDestroy {
   showAddInscriptionModal: boolean = false;
   programmeInput: string = '';
 
+  // Gestion des photos pour ajout d'étudiant/formateur
+  selectedEtudiantPhoto: File | null = null;
+  selectedFormateurPhoto: File | null = null;
+  etudiantPhotoPreview: string | null = null;
+  formateurPhotoPreview: string | null = null;
+  isUploadingEtudiantPhoto: boolean = false;
+  isUploadingFormateurPhoto: boolean = false;
+
   niveauxEtudiants: string[] = ['bac+1', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'bac+6', 'bac+7', 'bac+8'];
   niveauxFormateurs: string[] = ['autre', 'licence', 'master', 'ingenieur', 'magister', 'doctorat'];
 
   newEtudiant: any = {
-    nom: '', prenom: '', mail: '', tel: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+    nom: '', prenom: '', mail: '', tel: '', niveau: '', motpass: '', statut: 'actif', photoUrl: ''
   };
   newFormateur: any = {
-    nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: '', motpass: '', statut: 'actif', photo: ''
+    nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: '', motpass: '', statut: 'actif', photoUrl: ''
   };
   newFormation: any = {
     intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide'
@@ -138,7 +155,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private photoService: PhotoService
   ) {}
 
   ngOnInit() {
@@ -242,6 +260,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
         password: '',
         confirmPassword: ''
       };
+      this.photoPreview = this.adminInfo.photoUrl || null;
     } else if (this.currentUser) {
       this.profileForm = {
         nom: `${this.currentUser.firstName} ${this.currentUser.lastName}`,
@@ -249,10 +268,13 @@ export class AdminDashboard implements OnInit, OnDestroy {
         password: '',
         confirmPassword: ''
       };
+      const savedPhotoUrl = localStorage.getItem('adminPhotoUrl');
+      this.photoPreview = savedPhotoUrl || null;
     }
     this.passwordError = '';
     this.showPassword = false;
     this.showConfirmPassword = false;
+    this.selectedFile = null;
   }
 
   openProfileModal() {
@@ -265,6 +287,9 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.passwordError = '';
     this.showPassword = false;
     this.showConfirmPassword = false;
+    this.selectedFile = null;
+    this.photoPreview = this.adminInfo?.photoUrl || null;
+    this.isUploadingPhoto = false;
   }
 
   togglePasswordVisibility() {
@@ -275,8 +300,36 @@ export class AdminDashboard implements OnInit, OnDestroy {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  saveProfile() {
-    if (!this.adminInfo && !this.currentUser) return;
+  onPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showMessage('Veuillez sélectionner une image', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.showMessage('L\'image ne doit pas dépasser 5MB', 'error');
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async saveProfile() {
+    if (!this.adminInfo && !this.currentUser) {
+      this.showMessage('Informations utilisateur non trouvées', 'error');
+      return;
+    }
 
     if (this.profileForm.password) {
       if (this.profileForm.password.length < 6) {
@@ -290,41 +343,235 @@ export class AdminDashboard implements OnInit, OnDestroy {
     }
 
     this.passwordError = '';
+    this.isUploadingPhoto = true;
 
-    const updateData: any = {
-      nom: this.profileForm.nom,
-      email: this.profileForm.email
-    };
+    try {
+      let photoUrl = this.adminInfo?.photoUrl;
 
-    if (this.profileForm.password) {
-      updateData.motpass = this.profileForm.password;
-    }
+      if (this.selectedFile && this.adminInfo) {
+        console.log('Upload de la nouvelle photo...');
 
-    if (this.adminInfo) {
-      this.databaseService.updateAdmin(this.adminInfo.id, updateData);
-      this.adminInfo = {
-        ...this.adminInfo,
+        if (photoUrl && photoUrl.includes('firebasestorage')) {
+          try {
+            await this.photoService.deleteOldPhoto(photoUrl);
+            console.log('Ancienne photo supprimée');
+          } catch (deleteError) {
+            console.warn('Erreur suppression ancienne photo:', deleteError);
+          }
+        }
+
+        photoUrl = await this.photoService.uploadProfilePhoto(
+          this.selectedFile,
+          this.adminInfo.id,
+          'admin'
+        );
+        console.log('Nouvelle photo uploadée:', photoUrl);
+        this.photoPreview = photoUrl;
+      }
+
+      const updateData: any = {
         nom: this.profileForm.nom,
         email: this.profileForm.email
       };
+
       if (this.profileForm.password) {
-        this.adminInfo.motpass = this.profileForm.password;
+        updateData.motpass = this.profileForm.password;
       }
+
+      if (photoUrl) {
+        updateData.photoUrl = photoUrl;
+      }
+
+      console.log('Mise à jour admin avec:', updateData);
+
+      if (this.adminInfo) {
+        this.databaseService.updateAdmin(this.adminInfo.id, updateData);
+
+        this.adminInfo = {
+          ...this.adminInfo,
+          nom: this.profileForm.nom,
+          email: this.profileForm.email
+        };
+
+        if (this.profileForm.password) {
+          this.adminInfo.motpass = this.profileForm.password;
+        }
+
+        if (photoUrl) {
+          this.adminInfo.photoUrl = photoUrl;
+        }
+      }
+
+      if (this.currentUser) {
+        const nameParts = this.profileForm.nom.split(' ');
+        this.currentUser.firstName = nameParts[0] || '';
+        this.currentUser.lastName = nameParts.slice(1).join(' ') || '';
+        this.currentUser.email = this.profileForm.email;
+        if (this.profileForm.password) {
+          this.currentUser.password = this.profileForm.password;
+        }
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+
+        if (photoUrl) {
+          localStorage.setItem('adminPhotoUrl', photoUrl);
+        }
+      }
+
+      this.selectedFile = null;
+
+      this.showMessage('Profil mis à jour avec succès', 'success');
+      this.closeProfileModal();
+
+      setTimeout(() => {
+        this.refreshData();
+      }, 500);
+
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      this.showMessage('Erreur lors de la sauvegarde du profil', 'error');
+    } finally {
+      this.isUploadingPhoto = false;
+    }
+  }
+
+  // ==================== GESTION DES PHOTOS POUR ÉTUDIANTS ET FORMATEURS ====================
+
+  onEtudiantPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showMessage('Veuillez sélectionner une image', 'error');
+      return;
     }
 
-    if (this.currentUser) {
-      const nameParts = this.profileForm.nom.split(' ');
-      this.currentUser.firstName = nameParts[0] || '';
-      this.currentUser.lastName = nameParts.slice(1).join(' ') || '';
-      this.currentUser.email = this.profileForm.email;
-      if (this.profileForm.password) {
-        this.currentUser.password = this.profileForm.password;
-      }
-      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    if (file.size > 5 * 1024 * 1024) {
+      this.showMessage('L\'image ne doit pas dépasser 5MB', 'error');
+      return;
     }
 
-    this.showMessage('Profil mis à jour avec succès', 'success');
-    this.closeProfileModal();
+    this.selectedEtudiantPhoto = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.etudiantPhotoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onFormateurPhotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showMessage('Veuillez sélectionner une image', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.showMessage('L\'image ne doit pas dépasser 5MB', 'error');
+      return;
+    }
+
+    this.selectedFormateurPhoto = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.formateurPhotoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async saveNewEtudiant() {
+    if (!this.newEtudiant.nom || !this.newEtudiant.prenom || !this.newEtudiant.mail || !this.newEtudiant.motpass) {
+      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    if (this.newEtudiant.motpass.length < 6) {
+      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+      return;
+    }
+
+    let photoUrl = '';
+
+    if (this.selectedEtudiantPhoto) {
+      this.isUploadingEtudiantPhoto = true;
+      try {
+        const tempId = Date.now();
+        photoUrl = await this.photoService.uploadProfilePhoto(
+          this.selectedEtudiantPhoto,
+          tempId,
+          'etudiant'
+        );
+      } catch (error) {
+        console.error('Erreur upload photo étudiant:', error);
+        this.showMessage('Erreur lors de l\'upload de la photo', 'error');
+        this.isUploadingEtudiantPhoto = false;
+        return;
+      }
+      this.isUploadingEtudiantPhoto = false;
+    }
+
+    const newEtudiantData = {
+      ...this.newEtudiant,
+      photoUrl: photoUrl
+    };
+
+    this.databaseService.addEtudiant(newEtudiantData);
+    this.showMessage(`Étudiant ${this.newEtudiant.prenom} ${this.newEtudiant.nom} créé avec succès`, 'success');
+
+    this.selectedEtudiantPhoto = null;
+    this.etudiantPhotoPreview = null;
+    this.closeAddEtudiantModal();
+    this.refreshData();
+  }
+
+  async saveNewFormateur() {
+    if (!this.newFormateur.nom || !this.newFormateur.prenom || !this.newFormateur.mail || !this.newFormateur.motpass) {
+      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+    if (this.newFormateur.motpass.length < 6) {
+      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+      return;
+    }
+
+    let photoUrl = '';
+
+    if (this.selectedFormateurPhoto) {
+      this.isUploadingFormateurPhoto = true;
+      try {
+        const tempId = Date.now();
+        photoUrl = await this.photoService.uploadProfilePhoto(
+          this.selectedFormateurPhoto,
+          tempId,
+          'formateur'
+        );
+      } catch (error) {
+        console.error('Erreur upload photo formateur:', error);
+        this.showMessage('Erreur lors de l\'upload de la photo', 'error');
+        this.isUploadingFormateurPhoto = false;
+        return;
+      }
+      this.isUploadingFormateurPhoto = false;
+    }
+
+    const newFormateurData = {
+      ...this.newFormateur,
+      photoUrl: photoUrl
+    };
+
+    this.databaseService.addFormateur(newFormateurData);
+    this.showMessage(`Formateur ${this.newFormateur.prenom} ${this.newFormateur.nom} créé avec succès`, 'success');
+
+    this.selectedFormateurPhoto = null;
+    this.formateurPhotoPreview = null;
+    this.closeAddFormateurModal();
+    this.refreshData();
   }
 
   // ==================== PARAMÈTRES ====================
@@ -832,6 +1079,18 @@ export class AdminDashboard implements OnInit, OnDestroy {
     return formateur ? `${formateur.prenom} ${formateur.nom}` : 'Inconnu';
   }
 
+  getEtudiantPhotoUrl(etudiant: Etudiant): string | null {
+    return etudiant.photoUrl || null;
+  }
+
+  getFormateurPhotoUrl(formateur: Formateur): string | null {
+    return formateur.photoUrl || null;
+  }
+
+  getAdminPhotoUrl(): string | null {
+    return this.adminInfo?.photoUrl || null;
+  }
+
   getFormationStatutBadgeClass(statut: string): string {
     return statut === 'valide' ? 'badge bg-success' : 'badge bg-warning text-dark';
   }
@@ -863,59 +1122,45 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   // Méthodes pour les modals d'ajout
   openAddEtudiantModal() {
-    this.newEtudiant = { nom: '', prenom: '', mail: '', tel: '', niveau: 'bac+1', motpass: '', statut: 'actif', photo: '' };
+    this.newEtudiant = { nom: '', prenom: '', mail: '', tel: '', niveau: 'bac+1', motpass: '', statut: 'actif', photoUrl: '' };
+    this.selectedEtudiantPhoto = null;
+    this.etudiantPhotoPreview = null;
     this.showAddEtudiantModal = true;
   }
-  closeAddEtudiantModal() { this.showAddEtudiantModal = false; }
+
+  closeAddEtudiantModal() {
+    this.showAddEtudiantModal = false;
+    this.selectedEtudiantPhoto = null;
+    this.etudiantPhotoPreview = null;
+  }
 
   openAddFormateurModal() {
-    this.newFormateur = { nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: 'autre', motpass: '', statut: 'actif', photo: '' };
+    this.newFormateur = { nom: '', prenom: '', mail: '', tel: '', specialite: '', niveau: 'autre', motpass: '', statut: 'actif', photoUrl: '' };
+    this.selectedFormateurPhoto = null;
+    this.formateurPhotoPreview = null;
     this.showAddFormateurModal = true;
   }
-  closeAddFormateurModal() { this.showAddFormateurModal = false; }
+
+  closeAddFormateurModal() {
+    this.showAddFormateurModal = false;
+    this.selectedFormateurPhoto = null;
+    this.formateurPhotoPreview = null;
+  }
 
   openAddFormationModal() {
     this.newFormation = { intitule: '', idFormateur: null, duree: '', prix: 0, description: '', programme: [], statut: 'valide' };
     this.programmeInput = '';
     this.showAddFormationModal = true;
   }
+
   closeAddFormationModal() { this.showAddFormationModal = false; }
 
   openAddInscriptionModal() {
     this.newInscription = { idEtudiant: null, idFormation: null, dateInscription: new Date().toISOString().split('T')[0], statut: 'non paye' };
     this.showAddInscriptionModal = true;
   }
+
   closeAddInscriptionModal() { this.showAddInscriptionModal = false; }
-
-  saveNewEtudiant() {
-    if (!this.newEtudiant.nom || !this.newEtudiant.prenom || !this.newEtudiant.mail || !this.newEtudiant.motpass) {
-      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
-      return;
-    }
-    if (this.newEtudiant.motpass.length < 6) {
-      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
-      return;
-    }
-    this.databaseService.addEtudiant(this.newEtudiant);
-    this.showMessage(`Étudiant ${this.newEtudiant.prenom} ${this.newEtudiant.nom} créé avec succès`, 'success');
-    this.closeAddEtudiantModal();
-    this.refreshData();
-  }
-
-  saveNewFormateur() {
-    if (!this.newFormateur.nom || !this.newFormateur.prenom || !this.newFormateur.mail || !this.newFormateur.motpass) {
-      this.showMessage('Veuillez remplir tous les champs obligatoires', 'error');
-      return;
-    }
-    if (this.newFormateur.motpass.length < 6) {
-      this.showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
-      return;
-    }
-    this.databaseService.addFormateur(this.newFormateur);
-    this.showMessage(`Formateur ${this.newFormateur.prenom} ${this.newFormateur.nom} créé avec succès`, 'success');
-    this.closeAddFormateurModal();
-    this.refreshData();
-  }
 
   addProgrammePointAdmin() {
     if (this.programmeInput.trim()) {
@@ -984,6 +1229,49 @@ export class AdminDashboard implements OnInit, OnDestroy {
 
   setActiveTab(tab: string) {
     this.activeAdminTab = tab;
+  }
+
+  // Version simplifiée de uploadAdminPhoto()
+  async uploadAdminPhoto() {
+    if (!this.selectedFile) {
+      this.showMessage('Veuillez sélectionner une photo', 'error');
+      return;
+    }
+
+    if (!this.adminInfo) {
+      this.showMessage('Admin non trouvé', 'error');
+      return;
+    }
+
+    this.isUploadingPhoto = true;
+
+    try {
+      // Upload de la photo
+      const photoUrl = await this.photoService.uploadProfilePhoto(
+        this.selectedFile,
+        this.adminInfo.id,
+        'admin'
+      );
+
+      // Sauvegarde dans la base de données
+      this.databaseService.updateAdmin(this.adminInfo.id, { photoUrl: photoUrl });
+
+      // Mise à jour locale
+      this.adminInfo.photoUrl = photoUrl;
+      this.photoPreview = photoUrl;
+      this.selectedFile = null;
+
+      this.showMessage('Photo mise à jour avec succès', 'success');
+
+      // Rafraîchir
+      setTimeout(() => this.refreshData(), 500);
+
+    } catch (error) {
+      console.error('Erreur:', error);
+      this.showMessage('Erreur lors de l\'upload', 'error');
+    } finally {
+      this.isUploadingPhoto = false;
+    }
   }
 }
 
