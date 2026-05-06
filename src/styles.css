@@ -1,46 +1,655 @@
-.text-orange {
-  color: #ff5928 !important;
+/* ============================================================================
+   VARIABLES GLOBALES - THÈME UNIFIÉ
+   ============================================================================ */
+
+:root {
+  /* ===== PALETTE DE COULEURS SÉMANTIQUE ===== */
+  --color-formation: #3B82F6;      /* Bleu - Formations */
+  --color-inscription: #10B981;    /* Vert - Inscriptions */
+  --color-utilisateur: #8B5CF6;    /* Violet - Utilisateurs */
+  --color-formateur: #F97316;      /* Orange - Formateurs */
+  --color-etudiant: #06B6D4;       /* Cyan - Étudiants */
+  --color-revenu: #F59E0B;         /* Ambre - Revenus/Bénéfices */
+  --color-demande: #EC4899;        /* Rose - Demandes de formation */
+  --color-accent: #ff5928;         /* Orange vif - Actions principales */
+  --color-danger: #EF4444;         /* Rouge - Suppressions/Erreurs */
+  --color-danger-dark: #DC2626;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+  --color-dark: #1F2937;
+  --color-gray: #6B7280;
+  --color-light: #F3F4F6;
+
+  /* ===== DÉGRADÉS CORRESPONDANTS ===== */
+  --gradient-formation: linear-gradient(135deg, var(--color-formation) 0%, #60A5FA 100%);
+  --gradient-inscription: linear-gradient(135deg, var(--color-inscription) 0%, #34D399 100%);
+  --gradient-utilisateur: linear-gradient(135deg, var(--color-utilisateur) 0%, #A78BFA 100%);
+  --gradient-formateur: linear-gradient(135deg, var(--color-formateur) 0%, #FB923C 100%);
+  --gradient-etudiant: linear-gradient(135deg, var(--color-etudiant) 0%, #22D3EE 100%);
+  --gradient-revenu: linear-gradient(135deg, var(--color-revenu) 0%, #FBBF24 100%);
+  --gradient-demande: linear-gradient(135deg, var(--color-demande) 0%, #F472B6 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, #ff8a5c 100%);
+  --gradient-danger: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+
+  /* ===== COULEURS DE FOND POUR CARTES ÉTUDIANTS (MODAL) ===== */
+  --bg-student-1: #FFF5F5;
+  --bg-student-2: #F0FFF4;
+  --bg-student-3: #EBF8FF;
+  --bg-student-4: #FFF9E6;
+  --bg-student-5: #F3E8FF;
+  --bg-student-6: #FFE0F0;
+  --bg-student-7: #E0F7FA;
+  --bg-student-8: #E8F5E9;
+  --bg-student-9: #FFF3E0;
+  --bg-student-10: #E8EAF6;
+
+  /* ===== OMBRES ===== */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-orange: 0 4px 12px rgba(255, 89, 40, 0.3);
+  --shadow-orange-lg: 0 10px 20px rgba(255, 89, 40, 0.3);
+  --shadow-formation: 0 4px 8px rgba(59, 130, 246, 0.2);
+  --shadow-formation-lg: 0 10px 20px rgba(59, 130, 246, 0.3);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: all 0.2s ease;
+  --transition-base: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+
+  /* ===== BORDURES ===== */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
 }
 
+/* ============================================================================
+   STYLES GLOBAUX
+   ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f8fafc;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   CLASSES DE COULEURS UTILITAIRES
+   ============================================================================ */
+
+/* Couleurs de texte */
+.text-formation { color: var(--color-formation) !important; }
+.text-inscription { color: var(--color-inscription) !important; }
+.text-utilisateur { color: var(--color-utilisateur) !important; }
+.text-formateur { color: var(--color-formateur) !important; }
+.text-etudiant { color: var(--color-etudiant) !important; }
+.text-revenu { color: var(--color-revenu) !important; }
+.text-demande { color: var(--color-demande) !important; }
+.text-orange { color: var(--color-accent) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-gray { color: var(--color-gray) !important; }
+
+/* Couleurs de fond */
+.bg-formation { background: var(--gradient-formation) !important; }
+.bg-inscription { background: var(--gradient-inscription) !important; }
+.bg-utilisateur { background: var(--gradient-utilisateur) !important; }
+.bg-formateur { background: var(--gradient-formateur) !important; }
+.bg-etudiant { background: var(--gradient-etudiant) !important; }
+.bg-revenu { background: var(--gradient-revenu) !important; }
+.bg-demande { background: var(--gradient-demande) !important; }
+.bg-orange { background-color: var(--color-accent) !important; }
+.bg-danger { background: var(--gradient-danger) !important; }
+.bg-success { background: var(--gradient-inscription) !important; }
+.bg-warning { background: var(--gradient-revenu) !important; }
+.bg-info { background: var(--gradient-formation) !important; }
+
+/* ============================================================================
+   CARTES
+   ============================================================================ */
+
 .card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: var(--transition-base);
+  border: none;
+  border-radius: var(--radius-2xl);
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .card-orange-shadow {
-  box-shadow: 0 4px 8px rgb(255, 89, 40);
+  box-shadow: var(--shadow-orange);
 }
 
 .card-orange-shadow:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgb(255, 89, 40) !important;
+  box-shadow: var(--shadow-orange-lg) !important;
 }
 
-.btn-outline-success:hover, .btn-outline-primary:hover {
+/* Section Cards */
+.section-card {
+  background: white;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+}
+
+.section-header {
+  padding: 0.8rem 1.2rem;
+  color: white;
+}
+
+.section-body {
+  padding: 1rem;
+}
+
+/* Formation Cards */
+.formation-mini-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-formation);
+  transition: var(--transition-base);
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.formation-mini-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-formation-lg);
+}
+
+.formation-mini-header {
+  padding: 0.8rem 1rem;
+  color: white;
+  min-height: 95px;
+}
+
+.formation-mini-badge {
+  font-size: 0.65rem;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  backdrop-filter: blur(5px);
+  font-weight: 500;
+}
+
+.formation-mini-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.formation-mini-body {
+  padding: 0.8rem 1rem;
+  flex: 1;
+}
+
+.formation-mini-description {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.formation-mini-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+  color: #6c757d;
+}
+
+.formation-mini-info i {
+  margin-right: 3px;
+  color: var(--color-formation);
+}
+
+.formation-mini-footer {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.formation-mini-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: var(--color-formation);
+  opacity: 0;
+  transition: var(--transition-base);
+}
+
+.formation-mini-card:hover .formation-mini-icon {
+  opacity: 0.5;
+  transform: translateX(3px);
+}
+
+/* ============================================================================
+   COULEURS DYNAMIQUES DES CARTES (16 variantes)
+   ============================================================================ */
+
+.card-header-color-0 { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); }
+.card-header-color-1 { background: linear-gradient(135deg, #A770EF 0%, #CF8BF3 100%); }
+.card-header-color-2 { background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%); }
+.card-header-color-3 { background: linear-gradient(135deg, #11998E 0%, #38EF7D 100%); }
+.card-header-color-4 { background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%); }
+.card-header-color-5 { background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%); }
+.card-header-color-6 { background: linear-gradient(135deg, #1E3C72 0%, #2A5298 100%); }
+.card-header-color-7 { background: linear-gradient(135deg, #134E5E 0%, #71B280 100%); }
+.card-header-color-8 { background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); }
+.card-header-color-9 { background: linear-gradient(135deg, #CB356B 0%, #BD3F32 100%); }
+.card-header-color-10 { background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%); }
+.card-header-color-11 { background: linear-gradient(135deg, #F53844 0%, #42378F 100%); }
+.card-header-color-12 { background: linear-gradient(135deg, #FFB75E 0%, #ED8F03 100%); }
+.card-header-color-13 { background: linear-gradient(135deg, #2193B0 0%, #6DD5ED 100%); }
+.card-header-color-14 { background: linear-gradient(135deg, #00B09B 0%, #96C93D 100%); }
+.card-header-color-15 { background: linear-gradient(135deg, #FF5F6D 0%, #FFC371 100%); }
+
+/* Classes sémantiques pour les cartes */
+.card-header-valid {
+  background: var(--gradient-formation);
+}
+.card-header-pending {
+  background: var(--gradient-revenu);
+}
+.card-header-formation { background: var(--gradient-formation); }
+.card-header-inscription { background: var(--gradient-inscription); }
+.card-header-utilisateur { background: var(--gradient-utilisateur); }
+.card-header-formateur { background: var(--gradient-formateur); }
+.card-header-etudiant { background: var(--gradient-etudiant); }
+.card-header-revenu { background: var(--gradient-revenu); }
+.card-header-demande { background: var(--gradient-demande); }
+
+/* Cartes pour les étudiants dans les modals */
+.student-card-bg-0 { background: var(--bg-student-1); }
+.student-card-bg-1 { background: var(--bg-student-2); }
+.student-card-bg-2 { background: var(--bg-student-3); }
+.student-card-bg-3 { background: var(--bg-student-4); }
+.student-card-bg-4 { background: var(--bg-student-5); }
+.student-card-bg-5 { background: var(--bg-student-6); }
+.student-card-bg-6 { background: var(--bg-student-7); }
+.student-card-bg-7 { background: var(--bg-student-8); }
+.student-card-bg-8 { background: var(--bg-student-9); }
+.student-card-bg-9 { background: var(--bg-student-10); }
+
+/* ============================================================================
+   BOUTONS
+   ============================================================================ */
+
+.btn {
+  transition: var(--transition-base);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+.btn-orange {
+  background: var(--gradient-accent);
+  border: none;
+  color: white;
+}
+
+.btn-orange:hover {
   transform: translateY(-2px);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-orange-lg);
+  color: white;
 }
 
 .btn-outline-orange {
-  color: #ff5928;
-  border: 1px solid #ff5928;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  background: transparent;
 }
 
 .btn-outline-orange:hover {
-  background-color: #ff5928;
-  color: #fff;
-  border-color: #ff5928;
+  background-color: var(--color-accent);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-orange);
 }
 
-.bg-orange {
-  background-color: #ff5928 !important;
+.btn-outline-formation {
+  color: var(--color-formation);
+  border: 1px solid var(--color-formation);
+  background: transparent;
 }
 
-/* =============== AUTH FORMS STYLES =============== */
+.btn-outline-formation:hover {
+  background-color: var(--color-formation);
+  color: white;
+}
+
+.btn-outline-inscription {
+  color: var(--color-inscription);
+  border: 1px solid var(--color-inscription);
+  background: transparent;
+}
+
+.btn-outline-inscription:hover {
+  background-color: var(--color-inscription);
+  color: white;
+}
+
+.btn-outline-danger {
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--color-danger);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-outline-success {
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+  background: transparent;
+}
+
+.btn-outline-success:hover {
+  background-color: var(--color-success);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+  color: var(--color-formation);
+  border: 1px solid var(--color-formation);
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-formation);
+  color: white;
+}
+
+.btn-success {
+  background: var(--gradient-inscription);
+  border: none;
+  color: white;
+}
+
+.btn-success:hover {
+  background: var(--gradient-inscription);
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.btn-warning {
+  background: var(--gradient-revenu);
+  border: none;
+  color: white;
+}
+
+.btn-warning:hover {
+  background: var(--gradient-revenu);
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.btn-danger {
+  background: var(--gradient-danger);
+  border: none;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: var(--gradient-danger);
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Boutons d'action pour les inscriptions */
+.btn-paid {
+  background: var(--gradient-revenu);
+  border: none;
+  color: #000;
+}
+
+.btn-paid:hover {
+  background: var(--gradient-revenu);
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
+
+.btn-unpaid {
+  background: var(--gradient-inscription);
+  border: none;
+  color: white;
+}
+
+.btn-unpaid:hover {
+  background: var(--gradient-inscription);
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   BADGES
+   ============================================================================ */
+
+.badge {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.badge.bg-success {
+  background: var(--gradient-inscription) !important;
+}
+
+.badge.bg-danger {
+  background: var(--gradient-danger) !important;
+}
+
+.badge.bg-warning {
+  background: var(--gradient-revenu) !important;
+  color: #000;
+}
+
+.badge.bg-info {
+  background: var(--gradient-formation) !important;
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+}
+
+.badge.bg-light {
+  background: #f8f9fa !important;
+  color: #495057 !important;
+}
+
+/* Badges de statut */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-paid {
+  background: var(--gradient-inscription);
+  color: white;
+}
+
+.status-unpaid {
+  background: var(--gradient-danger);
+  color: white;
+}
+
+.status-pending {
+  background: var(--gradient-revenu);
+  color: #000;
+}
+
+/* ============================================================================
+   BARRE DE RECHERCHE
+   ============================================================================ */
+
+.search-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.input-group {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.input-group-text {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.input-group-text i {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  height: 38px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #ced4da;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: var(--color-accent);
+}
+
+/* Conseils de recherche */
+.search-tips {
+  font-size: 0.75rem;
+}
+
+.search-tips .badge {
+  font-size: 0.7rem;
+  font-weight: normal;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.search-tips .badge:hover {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+}
+
+/* Résultats de recherche */
+.search-highlight {
+  background-color: #ffeb3b;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #000;
+  transition: var(--transition-fast);
+}
+
+.search-results .alert {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  display: inline-block;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  color: #856404;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+}
+
+/* ============================================================================
+   FORMULAIRES (AUTH)
+   ============================================================================ */
+
 .auth-card,
 .register-card {
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: var(--transition-base);
 }
 
 .auth-card:hover,
@@ -53,7 +662,7 @@
 .register-card-header {
   padding: 1.25rem;
   border: none;
-  background: linear-gradient(135deg, #ff5928 0%, #ff7a52 100%);
+  background: var(--gradient-accent);
 }
 
 .auth-card-header h4,
@@ -73,15 +682,15 @@
 .form-control-sm,
 .form-select-sm {
   border: 1px solid #e0e0e0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   padding: 0.5rem 0.75rem;
-  transition: all 0.2s ease;
+  transition: var(--transition-fast);
 }
 
 .form-control-sm:focus,
 .form-select-sm:focus {
-  border-color: #ff5928;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 0.2rem rgba(255, 89, 40, 0.15);
   outline: none;
 }
@@ -91,113 +700,803 @@
   font-size: 0.9rem;
 }
 
-.btn-orange {
-  background-color: #ff5928;
-  border: 1px solid #ff5928;
-  color: white;
-  padding: 0.6rem 1rem;
-  font-size: 0.95rem;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn-orange:hover {
-  background-color: #e64d1f;
-  border-color: #e64d1f;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 89, 40, 0.3);
-}
-
 .alert-sm {
   padding: 0.75rem;
   font-size: 0.875rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .fw-600 {
   font-weight: 600;
 }
 
-/* Responsive improvements */
-@media (max-width: 576px) {
-  .card-body {
-    padding: 1.25rem !important;
-  }
+/* ============================================================================
+   AVATARS
+   ============================================================================ */
 
-  .auth-form .form-label,
-  .register-form .form-label {
-    font-size: 0.8rem;
-  }
-
-  .form-control-sm,
-  .form-select-sm {
-    font-size: 0.9rem;
-    padding: 0.45rem 0.65rem;
-  }
-}
-
-/* You can add global styles to this file, and also import other style files */
-/* ____________________ */
-.register-card-header {
-  border-bottom: 2px solid rgba(255, 89, 40, 0.2);
-}
-
-.register-card-header h3 {
-  letter-spacing: 0.02em;
-}
-
-.card-body .form-label {
-  font-weight: 600;
-}
-
-.card-body a {
-  color: #ff5928;
-}
-
-.card-body a:hover {
-  text-decoration: none;
-}
-
-/* ........ */
 .avatar-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background-color: #ff5928;
+  background: var(--gradient-accent);
   color: white;
   border-radius: 50%;
   font-weight: bold;
   font-size: 14px;
 }
-/* .............. */
-/* Styles pour les boutons icônes */
-.btn-outline-danger {
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  background: transparent;
-  transition: all 0.3s ease;
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-accent);
 }
 
-.btn-outline-danger:hover {
-  background-color: #dc3545;
-  color: white;
+.avatar-lg {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-accent);
+}
+
+/* ============================================================================
+   MODALS
+   ============================================================================ */
+
+.modal.show {
+  display: block;
+}
+
+.modal-content {
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+.modal-header {
+  border: none;
+}
+
+.modal-footer {
+  border: none;
+  background-color: #f8f9fa;
+}
+
+/* ============================================================================
+   CARTES ÉTUDIANTS DANS MODAL
+   ============================================================================ */
+
+.student-card {
+  transition: var(--transition-base);
+  border: none !important;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-xl) !important;
+  cursor: pointer;
+}
+
+.student-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.student-avatar i {
+  transition: var(--transition-base);
+}
+
+.student-card:hover .student-avatar i {
+  transform: scale(1.1);
+}
+
+.student-info {
+  font-size: 0.75rem;
+}
+
+.student-info i {
+  width: 16px;
+  color: var(--color-accent);
+}
+
+/* ============================================================================
+   ONGLETS (TABS)
+   ============================================================================ */
+
+.nav-tabs {
+  border-bottom: none;
+  gap: 0.5rem;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+  color: #6c757d;
+  font-weight: 500;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+  background: #f8f9fa;
+}
+
+.nav-tabs .nav-link:hover {
+  background: #e9ecef;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-.btn-outline-danger i {
+.nav-tabs .nav-link.active {
+  background: var(--gradient-accent);
+  color: white;
+  box-shadow: var(--shadow-orange);
+}
+
+.nav-tabs .nav-link .badge {
+  background: rgba(0, 0, 0, 0.1);
+  color: inherit;
+  margin-left: 0.3rem;
+}
+
+.nav-tabs .nav-link.active .badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* ============================================================================
+   CARTES ADMIN (Étudiants & Formateurs)
+   ============================================================================ */
+
+.student-mini-card,
+.formateur-mini-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  transition: var(--transition-base);
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.student-mini-card:hover,
+.formateur-mini-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+}
+
+.student-mini-avatar,
+.formateur-mini-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  overflow: hidden;
+}
+
+.student-mini-avatar.active,
+.formateur-mini-avatar.active {
+  background: var(--gradient-inscription);
+  color: white;
+}
+
+.student-mini-avatar.blocked,
+.formateur-mini-avatar.blocked {
+  background: var(--gradient-danger);
+  color: white;
+}
+
+.student-mini-avatar i,
+.formateur-mini-avatar i {
+  font-size: 1.8rem;
+}
+
+.student-mini-avatar img,
+.formateur-mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-mini-info,
+.formateur-mini-info {
+  flex: 1;
+}
+
+.student-mini-info h6,
+.formateur-mini-info h6 {
   font-size: 0.9rem;
+  margin-bottom: 0.25rem;
 }
 
-/* Taille des boutons avec icônes uniquement */
-.btn-sm.btn-outline-danger {
-  padding: 0.35rem 0.6rem;
+.student-mini-info .badge,
+.formateur-mini-info .badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
 }
 
-/* Pour les boutons en ligne */
-.d-flex.gap-2 {
-  gap: 8px;
+.student-mini-icon,
+.formateur-mini-icon {
+  color: var(--color-accent);
+  opacity: 0.5;
+  transition: var(--transition-base);
 }
+
+.student-mini-card:hover .student-mini-icon,
+.formateur-mini-card:hover .formateur-mini-icon {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* ============================================================================
+   GESTION DES PHOTOS
+   ============================================================================ */
+
+.photo-upload-container {
+  position: relative;
+  display: inline-block;
+}
+
+.photo-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid var(--color-accent);
+  transition: var(--transition-base);
+  margin: 0 auto;
+}
+
+.photo-preview:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-orange);
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-utilisateur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.photo-placeholder i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.photo-placeholder span {
+  font-size: 0.75rem;
+}
+
+.photo-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: var(--transition-base);
+}
+
+.photo-edit-icon:hover {
+  transform: scale(1.1);
+}
+
+/* ============================================================================
+   PROFIL CARD
+   ============================================================================ */
+
+.profile-card {
+  background: white;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.profile-header {
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.profile-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+}
+
+.profile-body {
+  padding: 1rem 1.2rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row i {
+  width: 24px;
+  color: var(--color-accent);
+}
+
+/* ============================================================================
+   SCROLLBAR PERSONNALISÉE
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e64d1f;
+}
+
+/* Pour les modals et sections avec scroll */
+.modal-body::-webkit-scrollbar,
+.students-grid::-webkit-scrollbar,
+.formations-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.students-grid::-webkit-scrollbar-track,
+.formations-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: var(--radius-full);
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.students-grid::-webkit-scrollbar-thumb,
+.formations-list::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+/* ============================================================================
+   ÉTATS VIDES (EMPTY STATES)
+   ============================================================================ */
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #dee2e6;
+}
+
+.empty-state h5 {
+  margin-top: 1rem;
+  color: #6c757d;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+@keyframes searchPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 89, 40, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 89, 40, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 89, 40, 0);
+  }
+}
+
+.input-group:focus-within {
+  animation: searchPulse 0.6s ease-out;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+/* Tablettes */
+@media (max-width: 992px) {
+  .display-6 {
+    font-size: 1.4rem;
+  }
+
+  .input-group {
+    width: 85%;
+  }
+
+  .photo-preview {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+  .content-with-header {
+    padding-top: 80px;
+  }
+
+  .display-6 {
+    font-size: 1.2rem;
+  }
+
+  .input-group {
+    width: 95%;
+  }
+
+  .formation-mini-title {
+    font-size: 0.85rem;
+  }
+
+  .formation-mini-description {
+    font-size: 0.7rem;
+  }
+
+  .formation-mini-info {
+    font-size: 0.6rem;
+    gap: 0.4rem;
+  }
+
+  .formation-mini-footer .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .formation-mini-header {
+    padding: 0.8rem 0.8rem 0.6rem 0.8rem;
+  }
+
+  .formation-mini-badge {
+    font-size: 0.55rem;
+    padding: 3px 8px;
+  }
+
+  .search-tips .badge {
+    font-size: 0.6rem;
+    margin: 2px;
+  }
+
+  .search-tips {
+    font-size: 0.65rem;
+  }
+
+  .form-control {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .input-group-text {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .input-group-text i {
+    font-size: 0.8rem;
+  }
+
+  .input-group .btn-outline-orange {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .profile-avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .profile-avatar i {
+    font-size: 1.5rem !important;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .student-mini-card, .formateur-mini-card {
+    padding: 0.75rem;
+  }
+
+  .student-mini-avatar, .formateur-mini-avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .student-mini-avatar i, .formateur-mini-avatar i {
+    font-size: 1.5rem;
+  }
+
+  /* Inscriptions responsive */
+  .inscription-student-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .inscription-student-footer {
+    flex-direction: column;
+  }
+
+  .inscription-student-footer .action-btn {
+    width: 100%;
+  }
+
+  .formation-header .row {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .formation-header .col-md-5,
+  .formation-header .col-md-7 {
+    width: 100%;
+  }
+
+  .formation-header .d-flex.justify-content-end {
+    justify-content: center !important;
+  }
+
+  .photo-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .photo-edit-icon {
+    padding: 5px;
+  }
+
+  .photo-edit-icon i {
+    font-size: 0.8rem;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 576px) {
+  .content-with-header {
+    padding-top: 70px;
+  }
+
+  .display-6 {
+    font-size: 1rem;
+  }
+
+  .card-body {
+    padding: 0.75rem;
+  }
+
+  .input-group {
+    width: 100%;
+  }
+
+  .search-tips .badge {
+    font-size: 0.55rem;
+  }
+
+  .student-mini-card, .formateur-mini-card {
+    padding: 0.6rem;
+  }
+
+  .student-mini-avatar, .formateur-mini-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .student-mini-avatar i, .formateur-mini-avatar i {
+    font-size: 1.2rem;
+  }
+
+  .modal-footer .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .photo-preview {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* ============================================================================
+   UTILITAIRES DIVERS
+   ============================================================================ */
+
+/* Opacités */
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+
+/* Bordures */
+.border-top {
+  border-top: 1px solid #e9ecef;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.border-start-0 {
+  border-left: none !important;
+}
+
+.border-end-0 {
+  border-right: none !important;
+}
+
+/* Espacements */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+
+/* Tailles d'affichage */
+.display-4 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.display-6 {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* Curseur */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Images */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Cards d'information */
+.info-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: var(--radius-lg);
+}
+
+.info-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.info-card ul li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.85rem;
+}
+
+.info-card ul li:last-child {
+  border-bottom: none;
+}
+
+.info-card ul li::before {
+  content: "📌";
+  margin-right: 8px;
+  color: var(--color-accent);
+}
+
+/* Dégradés de fond généraux */
+.bg-gradient-light {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Animation pour les boutons de dropdown */
+.dropdown-toggle::after {
+  margin-left: 8px;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+}
+
+/* Badge de compteur blanc */
+.counter-badge {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.counter-badge.bg-success {
+  background: var(--gradient-inscription);
+}
+
+.counter-badge.bg-warning {
+  background: var(--gradient-revenu);
+  color: #000;
+}
+
+/* Style pour les boutons dans les modals d'ajout */
+.btn-outline-info {
+  color: var(--color-formation);
+  border: 1px solid var(--color-formation);
+  background: transparent;
+}
+
+.btn-outline-info:hover {
+  background-color: var(--color-formation);
+  color: white;
+}
+
+/* ============================================================================
+   FIN DES STYLES
+   ============================================================================ */

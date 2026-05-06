@@ -1,3 +1,8 @@
+/* ============================================================================
+   MAIN (PAGE D'ACCUEIL) - STYLES SPÉCIFIQUES
+   ============================================================================ */
+
+/* ==================== MAIN HEADER ==================== */
 .main-header {
   position: fixed;
   top: 0;
@@ -11,12 +16,12 @@
   padding-top: 90px;
 }
 
-/* ==================== CARTES FORMATIONS (identique aux dashboards) ==================== */
+/* ==================== CARTES FORMATIONS ==================== */
 .formation-mini-card {
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -27,7 +32,7 @@
 
 .formation-mini-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
 .formation-mini-header {
@@ -75,7 +80,7 @@
 
 .formation-mini-info i {
   margin-right: 3px;
-  color: #ff5928;
+  color: var(--color-formation);
 }
 
 .formation-mini-footer {
@@ -87,7 +92,7 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: #ff5928;
+  color: var(--color-formation);
   opacity: 0;
   transition: all 0.3s ease;
 }
@@ -97,7 +102,7 @@
   transform: translateX(3px);
 }
 
-/* ==================== COULEURS DES CARTES ==================== */
+/* ==================== COULEURS DES CARTES (10 variantes) ==================== */
 .card-header-color-0 { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); }
 .card-header-color-1 { background: linear-gradient(135deg, #ff9f1c 0%, #ff8c00 100%); }
 .card-header-color-2 { background: linear-gradient(135deg, #2ec4b6 0%, #20a89a 100%); }
@@ -148,13 +153,13 @@
 
 .input-group:focus-within .input-group-text,
 .input-group:focus-within .form-control {
-  border-color: #ff5928;
+  border-color: var(--color-accent);
 }
 
 .input-group .btn-outline-orange {
-  border: 1px solid #ff5928;
+  border: 1px solid var(--color-accent);
   background: transparent;
-  color: #ff5928;
+  color: var(--color-accent);
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   height: 38px;
@@ -164,10 +169,28 @@
 }
 
 .input-group .btn-outline-orange:hover {
-  background-color: #ff5928;
+  background-color: var(--color-accent);
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+}
+
+.input-group .btn-orange {
+  background: var(--gradient-accent);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.input-group .btn-orange:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(255, 89, 40, 0.4);
+  color: white;
 }
 
 /* Conseils de recherche */
@@ -186,10 +209,10 @@
 }
 
 .search-tips .badge:hover {
-  background-color: #ff5928 !important;
+  background-color: var(--color-accent) !important;
   color: white !important;
   transform: translateY(-2px);
-  border-color: #ff5928;
+  border-color: var(--color-accent);
 }
 
 /* Résultats de recherche */
@@ -211,6 +234,11 @@
   color: #856404;
 }
 
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+}
+
 /* Surbrillance des termes recherchés */
 .search-highlight {
   background-color: #ffeb3b;
@@ -221,7 +249,7 @@
   transition: all 0.2s ease;
 }
 
-/* Animation */
+/* Animation de la barre de recherche */
 @keyframes searchPulse {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 89, 40, 0.4);
@@ -247,7 +275,7 @@
 }
 
 .btn-orange {
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   border: none;
   color: white;
   transition: all 0.3s ease;
@@ -261,18 +289,31 @@
 }
 
 .btn-outline-orange {
-  color: #ff5928;
-  border: 1px solid #ff5928;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
   background: transparent;
   transition: all 0.3s ease;
   border-radius: 8px;
 }
 
 .btn-outline-orange:hover {
-  background-color: #ff5928;
+  background-color: var(--color-accent);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  background: transparent;
+  border-radius: 8px;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #e9ecef;
+  color: #495057;
+  transform: translateY(-2px);
 }
 
 /* Bouton dans les cartes */
@@ -337,8 +378,14 @@
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
   pointer-events: none;
+}
+
+/* Badges personnalisés dans le modal */
+.badge-custom {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
 }
 
 /* Programme modal */
@@ -361,7 +408,7 @@
 .programme-number {
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   color: white;
   border-radius: 50%;
   display: inline-flex;
@@ -382,7 +429,7 @@
 .formateur-avatar {
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -396,6 +443,16 @@
 
 .formateur-card:hover {
   transform: translateY(-3px);
+}
+
+/* Section d'information dans le modal */
+.info-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-content {
+  background: #f8f9fa;
+  border-radius: 12px;
 }
 
 /* Grille étudiants modal */
@@ -415,20 +472,20 @@
 }
 
 .students-grid::-webkit-scrollbar-thumb {
-  background: #ff5928;
+  background: var(--color-accent);
   border-radius: 10px;
 }
 
 .student-card {
   transition: all 0.3s ease;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border-radius: 16px !important;
 }
 
 .student-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .student-avatar i {
@@ -437,6 +494,11 @@
 
 .student-card:hover .student-avatar i {
   transform: scale(1.1);
+}
+
+/* ==================== TEXT COLORS ==================== */
+.text-orange {
+  color: var(--color-accent) !important;
 }
 
 /* ==================== RESPONSIVE ==================== */
@@ -513,7 +575,8 @@
     font-size: 0.8rem;
   }
 
-  .input-group .btn-outline-orange {
+  .input-group .btn-outline-orange,
+  .input-group .btn-orange {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
@@ -526,5 +589,23 @@
 
   .search-tips .badge {
     font-size: 0.55rem;
+  }
+
+  .programme-number {
+    width: 20px;
+    height: 20px;
+    font-size: 8px;
+  }
+
+  .programme-text {
+    font-size: 11px;
+  }
+
+  .formation-banner {
+    padding: 2rem 1rem !important;
+  }
+
+  .formation-banner .display-5 {
+    font-size: 1.5rem;
   }
 }

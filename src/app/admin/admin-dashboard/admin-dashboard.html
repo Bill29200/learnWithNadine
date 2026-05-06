@@ -258,8 +258,9 @@
       <div class="mt-3 text-muted small">Total: {{filteredFormations.length}} formation(s)</div>
     </div>
 
-    <!-- ==================== ONGLET INSCRIPTIONS ==================== -->
+    <!-- ==================== ONGLET INSCRIPTIONS (NOUVEAU DESIGN) ==================== -->
     <div *ngIf="activeAdminTab === 'inscriptions'">
+      <!-- Barre de recherche et filtres -->
       <div class="row g-2 mb-3">
         <div class="col-md-7">
           <div class="search-container">
@@ -269,7 +270,7 @@
               </span>
               <input type="text"
                      class="form-control border-start-0"
-                     placeholder="🔍 Rechercher..."
+                     placeholder="🔍 Rechercher une formation..."
                      [(ngModel)]="searchInscriptionTerm"
                      (input)="onSearchInscription()">
               <button class="btn btn-outline-orange" type="button" (click)="searchInscriptionTerm = ''; onSearchInscription()" *ngIf="searchInscriptionTerm">
@@ -292,103 +293,68 @@
         </div>
       </div>
 
-      <div class="card shadow-sm mb-4">
-        <div class="card-body p-0">
-          <div *ngFor="let formationGroup of getInscriptionsByFormation()" class="formation-section mb-0">
-            <div class="formation-header p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <!-- Liste des formations avec leurs inscriptions - Design en cartes cliquables -->
+      <div class="row">
+        <div class="col-12 mb-4" *ngFor="let formationGroup of getInscriptionsByFormation()">
+          <!-- Carte formation cliquable -->
+          <div class="formation-card" (click)="selectedFormationDetail = getFormationById(formationGroup.formationId) || null; showFormationModal = true" style="cursor: pointer;">
+            <!-- En-tête de la formation -->
+            <div class="formation-header p-4" style="background: var(--gradient-formation); border-radius: 16px 16px 0 0;">
               <div class="row align-items-center">
                 <div class="col-md-5">
                   <div class="d-flex align-items-center gap-3">
-                    <i class="bi bi-journal-bookmark-fill fs-3 text-white"></i>
+                    <div class="formation-icon">
+                      <i class="bi bi-journal-bookmark-fill fs-2 text-white"></i>
+                    </div>
                     <div>
-                      <h5 class="mb-0 text-white fw-semibold">{{formationGroup.formationName}}</h5>
-                      <small class="text-white-50">ID: #{{formationGroup.formationId}} | {{formationGroup.inscriptions.length}} inscription(s)</small>
+                      <h4 class="mb-0 text-white fw-bold">{{formationGroup.formationName}}</h4>
+                      <small class="text-white-50">ID: #{{formationGroup.formationId}}</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-7">
-                  <div class="d-flex justify-content-end align-items-center gap-4">
-                    <div class="text-center">
-                      <div class="small text-white-50">Revenus</div>
-                      <div class="fw-bold text-white">{{getFormationRevenus(formationGroup.inscriptions)}} {{selectedDevise}}</div>
+                  <div class="d-flex justify-content-end align-items-center gap-4 flex-wrap">
+                    <div class="stat-badge text-center">
+                      <div class="stat-label">Revenus</div>
+                      <div class="stat-value fw-bold">{{getFormationRevenus(formationGroup.inscriptions)}} {{selectedDevise}}</div>
                     </div>
-                    <div class="text-center">
-                      <div class="small text-white-50">Bénéfices ({{pourcentageBenefice}}%)</div>
-                      <div class="fw-bold text-white">{{getFormationBenefice(formationGroup.inscriptions)}} {{selectedDevise}}</div>
+                    <div class="stat-badge text-center">
+                      <div class="stat-label">Bénéfices ({{pourcentageBenefice}}%)</div>
+                      <div class="stat-value fw-bold">{{getFormationBenefice(formationGroup.inscriptions)}} {{selectedDevise}}</div>
+                    </div>
+                    <div class="stat-badge text-center">
+                      <div class="stat-label">Étudiants</div>
+                      <div class="stat-value fw-bold">{{formationGroup.inscriptions.length}}</div>
                     </div>
                     <div class="d-flex gap-2">
-                      <span class="badge bg-light text-dark px-3 py-2">
-                        <i class="bi bi-check-circle-fill text-success me-1"></i>
-                        {{getFormationPayeCount(formationGroup.inscriptions)}}
+                      <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        {{getFormationPayeCount(formationGroup.inscriptions)}} payés
                       </span>
-                      <span class="badge bg-light text-dark px-3 py-2">
-                        <i class="bi bi-clock-fill text-warning me-1"></i>
-                        {{getFormationNonPayeCount(formationGroup.inscriptions)}}
+                      <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="bi bi-clock-fill me-1"></i>
+                        {{getFormationNonPayeCount(formationGroup.inscriptions)}} non payés
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="p-3 bg-light">
-              <div class="row g-3">
-                <div class="col-md-6 col-lg-4" *ngFor="let inscription of formationGroup.inscriptions">
-                  <div class="inscription-student-card">
-                    <div class="inscription-student-header">
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="student-avatar">
-                          <img *ngIf="getEtudiantById(inscription.idEtudiant)?.photoUrl"
-                               [src]="getEtudiantById(inscription.idEtudiant)?.photoUrl"
-                               class="avatar-img-circle" width="40" height="40" style="object-fit: cover; border-radius: 50%;">
-                          <i *ngIf="!getEtudiantById(inscription.idEtudiant)?.photoUrl" class="bi bi-person-circle fs-3 text-secondary"></i>
-                        </div>
-                        <div>
-                          <h6 class="mb-0 fw-semibold" [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.prenom + ' ' + getEtudiantById(inscription.idEtudiant)?.nom)"></h6>
-                          <small class="text-muted">#{{inscription.idInscription}}</small>
-                        </div>
-                      </div>
-                      <span class="status-badge" [class.status-paid]="inscription.statut === 'paye'" [class.status-unpaid]="inscription.statut !== 'paye'">
-                        <i class="bi" [class.bi-check-circle-fill]="inscription.statut === 'paye'" [class.bi-clock-fill]="inscription.statut !== 'paye'"></i>
-                        {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
-                      </span>
-                    </div>
-                    <div class="inscription-student-body">
-                      <div class="student-info-row">
-                        <i class="bi bi-envelope"></i>
-                        <span [innerHTML]="highlightInscriptionText(getEtudiantById(inscription.idEtudiant)?.mail || '')"></span>
-                      </div>
-                      <div class="student-info-row">
-                        <i class="bi bi-telephone"></i>
-                        <span>{{getEtudiantById(inscription.idEtudiant)?.tel || 'Non renseigné'}}</span>
-                      </div>
-                      <div class="student-info-row">
-                        <i class="bi bi-calendar3"></i>
-                        <span>Inscrit le {{inscription.dateInscription}}</span>
-                      </div>
-                      <div class="student-info-row">
-                        <i class="bi bi-mortarboard"></i>
-                        <span>Niveau: {{getEtudiantById(inscription.idEtudiant)?.niveau || 'Non renseigné'}}</span>
-                      </div>
-                    </div>
-                    <div class="inscription-student-footer">
-                      <button class="btn btn-sm action-btn"
-                              [class.btn-paid]="inscription.statut === 'paye'"
-                              [class.btn-unpaid]="inscription.statut !== 'paye'"
-                              (click)="toggleInscriptionStatut(inscription)">
-                        <i class="bi" [class.bi-cash-stack]="inscription.statut === 'paye'" [class.bi-credit-card-2-front]="inscription.statut !== 'paye'"></i>
-                        {{inscription.statut === 'paye' ? 'Non payée' : 'Payée'}}
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger action-btn"
-                              (click)="confirmDeleteInscription(inscription)">
-                        <i class="bi bi-trash3"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+            <!-- Indicateur visuel pour cliquer -->
+            <div class="text-center py-2 bg-light" style="border-radius: 0 0 16px 16px;">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Cliquez sur cette carte pour voir tous les détails de la formation
+                <i class="bi bi-chevron-right ms-1"></i>
+              </small>
             </div>
           </div>
-          <div *ngIf="filteredInscriptions.length === 0" class="text-center py-5">
+        </div>
+
+        <!-- Message si aucune inscription -->
+        <div *ngIf="getInscriptionsByFormation().length === 0" class="col-12 text-center py-5">
+          <div class="empty-state">
             <i class="bi bi-inbox display-1 text-muted"></i>
             <h5 class="mt-3 text-muted">Aucune inscription trouvée</h5>
           </div>
@@ -579,7 +545,185 @@
   </div>
 </div>
 
-<!-- ==================== MODALS D'AJOUT ==================== -->
+<!-- ==================== MODAL DÉTAILS FORMATION (COMPLET) ==================== -->
+<div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormationModal" [style.display]="showFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.9); z-index: 1060;">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 overflow-hidden">
+      <!-- En-tête avec le statut -->
+      <div class="modal-header" [ngClass]="selectedFormationDetail?.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Détails de la formation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="showFormationModal = false"></button>
+      </div>
+
+      <div class="modal-body p-0" *ngIf="selectedFormationDetail">
+        <!-- Bannière d'en-tête -->
+        <div class="formation-banner text-center text-white p-5" style="background: var(--gradient-formation);">
+          <i class="bi bi-mortarboard fs-1 mb-3 d-block"></i>
+          <h2 class="display-5 fw-bold mb-3">{{selectedFormationDetail.intitule}}</h2>
+          <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <span class="badge bg-white text-dark px-3 py-2 rounded-pill">
+              <i class="bi bi-clock me-2 text-primary"></i> {{selectedFormationDetail.duree}}
+            </span>
+            <span class="badge bg-white text-dark px-3 py-2 rounded-pill">
+              <i class="bi bi-tag me-2 text-primary"></i> {{formatPrice(selectedFormationDetail.prix)}}
+            </span>
+            <span class="badge bg-white text-dark px-3 py-2 rounded-pill">
+              <i class="bi bi-people me-2 text-primary"></i> {{getInscriptionsByFormationId(selectedFormationDetail.idFormation).length}} inscrits
+            </span>
+            <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
+              {{selectedFormationDetail.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <!-- Statistiques financières -->
+          <div class="row g-4 mb-4">
+            <div class="col-md-6">
+              <div class="info-card p-4 text-center">
+                <i class="bi bi-cash-stack fs-2 text-success mb-2 d-block"></i>
+                <h6 class="text-muted mb-1">Revenu total</h6>
+                <h3 class="mb-0 text-success">{{getFormationRevenus(getInscriptionsByFormationId(selectedFormationDetail.idFormation))}} {{selectedDevise}}</h3>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-card p-4 text-center">
+                <i class="bi bi-wallet2 fs-2 text-warning mb-2 d-block"></i>
+                <h6 class="text-muted mb-1">Bénéfice ({{pourcentageBenefice}}%)</h6>
+                <h3 class="mb-0 text-warning">{{getFormationBenefice(getInscriptionsByFormationId(selectedFormationDetail.idFormation))}} {{selectedDevise}}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="info-card p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-file-text text-primary me-2"></i>
+              Description
+            </h5>
+            <p class="mb-0 text-muted">{{selectedFormationDetail.description}}</p>
+          </div>
+
+          <!-- Programme -->
+          <div class="info-card p-4 mb-4" *ngIf="selectedFormationDetail.programme.length > 0">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-list-check text-primary me-2"></i>
+              Programme de la formation
+            </h5>
+            <div class="row">
+              <div class="col-12">
+                <ul class="programme-list mb-0">
+                  <li *ngFor="let point of selectedFormationDetail.programme; let i = index" class="programme-item d-flex align-items-start mb-2">
+                    <span class="programme-number me-3">{{i + 1}}</span>
+                    <span class="programme-text">{{point}}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations du formateur -->
+          <div class="info-card p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-person-badge text-primary me-2"></i>
+              Formateur
+            </h5>
+            <div class="row align-items-center" *ngIf="getFormateurById(selectedFormationDetail.idFormateur) as formateur">
+              <div class="col-auto">
+                <div class="formateur-avatar-modal">
+                  <img *ngIf="formateur.photoUrl" [src]="formateur.photoUrl" class="rounded-circle" width="70" height="70" style="object-fit: cover;">
+                  <div *ngIf="!formateur.photoUrl" class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                    <i class="bi bi-person fs-1"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <h4 class="mb-1">{{formateur.prenom}} {{formateur.nom}}</h4>
+                <div class="row mt-2">
+                  <div class="col-md-6">
+                    <p class="mb-1 small"><i class="bi bi-envelope me-2 text-muted"></i> {{formateur.mail}}</p>
+                    <p class="mb-1 small"><i class="bi bi-telephone me-2 text-muted"></i> {{formateur.tel}}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1 small"><i class="bi bi-star me-2 text-muted"></i> Spécialité: <strong>{{formateur.specialite}}</strong></p>
+                    <p class="mb-1 small"><i class="bi bi-graph-up me-2 text-muted"></i> Niveau: <strong>{{formateur.niveau}}</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Liste des étudiants inscrits avec cartes détaillées -->
+          <div class="info-card p-4">
+            <h5 class="fw-bold mb-3">
+              <i class="bi bi-people text-primary me-2"></i>
+              Étudiants inscrits ({{getInscriptionsByFormationId(selectedFormationDetail.idFormation).length}})
+            </h5>
+
+            <div *ngIf="getInscriptionsByFormationId(selectedFormationDetail.idFormation).length > 0; else noStudents">
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4" *ngFor="let inscription of getInscriptionsByFormationId(selectedFormationDetail.idFormation); let i = index">
+                  <div class="student-card p-3 rounded-3" [ngStyle]="{'background': getStudentCardColor(i)}">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="student-avatar flex-shrink-0">
+                        <img *ngIf="getEtudiantById(inscription.idEtudiant)?.photoUrl"
+                             [src]="getEtudiantById(inscription.idEtudiant)?.photoUrl"
+                             class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                        <i *ngIf="!getEtudiantById(inscription.idEtudiant)?.photoUrl"
+                           class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-1 fw-bold">{{getEtudiantById(inscription.idEtudiant)?.prenom}} {{getEtudiantById(inscription.idEtudiant)?.nom}}</h6>
+                        <div class="student-info">
+                          <small class="text-muted d-block">
+                            <i class="bi bi-envelope me-1"></i> {{getEtudiantById(inscription.idEtudiant)?.mail}}
+                          </small>
+                          <small class="text-muted d-block">
+                            <i class="bi bi-telephone me-1"></i> {{getEtudiantById(inscription.idEtudiant)?.tel}}
+                          </small>
+                          <small class="text-muted d-block">
+                            <i class="bi bi-mortarboard me-1"></i> {{getEtudiantById(inscription.idEtudiant)?.niveau}}
+                          </small>
+                          <small class="text-muted d-block">
+                            <i class="bi bi-calendar3 me-1"></i> Inscrit le {{inscription.dateInscription}}
+                          </small>
+                          <div class="mt-2">
+                            <span class="badge" [ngClass]="inscription.statut === 'paye' ? 'bg-success' : 'bg-warning text-dark'">
+                              <i class="bi" [class.bi-check-circle-fill]="inscription.statut === 'paye'" [class.bi-clock-fill]="inscription.statut !== 'paye'"></i>
+                              {{inscription.statut === 'paye' ? 'Payée' : 'Non payée'}}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #noStudents>
+              <div class="text-center py-4">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <p class="mt-2 text-muted mb-0">Aucun étudiant inscrit à cette formation</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showFormationModal = false">Fermer</button>
+        <button class="btn btn-outline-danger" (click)="confirmDeleteFormation(selectedFormationDetail)" *ngIf="selectedFormationDetail">
+          <i class="bi bi-trash3 me-1"></i> Supprimer la formation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODALS D'AJOUT (conservés) ==================== -->
 
 <!-- Modal Ajouter un étudiant -->
 <div class="modal fade" id="addEtudiantModal" tabindex="-1" [class.show]="showAddEtudiantModal" [style.display]="showAddEtudiantModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1060;">
@@ -594,13 +738,12 @@
       </div>
       <div class="modal-body p-4">
         <form>
-          <!-- Photo de profil -->
           <div class="mb-3 text-center">
             <label class="form-label fw-bold d-block">Photo de profil</label>
             <div class="photo-upload-container position-relative d-inline-block">
               <div class="photo-preview" (click)="fileInputEtudiant.click()">
                 <img *ngIf="etudiantPhotoPreview" [src]="etudiantPhotoPreview" alt="Photo" class="profile-photo rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                <div *ngIf="!etudiantPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                <div *ngIf="!etudiantPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px;">
                   <i class="bi bi-camera-fill fs-2"></i>
                 </div>
                 <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
@@ -666,13 +809,12 @@
       </div>
       <div class="modal-body p-4">
         <form>
-          <!-- Photo de profil -->
           <div class="mb-3 text-center">
             <label class="form-label fw-bold d-block">Photo de profil</label>
             <div class="photo-upload-container position-relative d-inline-block">
               <div class="photo-preview" (click)="fileInputFormateur.click()">
                 <img *ngIf="formateurPhotoPreview" [src]="formateurPhotoPreview" alt="Photo" class="profile-photo rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                <div *ngIf="!formateurPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                <div *ngIf="!formateurPhotoPreview" class="photo-placeholder rounded-circle" style="width: 100px; height: 100px;">
                   <i class="bi bi-camera-fill fs-2"></i>
                 </div>
                 <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">
@@ -856,59 +998,6 @@
   </div>
 </div>
 
-<!-- Modal Détails Formation -->
-<div class="modal fade" id="formationModal" tabindex="-1" [class.show]="showFormationModal" [style.display]="showFormationModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 overflow-hidden">
-      <div class="modal-header" [ngClass]="selectedFormationDetail?.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-        <h5 class="modal-title text-white">
-          <i class="bi bi-info-circle me-2"></i>
-          Détails de la formation
-        </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="showFormationModal = false"></button>
-      </div>
-      <div class="modal-body p-4" *ngIf="selectedFormationDetail">
-        <div class="text-center mb-4">
-          <div class="modal-avatar mx-auto">
-            <i class="bi bi-book fs-1"></i>
-          </div>
-          <h4 class="mt-3 mb-1 fw-bold">{{selectedFormationDetail.intitule}}</h4>
-          <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-            {{selectedFormationDetail.statut === 'valide' ? 'Validée' : 'Non validée'}}
-          </span>
-        </div>
-        <div class="info-card p-3 mb-3 rounded-3">
-          <div class="info-row d-flex align-items-center mb-2">
-            <i class="bi bi-file-text text-orange me-3" style="width: 24px;"></i>
-            <span>{{selectedFormationDetail.description}}</span>
-          </div>
-          <div class="info-row d-flex align-items-center mb-2">
-            <i class="bi bi-clock text-orange me-3" style="width: 24px;"></i>
-            <span>Durée: <strong>{{selectedFormationDetail.duree}}</strong></span>
-          </div>
-          <div class="info-row d-flex align-items-center mb-2">
-            <i class="bi bi-tag text-orange me-3" style="width: 24px;"></i>
-            <span>Prix: <strong>{{formatPrice(selectedFormationDetail.prix)}}</strong></span>
-          </div>
-          <div class="info-row d-flex align-items-center">
-            <i class="bi bi-person-badge text-orange me-3" style="width: 24px;"></i>
-            <span>Formateur: <strong>{{getFormateurById(selectedFormationDetail.idFormateur)?.prenom}} {{getFormateurById(selectedFormationDetail.idFormateur)?.nom}}</strong></span>
-          </div>
-        </div>
-        <div class="info-card p-3 rounded-3" *ngIf="selectedFormationDetail.programme.length > 0">
-          <h6 class="fw-bold mb-2"><i class="bi bi-list-check text-orange me-2"></i>Programme</h6>
-          <ul class="mb-0 ps-3">
-            <li *ngFor="let point of selectedFormationDetail.programme">{{point}}</li>
-          </ul>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="showFormationModal = false">Fermer</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Modal Détails Étudiant -->
 <div class="modal fade" id="etudiantModal" tabindex="-1" [class.show]="showEtudiantModal" [style.display]="showEtudiantModal ? 'block' : 'none'" style="background-color: rgba(0,0,0,0.8); z-index: 1050;">
   <div class="modal-dialog modal-dialog-centered">
@@ -1079,13 +1168,12 @@
       </div>
       <div class="modal-body p-4">
         <form>
-          <!-- Photo de profil Admin -->
           <div class="mb-3 text-center">
             <label class="form-label fw-bold d-block">Photo de profil</label>
             <div class="photo-upload-container position-relative d-inline-block">
               <div class="photo-preview" (click)="adminPhotoInput.click()">
                 <img *ngIf="photoPreview" [src]="photoPreview" alt="Photo de profil" class="profile-photo rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                <div *ngIf="!photoPreview" class="photo-placeholder rounded-circle" style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                <div *ngIf="!photoPreview" class="photo-placeholder rounded-circle" style="width: 120px; height: 120px;">
                   <i class="bi bi-camera-fill fs-1"></i>
                 </div>
                 <div class="photo-edit-icon position-absolute bottom-0 end-0 bg-orange rounded-circle p-2">

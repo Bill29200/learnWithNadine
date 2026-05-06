@@ -1,5 +1,8 @@
-/* src/app/etudiant/etudiant-dashboard/etudiant-dashboard.css */
+/* ============================================================================
+   ETUDIANT DASHBOARD - STYLES SPÉCIFIQUES
+   ============================================================================ */
 
+/* ==================== MAIN HEADER ==================== */
 .main-header {
   position: fixed;
   top: 0;
@@ -13,13 +16,14 @@
   padding-top: 90px;
 }
 
+/* ==================== AVATARS ==================== */
 .avatar-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   color: white;
   border-radius: 50%;
   font-weight: bold;
@@ -31,7 +35,7 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ff5928;
+  border: 2px solid var(--color-accent);
 }
 
 .avatar-lg {
@@ -39,9 +43,10 @@
   height: 55px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ff5928;
+  border: 2px solid var(--color-accent);
 }
 
+/* ==================== DROPDOWN ==================== */
 .dropdown-toggle::after {
   margin-left: 8px;
 }
@@ -50,14 +55,40 @@
   margin-right: 8px;
 }
 
-/* Cartes statistiques */
+/* ==================== CARTES STATISTIQUES ==================== */
 .stat-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Cartes de statistiques avec les couleurs sémantiques */
+.bg-primary {
+  background: var(--gradient-formation) !important;
+}
+
+.bg-success {
+  background: var(--gradient-inscription) !important;
+}
+
+.bg-info {
+  background: var(--gradient-revenu) !important;
+}
+
+.bg-warning {
+  background: var(--gradient-demande) !important;
+}
+
+.display-6 {
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+.opacity-75 {
+  opacity: 0.75;
 }
 
 /* ==================== SECTIONS ==================== */
@@ -65,7 +96,7 @@
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 1.5rem;
 }
 
@@ -75,7 +106,7 @@
 }
 
 .section-header-mesformations {
-  background: linear-gradient(135deg, #115099 0%, #38beef 100%);
+  background: var(--gradient-formation);
 }
 
 .section-body {
@@ -95,7 +126,7 @@
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  border: 3px solid #ff5928;
+  border: 3px solid var(--color-accent);
   transition: all 0.3s ease;
   margin: 0 auto;
 }
@@ -114,7 +145,7 @@
 .photo-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-utilisateur);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,7 +166,7 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  background: #ff5928;
+  background: var(--color-accent);
   border-radius: 50%;
   padding: 8px;
   display: flex;
@@ -154,7 +185,7 @@
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -165,7 +196,7 @@
 
 .formation-mini-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
 .formation-mini-header {
@@ -213,7 +244,7 @@
 
 .formation-mini-info i {
   margin-right: 3px;
-  color: #ff5928;
+  color: var(--color-formation);
 }
 
 .formation-mini-footer {
@@ -225,7 +256,7 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: #ff5928;
+  color: var(--color-formation);
   opacity: 0;
   transition: all 0.3s ease;
 }
@@ -235,12 +266,12 @@
   transform: translateX(3px);
 }
 
-/* ==================== CARTES INSCRITS ==================== */
+/* ==================== CARTES INSCRITS (MES FORMATIONS) ==================== */
 .inscrit-card {
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   cursor: pointer;
   height: 100%;
@@ -250,7 +281,7 @@
 
 .inscrit-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .inscrit-card-header {
@@ -268,7 +299,17 @@
   border-top: 1px solid #e9ecef;
 }
 
-/* ==================== COULEURS DES CARTES ==================== */
+/* ==================== CARTES DEMANDES ==================== */
+.demande-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.demande-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== COULEURS DES CARTES (10 variantes) ==================== */
 .card-header-color-0 { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); }
 .card-header-color-1 { background: linear-gradient(135deg, #ff9f1c 0%, #ff8c00 100%); }
 .card-header-color-2 { background: linear-gradient(135deg, #2ec4b6 0%, #20a89a 100%); }
@@ -285,7 +326,7 @@
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .profile-header {
@@ -306,7 +347,7 @@
 
 .profile-avatar i {
   font-size: 2.5rem;
-  color: #ff5928;
+  color: var(--color-accent);
 }
 
 .profile-body {
@@ -327,6 +368,7 @@
 
 .info-row i {
   width: 24px;
+  color: var(--color-accent);
 }
 
 /* ==================== BARRE DE RECHERCHE ==================== */
@@ -368,13 +410,13 @@
 
 .input-group:focus-within .input-group-text,
 .input-group:focus-within .form-control {
-  border-color: #ff5928;
+  border-color: var(--color-accent);
 }
 
 .input-group .btn-outline-orange {
-  border: 1px solid #ff5928;
+  border: 1px solid var(--color-accent);
   background: transparent;
-  color: #ff5928;
+  color: var(--color-accent);
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   height: 38px;
@@ -384,7 +426,7 @@
 }
 
 .input-group .btn-outline-orange:hover {
-  background-color: #ff5928;
+  background-color: var(--color-accent);
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
@@ -406,10 +448,10 @@
 }
 
 .search-tips .badge:hover {
-  background-color: #ff5928 !important;
+  background-color: var(--color-accent) !important;
   color: white !important;
   transform: translateY(-2px);
-  border-color: #ff5928;
+  border-color: var(--color-accent);
 }
 
 /* Résultats de recherche */
@@ -441,7 +483,7 @@
   transition: all 0.2s ease;
 }
 
-/* Boutons */
+/* ==================== BOUTONS ==================== */
 .btn-sm {
   padding: 0.35rem 0.7rem;
   font-size: 0.75rem;
@@ -450,7 +492,7 @@
 }
 
 .btn-orange {
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   border: none;
   color: white;
   transition: all 0.3s ease;
@@ -463,25 +505,25 @@
 }
 
 .btn-outline-orange {
-  color: #ff5928;
-  border: 1px solid #ff5928;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
   background: transparent;
   transition: all 0.3s ease;
 }
 
 .btn-outline-orange:hover {
-  background-color: #ff5928;
+  background-color: var(--color-accent);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-inscription);
   border: none;
 }
 
-/* Badges */
+/* ==================== BADGES ==================== */
 .badge {
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
@@ -490,22 +532,24 @@
 }
 
 .badge.bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-inscription) !important;
 }
 
 .badge.bg-info {
-  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  background: var(--gradient-formation) !important;
 }
 
 .badge.bg-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: var(--gradient-revenu) !important;
+  color: #000;
 }
 
+/* ==================== TEXT COLORS ==================== */
 .text-orange {
-  color: #ff5928 !important;
+  color: var(--color-accent) !important;
 }
 
-/* Modal */
+/* ==================== MODAL ==================== */
 .modal.show {
   display: block;
 }
@@ -539,10 +583,10 @@
 .info-card ul li::before {
   content: "📌";
   margin-right: 8px;
-  color: #ff5928;
+  color: var(--color-accent);
 }
 
-/* Empty state */
+/* ==================== EMPTY STATE ==================== */
 .empty-state {
   padding: 2rem;
   text-align: center;
@@ -553,7 +597,7 @@
   color: #dee2e6;
 }
 
-/* Animations */
+/* ==================== ANIMATIONS ==================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -569,7 +613,7 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Scrollbar */
+/* ==================== SCROLLBAR ==================== */
 .modal-body::-webkit-scrollbar {
   width: 6px;
 }
@@ -580,11 +624,11 @@
 }
 
 .modal-body::-webkit-scrollbar-thumb {
-  background: #ff5928;
+  background: var(--color-accent);
   border-radius: 10px;
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 992px) {
   .display-6 {
     font-size: 1.4rem;

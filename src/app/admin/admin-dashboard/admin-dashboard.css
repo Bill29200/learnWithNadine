@@ -1,5 +1,8 @@
-/* src/app/admin/admin-dashboard/admin-dashboard.css */
+/* ============================================================================
+   ADMIN DASHBOARD - STYLES SPÉCIFIQUES
+   ============================================================================ */
 
+/* ==================== MAIN HEADER ==================== */
 .main-header {
   position: fixed;
   top: 0;
@@ -13,13 +16,14 @@
   padding-top: 90px;
 }
 
+/* ==================== AVATARS ==================== */
 .avatar-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   color: white;
   border-radius: 50%;
   font-weight: bold;
@@ -31,7 +35,7 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ff5928;
+  border: 2px solid var(--color-accent);
 }
 
 .avatar-img-circle {
@@ -46,6 +50,7 @@
   object-fit: cover;
 }
 
+/* ==================== DROPDOWN ==================== */
 .dropdown-toggle::after {
   margin-left: 8px;
 }
@@ -54,21 +59,21 @@
   margin-right: 8px;
 }
 
-/* Cartes statistiques */
+/* ==================== CARTES STATISTIQUES ==================== */
 .bg-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: var(--gradient-formation) !important;
 }
 
 .bg-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+  background: var(--gradient-inscription) !important;
 }
 
 .bg-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  background: var(--gradient-utilisateur) !important;
 }
 
 .bg-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  background: var(--gradient-revenu) !important;
 }
 
 .display-6 {
@@ -76,7 +81,16 @@
   font-weight: 300;
 }
 
-/* Onglets */
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== ONGLETS (TABS) ==================== */
 .nav-tabs {
   border-bottom: none;
   gap: 0.5rem;
@@ -99,19 +113,19 @@
 }
 
 .nav-tabs .nav-link.active {
-  background: linear-gradient(135deg, #ff5928 0%, #ff8a5c 100%);
+  background: var(--gradient-accent);
   color: white;
   box-shadow: 0 4px 12px rgba(255, 89, 40, 0.3);
 }
 
 .nav-tabs .nav-link .badge {
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   color: inherit;
   margin-left: 0.3rem;
 }
 
 .nav-tabs .nav-link.active .badge {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
 }
 
@@ -159,13 +173,13 @@
 
 .input-group:focus-within .input-group-text,
 .input-group:focus-within .form-control {
-  border-color: #ff5928;
+  border-color: var(--color-accent);
 }
 
 .input-group .btn-outline-orange {
-  border: 1px solid #ff5928;
+  border: 1px solid var(--color-accent);
   background: transparent;
-  color: #ff5928;
+  color: var(--color-accent);
   padding: 0.4rem 1rem;
   font-size: 0.8rem;
   height: 34px;
@@ -175,7 +189,7 @@
 }
 
 .input-group .btn-outline-orange:hover {
-  background-color: #ff5928;
+  background-color: var(--color-accent);
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 89, 40, 0.3);
@@ -196,7 +210,7 @@
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -207,7 +221,7 @@
 
 .formation-mini-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
 .formation-mini-header {
@@ -216,17 +230,17 @@
 }
 
 .formation-mini-header.status-valid {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-formation);
 }
 
 .formation-mini-header.status-pending {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: var(--gradient-revenu);
   color: #333;
 }
 
 .formation-mini-badge {
   font-size: 0.65rem;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   padding: 2px 8px;
   border-radius: 20px;
   display: inline-block;
@@ -270,7 +284,7 @@
 
 .formation-mini-info i {
   margin-right: 3px;
-  color: #ff5928;
+  color: var(--color-formation);
 }
 
 .formation-mini-footer {
@@ -285,7 +299,7 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: #ff5928;
+  color: var(--color-formation);
   opacity: 0;
   transition: all 0.3s ease;
 }
@@ -308,7 +322,7 @@
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  border: 3px solid #ff5928;
+  border: 3px solid var(--color-accent);
   transition: all 0.3s ease;
 }
 
@@ -336,7 +350,7 @@
 .photo-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-utilisateur);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -357,7 +371,7 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  background: #ff5928;
+  background: var(--color-accent);
   border-radius: 50%;
   padding: 8px;
   display: flex;
@@ -378,6 +392,23 @@
   right: -10px;
 }
 
+/* ==================== MODAL AVATAR ==================== */
+.modal-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.modal-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ==================== CARTES ADMIN (Étudiants & Formateurs) ==================== */
 .student-mini-card,
 .formateur-mini-card {
@@ -387,16 +418,16 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 4px 8px rgba(255, 89, 40, 0.2);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .student-mini-card:hover,
 .formateur-mini-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(255, 89, 40, 0.3);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
 .student-mini-avatar,
@@ -413,13 +444,13 @@
 
 .student-mini-avatar.active,
 .formateur-mini-avatar.active {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: var(--gradient-inscription);
   color: white;
 }
 
 .student-mini-avatar.blocked,
 .formateur-mini-avatar.blocked {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: var(--gradient-danger);
   color: white;
 }
 
@@ -454,7 +485,7 @@
 
 .student-mini-icon,
 .formateur-mini-icon {
-  color: #ff5928;
+  color: var(--color-accent);
   opacity: 0.5;
   transition: all 0.3s ease;
 }
@@ -465,32 +496,7 @@
   transform: translateX(3px);
 }
 
-/* ==================== MODAL DÉTAILS ==================== */
-.modal.show {
-  display: block;
-}
-
-.modal-content {
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.modal-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.modal-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
+/* ==================== INFO CARD (MODAL) ==================== */
 .info-card {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
@@ -506,7 +512,7 @@
   border-bottom: none;
 }
 
-/* Listes */
+/* ==================== LISTES SCROLLABLES ==================== */
 .formations-list,
 .inscriptions-list {
   max-height: 200px;
@@ -537,7 +543,7 @@
 
 .formations-list::-webkit-scrollbar-thumb,
 .inscriptions-list::-webkit-scrollbar-thumb {
-  background: #ff5928;
+  background: var(--color-accent);
   border-radius: 10px;
 }
 
@@ -551,7 +557,7 @@
 }
 
 .formation-header {
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Cartes étudiants inscrits */
@@ -588,7 +594,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
@@ -596,26 +602,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-paid {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-}
-
-.status-unpaid {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
 }
 
 .inscription-student-body {
@@ -639,7 +625,7 @@
 
 .student-info-row i {
   width: 20px;
-  color: #ff5928;
+  color: var(--color-accent);
   font-size: 0.85rem;
 }
 
@@ -651,7 +637,7 @@
   justify-content: flex-end;
 }
 
-/* Boutons action */
+/* ==================== BOUTONS D'ACTION ==================== */
 .action-btn {
   padding: 5px 12px;
   font-size: 0.7rem;
@@ -665,53 +651,53 @@
 }
 
 .btn-paid {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: var(--gradient-revenu);
   border: none;
   color: #000;
 }
 
 .btn-paid:hover {
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-  color: #000;
+  background: var(--gradient-revenu);
+  filter: brightness(1.05);
 }
 
 .btn-unpaid {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-inscription);
   border: none;
   color: white;
 }
 
 .btn-unpaid:hover {
-  background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
-  color: white;
+  background: var(--gradient-inscription);
+  filter: brightness(1.05);
 }
 
 .btn-outline-danger {
-  border: 1px solid #dc3545;
-  color: #dc3545;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
   background: transparent;
 }
 
 .btn-outline-danger:hover {
-  background: #dc3545;
+  background: var(--color-danger);
   color: white;
   transform: translateY(-2px);
 }
 
 .btn-outline-success {
-  color: #28a745;
-  border: 1px solid #28a745;
+  color: var(--color-inscription);
+  border: 1px solid var(--color-inscription);
   background: transparent;
   transition: all 0.3s ease;
 }
 
 .btn-outline-success:hover {
-  background: #28a745;
+  background: var(--color-inscription);
   color: white;
   transform: translateY(-2px);
 }
 
-/* Badges */
+/* ==================== BADGES ==================== */
 .badge {
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
@@ -720,15 +706,15 @@
 }
 
 .badge.bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-inscription) !important;
 }
 
 .badge.bg-danger {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: var(--gradient-danger) !important;
 }
 
 .badge.bg-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  background: var(--gradient-revenu) !important;
   color: #000;
 }
 
@@ -741,15 +727,16 @@
   color: #495057 !important;
 }
 
+/* ==================== TEXT COLORS ==================== */
+.text-orange {
+  color: var(--color-accent) !important;
+}
+
 .bg-secondary-subtle {
   background-color: #e9ecef !important;
 }
 
-.text-orange {
-  color: #ff5928 !important;
-}
-
-/* Empty state */
+/* ==================== EMPTY STATE ==================== */
 .empty-state {
   padding: 2rem;
   text-align: center;
@@ -765,7 +752,7 @@
   color: #6c757d;
 }
 
-/* Alertes */
+/* ==================== ALERTES ==================== */
 .alert {
   border-radius: 12px;
   border: none;
@@ -786,26 +773,26 @@
   color: #0c5460;
 }
 
-/* Animation chargement */
+/* ==================== ANIMATION CHARGEMENT ==================== */
 .spinner-border {
   width: 3rem;
   height: 3rem;
 }
 
-/* Form select */
+/* ==================== FORM SELECT ==================== */
 .form-select-sm {
   font-size: 0.8rem;
   padding: 0.3rem 0.75rem;
   border-radius: 6px;
 }
 
-/* Card footer */
+/* ==================== CARD FOOTER ==================== */
 .card-footer {
   background-color: #f8f9fa;
   border-top: 1px solid #dee2e6;
 }
 
-/* Animations */
+/* ==================== ANIMATIONS ==================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -862,7 +849,9 @@
     padding: 0.25rem 0.5rem;
   }
 
-  .form-control, .input-group-text, .input-group .btn-outline-orange {
+  .form-control,
+  .input-group-text,
+  .input-group .btn-outline-orange {
     font-size: 0.7rem;
     padding: 0.3rem 0.5rem;
   }
@@ -872,16 +861,19 @@
     font-size: 0.8rem;
   }
 
-  .student-mini-card, .formateur-mini-card {
+  .student-mini-card,
+  .formateur-mini-card {
     padding: 0.75rem;
   }
 
-  .student-mini-avatar, .formateur-mini-avatar {
+  .student-mini-avatar,
+  .formateur-mini-avatar {
     width: 45px;
     height: 45px;
   }
 
-  .student-mini-avatar i, .formateur-mini-avatar i {
+  .student-mini-avatar i,
+  .formateur-mini-avatar i {
     font-size: 1.5rem;
   }
 
@@ -942,16 +934,19 @@
     padding: 0.75rem;
   }
 
-  .student-mini-card, .formateur-mini-card {
+  .student-mini-card,
+  .formateur-mini-card {
     padding: 0.6rem;
   }
 
-  .student-mini-avatar, .formateur-mini-avatar {
+  .student-mini-avatar,
+  .formateur-mini-avatar {
     width: 40px;
     height: 40px;
   }
 
-  .student-mini-avatar i, .formateur-mini-avatar i {
+  .student-mini-avatar i,
+  .formateur-mini-avatar i {
     font-size: 1.2rem;
   }
 
