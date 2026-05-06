@@ -26,11 +26,7 @@
                 <i class="bi bi-person"></i> Mon profil
               </a>
             </li>
-            <li>
-              <a class="dropdown-item" (click)="openDemandeModal()" style="cursor: pointer;">
-                <i class="bi bi-plus-circle"></i> Proposer une formation
-              </a>
-            </li>
+
             <li>
               <a class="dropdown-item" (click)="loadData()" style="cursor: pointer;">
                 <i class="bi bi-arrow-repeat"></i> Rafraîchir
@@ -146,10 +142,15 @@
     <div class="row mb-4" *ngIf="mesDemandes.length > 0">
       <div class="col-12">
         <div class="section-card">
-          <div class="section-header" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-envelope-paper fs-4"></i>
-              <h4 class="mb-0 fw-semibold">Mes demandes de formation ({{mesDemandes.length}})</h4>
+          <div class="section-header" style="background: linear-gradient(135deg, #cb8a11 0%, #fcd825 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-envelope-paper fs-4"></i>
+                <h4 class="mb-0 fw-semibold">Mes demandes de formation ({{mesDemandes.length}})</h4>
+              </div>
+              <button class="btn btn-outline-light" (click)="openDemandeModal()">
+                <i class="bi bi-plus-circle"></i> Proposer une formation
+              </button>
             </div>
           </div>
           <div class="section-body">
