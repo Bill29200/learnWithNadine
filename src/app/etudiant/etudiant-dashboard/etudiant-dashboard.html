@@ -88,6 +88,7 @@
                 <h6 class="card-title mb-0 opacity-75">Mes Formations</h6>
                 <p class="card-text display-6 mb-0">{{mesFormations.length}}</p>
                 <small class="opacity-75">Formations suivies</small>
+
               </div>
               <i class="bi bi-journal-bookmark-fill display-4 opacity-50"></i>
             </div>
@@ -148,9 +149,9 @@
                 <i class="bi bi-envelope-paper fs-4"></i>
                 <h4 class="mb-0 fw-semibold">Mes demandes de formation ({{mesDemandes.length}})</h4>
               </div>
-              <button class="btn btn-outline-light" (click)="openDemandeModal()">
-                <i class="bi bi-plus-circle"></i> Proposer une formation
-              </button>
+<!--              <button class="btn btn-outline-danger" (click)="openDemandeModal()">-->
+<!--                <i class="bi bi-plus-circle"></i> Proposer une formation-->
+<!--              </button>-->
             </div>
           </div>
           <div class="section-body">
@@ -196,6 +197,10 @@
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-journal-check fs-4"></i>
               <h4 class="mb-0 fw-semibold">Mes formations ({{mesFormations.length}})</h4>
+
+              <button class="btn btn-outline-light" (click)="openDemandeModal()">
+                <i class="bi bi-plus-circle"></i> Demander formation
+              </button>
             </div>
           </div>
           <div class="section-body">
@@ -379,7 +384,7 @@
           <i class="bi bi-plus-circle me-2"></i>
           Proposer une nouvelle formation
         </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeDemandeModal()"></button>
+
       </div>
       <div class="modal-body p-4">
         <div class="alert alert-info mb-3">
