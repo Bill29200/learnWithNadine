@@ -202,7 +202,7 @@
         <div class="col-md-2">
           <select class="form-select form-select-sm" [(ngModel)]="selectedStatut" (change)="onStatutChange()">
             <option value="all">📊 Tous les statuts</option>
-            <option value="valide">✅ Validées</option>
+            <option value="valide">👍 Validées</option>
             <option value="nonValide">⏳ Non validées</option>
           </select>
         </div>
@@ -218,7 +218,7 @@
           <div class="formation-mini-card" (click)="selectedFormationDetail = formation; showFormationModal = true">
             <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
               <div class="formation-mini-badge">
-                {{formation.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+                {{formation.statut === 'valide' ? '👍 Validée' : '⏳ En attente'}}
               </div>
               <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightFormationText(formation.intitule)"></h6>
             </div>
@@ -231,7 +231,9 @@
               </div>
             </div>
             <div class="formation-mini-footer">
-              <button class="btn btn-sm btn-outline-success"
+              <button class="btn btn-sm"
+                      [class.btn-success]="formation.statut !== 'valide'"
+                      [class.btn-outline-danger]="formation.statut === 'valide'"
                       (click)="$event.stopPropagation(); toggleFormationStatut(formation)"
                       [title]="formation.statut === 'valide' ? 'Invalider' : 'Valider'">
                 <i class="bi {{formation.statut === 'valide' ? 'bi-x-circle' : 'bi-check-circle'}}"></i>
@@ -574,7 +576,7 @@
               <i class="bi bi-people me-2 text-primary"></i> {{getInscriptionsByFormationId(selectedFormationDetail.idFormation).length}} inscrits
             </span>
             <span class="badge" [ngClass]="selectedFormationDetail.statut === 'valide' ? 'bg-success' : 'bg-warning text-dark'">
-              {{selectedFormationDetail.statut === 'valide' ? '✅ Validée' : '⏳ En attente'}}
+              {{selectedFormationDetail.statut === 'valide' ? '👍 Validée' : '⏳ En attente'}}
             </span>
           </div>
         </div>

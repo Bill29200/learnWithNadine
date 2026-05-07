@@ -100,7 +100,7 @@
     </div>
 
     <!-- Cartes style dashboard -->
-    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations">
+    <div class="col-md-6 col-lg-3 mb-4" *ngFor="let formation of filteredFormations">
       <div class="formation-mini-card" (click)="voirDetails(formation)">
         <div class="formation-mini-header" [ngClass]="'card-header-color-' + (formation.idFormation % 10)">
           <h6 class="formation-mini-title mt-0 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
@@ -273,22 +273,22 @@
                 <i class="bi bi-people me-2 text-orange"></i>
                 Apprenants inscrits ({{etudiantsInscrits.length}})
               </h4>
-              <div class="students-grid">
-                <div class="row g-3">
-                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">
-                    <div class="student-card p-3 rounded-3 border text-center" [ngStyle]="{'background': getStudentCardColor(i)}">
-                      <div class="student-avatar mx-auto mb-2">
-                        <i class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>
-                      </div>
-                      <h6 class="mb-1 fw-bold text-dark">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>
-                      <p class="small text-secondary mb-1">{{item.etudiant.mail}}</p>
-                      <p class="small text-secondary mb-0">
-                        <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<!--              <div class="students-grid">-->
+<!--                <div class="row g-3">-->
+<!--                  <div class="col-md-6 col-lg-4" *ngFor="let item of etudiantsInscrits; let i = index">-->
+<!--                    <div class="student-card p-3 rounded-3 border text-center" [ngStyle]="{'background': getStudentCardColor(i)}">-->
+<!--                      <div class="student-avatar mx-auto mb-2">-->
+<!--                        <i class="bi bi-person-circle fs-1" [style.color]="getStudentIconColor(i)"></i>-->
+<!--                      </div>-->
+<!--                      <h6 class="mb-1 fw-bold text-dark">{{item.etudiant.prenom}} {{item.etudiant.nom}}</h6>-->
+<!--                      <p class="small text-secondary mb-1">{{item.etudiant.mail}}</p>-->
+<!--                      <p class="small text-secondary mb-0">-->
+<!--                        <i class="bi bi-calendar3 me-1"></i> Inscrit le {{item.inscription.dateInscription}}-->
+<!--                      </p>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
 
             <!-- Message si aucun étudiant inscrit -->
