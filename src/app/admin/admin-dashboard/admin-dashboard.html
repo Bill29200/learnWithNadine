@@ -1,5 +1,5 @@
 <!-- src/app/admin/admin-dashboard/admin-dashboard.html -->
-<!-- Barre supérieure avec le profil et déconnexion -->
+<!-- Barre supérieure avec le profil et déconnexion --------------------------------------------------->
 <div class="main-header bg-light border-bottom">
   <div class="container">
     <div class="row py-3 align-items-center">
@@ -214,7 +214,7 @@
       </div>
 
       <div class="row">
-        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let formation of filteredFormations; let i = index">
+        <div class="col-md-6 col-lg-3 mb-3" *ngFor="let formation of filteredFormations; let i = index">
           <div class="formation-mini-card" (click)="selectedFormationDetail = formation; showFormationModal = true">
             <div class="formation-mini-header" [ngClass]="formation.statut === 'valide' ? 'status-valid' : 'status-pending'">
               <div class="formation-mini-badge">
@@ -501,7 +501,7 @@
       </div>
 
       <div class="row">
-        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let demande of demandesAcceptees">
+        <div class="col-md-6 col-lg-3 mb-3 mb-4" *ngFor="let demande of demandesAcceptees">
           <div class="formation-mini-card">
             <div class="formation-mini-header status-pending">
               <div class="formation-mini-badge">

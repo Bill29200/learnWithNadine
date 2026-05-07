@@ -194,18 +194,19 @@
       <div class="col-12">
         <div class="section-card">
           <div class="section-header section-header-mesformations">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-journal-check fs-4"></i>
-              <h4 class="mb-0 fw-semibold">Mes formations ({{mesFormations.length}})</h4>
-
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-journal-check fs-4"></i>
+                <h4 class="mb-0 fw-semibold">Mes formations ({{mesFormations.length}})</h4>
+              </div>
               <button class="btn btn-outline-light" (click)="openDemandeModal()">
-                <i class="bi bi-plus-circle"></i> Demander formation
+                 Demander formation
               </button>
             </div>
           </div>
           <div class="section-body">
             <div class="row">
-              <div class="col-md-6 col-lg-4 mb-3" *ngFor="let formation of mesFormations; let i = index">
+              <div class="col-md-6 col-lg-3 mb-3" *ngFor="let formation of mesFormations; let i = index">
                 <div class="inscrit-card" (click)="voirDetails(formation)">
                   <div class="inscrit-card-header" [ngClass]="'card-header-color-' + (i % 10)">
                     <h6 class="mb-0 fw-semibold" [innerHTML]="highlightText(formation.intitule)"></h6>
@@ -218,7 +219,7 @@
                     </div>
                   </div>
                   <div class="inscrit-card-footer">
-                    <span class="badge bg-success w-100 py-2">✅ Inscrit</span>
+                    <span class="text-dark w-60 py-2">👍 Inscrit</span>
                   </div>
                 </div>
               </div>
@@ -287,7 +288,7 @@
 
     <!-- Grille des formations disponibles -->
     <div class="row">
-      <div class="col-md-6 col-lg-4 mb-4" *ngFor="let formation of filteredFormations; let i = index">
+      <div class="col-md-6 col-lg-3 mb-4" *ngFor="let formation of filteredFormations; let i = index">
         <div class="formation-mini-card" (click)="voirDetails(formation)">
           <div class="formation-mini-header" [ngClass]="'card-header-color-' + (i % 10)">
             <h6 class="formation-mini-title mt-2 mb-0" [innerHTML]="highlightText(formation.intitule)"></h6>
@@ -302,13 +303,13 @@
           </div>
           <div class="formation-mini-footer">
             <ng-container *ngIf="!isInscrit(formation.idFormation); else inscritTemplate">
-              <button class="btn btn-sm btn-orange w-100"
+              <button class="btn btn-sm btn-outline-orange w-60"
                       (click)="$event.stopPropagation(); sInscrire(formation)">
                 <i class="bi bi-pencil-square me-1"></i> S'inscrire
               </button>
             </ng-container>
             <ng-template #inscritTemplate>
-              <button class="btn btn-sm btn-success w-100" disabled>
+              <button class="btn btn-sm btn-secondary w-60" disabled>
                 <i class="bi bi-check-circle-fill me-1"></i> Déjà inscrit
               </button>
             </ng-template>
