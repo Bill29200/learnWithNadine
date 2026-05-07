@@ -168,21 +168,18 @@
         <div class="col-md-8">
           <div class="search-container">
             <div class="input-group input-group-sm">
-              <span class="input-group-text bg-white border-end-0">
-                <i class="bi bi-search text-orange"></i>
-              </span>
               <input type="text"
                      class="form-control border-start-0"
-                     placeholder="🔍 Rechercher par titre, description, programme, durée ou prix..."
+                     placeholder="🔍  Rechercher par titre, description, programme, durée ou prix..."
                      [(ngModel)]="searchTerm"
                      (input)="onSearch()"
                      name="search"
                      autocomplete="off">
               <button class="btn btn-outline-orange" type="button" (click)="searchTerm = ''; onSearch()" *ngIf="searchTerm">
-                <i class="bi bi-x-lg"></i> Effacer
+                 Effacer
               </button>
               <button class="btn btn-outline-orange" type="button" (click)="onSearch()" *ngIf="!searchTerm">
-                <i class="bi bi-search"></i> Rechercher
+                Rechercher
               </button>
             </div>
 
